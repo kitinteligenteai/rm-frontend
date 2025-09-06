@@ -1,19 +1,16 @@
-// Contenido completo y reparado para: rm-frontend/src/pages/Auth.jsx
+// Contenido COMPLETO Y CORREGIDO para: rm-frontend/src/pages/Auth.jsx
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext.jsx'; // Importamos el hook que nos da acceso a las funciones
+import { useUser } from '../context/UserContext.jsx';
 
 const AuthPage = () => {
-  // --- Corrección #1: Llamar al hook useUser() para obtener las funciones ---
-  // El error original ocurría porque 'auth' era undefined. Ahora 'signIn' y 'signUp'
-  // vienen directamente de nuestro contexto, que ya está conectado a Supabase.
   const { signIn, signUp } = useUser();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true); // Controla si se muestra Login o Registro
+  const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -25,10 +22,8 @@ const AuthPage = () => {
     try {
       let response;
       if (isLogin) {
-        // Usamos la función signIn obtenida del contexto
         response = await signIn({ email, password });
       } else {
-        // Usamos la función signUp obtenida del contexto
         response = await signUp({ email, password });
       }
 
@@ -36,8 +31,9 @@ const AuthPage = () => {
         throw response.error;
       }
 
-      // Si el login/signup es exitoso, redirigir a la plataforma
-      navigate('/plataforma/recetas', { replace: true });
+      // --- ¡CORRECCIÓN APLICADA AQUÍ! ---
+      // Redirigimos al panel de control, que es la ruta correcta.
+      navigate('/plataforma/panel-de-control', { replace: true });
 
     } catch (err) {
       setError(err.message || 'Ha ocurrido un error.');
@@ -46,6 +42,7 @@ const AuthPage = () => {
     }
   };
 
+  // El resto del código JSX (el formulario) no cambia y es correcto.
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
