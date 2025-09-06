@@ -7,7 +7,7 @@ import { ChevronUpIcon } from '@heroicons/react/20/solid';
 
 // 1. CORRECCIÓN: Importamos 'principles' que es el nombre correcto de la variable exportada.
 import { principles } from '../data/principlesData.js'; 
-import ProteinCalculator from '../components/library/ProteinCalculator';
+import ProteinCalculator from '../components/Library/ProteinCalculator';
 
 const Biblioteca = () => {
   return (
