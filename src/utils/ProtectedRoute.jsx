@@ -1,28 +1,24 @@
-// Contenido DEFINITIVO para el guardián: src/pages/utils/ProtectedRoute.jsx
+// Contenido DECLARATIVO Y MEJORADO para: src/pages/utils/ProtectedRoute.jsx
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '../../context/UserContext'; // Ajusta la ruta si es necesario
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useUser();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Si la verificación ha terminado y NO hay usuario...
-    if (!loading && !user) {
-      // ...te enviamos a la página de login.
-      navigate('/auth', { replace: true });
-    }
-  }, [user, loading, navigate]);
-
-  // Mientras se verifica, no mostramos nada para evitar parpadeos.
+  // 1. Mientras carga, muestra un loader claro. Cero pantallas en blanco.
   if (loading) {
-    return null; 
+    return <div className="flex h-screen w-full items-center justify-center bg-gray-100"><p>Verificando sesión...</p></div>;
   }
 
-  // Si hay un usuario, mostramos el contenido protegido (la Plataforma).
-  return user ? children : null;
+  // 2. Si la carga terminó y NO hay usuario, redirige a /auth.
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // 3. Si la carga terminó y SÍ hay usuario, muestra el contenido.
+  return children;
 };
 
 export default ProtectedRoute;
