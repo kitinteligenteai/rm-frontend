@@ -1,9 +1,10 @@
-// Contenido completo y corregido para: rm-frontend/src/lib/supabaseClient.js
+// Contenido DESCONTAMINADO Y SEGURO para: src/lib/supabaseClient.js
 
 import { createClient } from '@supabase/supabase-js';
 
-// Las credenciales deben ser strings (texto entre comillas)
-const supabaseUrl = 'https://mgjzlohapnepvrqlxmpo.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nanpsb2hhcG5lcHZycWx4bXBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4OTk1MjUsImV4cCI6MjA3MTQ3NTUyNX0.h3xP2g38seYxtLz0LZkk76OoJASM_8i_PUwvtNvuHeo';
+// Las credenciales se leen de forma segura desde las variables de entorno.
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey );
+// Se exporta la instancia de Supabase para ser usada en toda la aplicación.
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
