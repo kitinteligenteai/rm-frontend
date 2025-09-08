@@ -1,60 +1,84 @@
-// Contenido COMPLETO Y FINAL para: src/pages/DashboardLayout.jsx
+// Contenido COMPLETO Y CORREGIDO para: src/pages/DashboardLayout.jsx
 
-import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext.jsx';
-import { FiGrid, FiHeart, FiBookOpen, FiClipboard, FiTool } from 'react-icons/fi'; // Importamos los íconos aquí
+import React, { useEffect } from 'react';
+import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext'; // Importamos el hook del usuario
+
+// Importamos los iconos que ya usabas
+import { HomeIcon, BookOpenIcon, ScaleIcon, ChartBarIcon, BeakerIcon } from '@heroicons/react/24/outline';
 
 const DashboardLayout = () => {
-  const { user, signOut } = useUser();
+  // --- LÓGICA AÑADIDA ---
+  const { user, loading, signOut } = useUser();
   const navigate = useNavigate();
 
-  const handleSignOut = async () => {
+  useEffect(() => {
+    // Si la carga del usuario ha terminado Y no hay un usuario...
+    if (!loading && !user) {
+      // ...entonces redirigimos a la página de login.
+      navigate('/auth', { replace: true });
+    }
+  }, [user, loading, navigate]); // Esto se ejecuta cada vez que cambia el usuario o el estado de carga
+
+  const handleLogout = async () => {
     await signOut();
-    navigate('/login');
+    // Después de cerrar sesión, también redirigimos al login.
+    navigate('/auth', { replace: true });
   };
+  // --- FIN DE LA LÓGICA AÑADIDA ---
 
-  const navLinkClasses = ({ isActive }) => 
-    `flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 rounded-md ${isActive ? 'bg-orange-600 text-white' : ''}`;
 
-  return (
-    <div className="flex h-screen bg-gray-100 font-sans">
-      {/* --- La Barra Lateral está definida aquí --- */}
-      <aside className="w-64 bg-gray-800 text-white flex flex-col flex-shrink-0">
-        <div className="flex items-center justify-center h-20 border-b border-gray-700">
-          <h1 className="text-2xl font-bold text-white">R. Metabólico</h1>
+  // Si está cargando la información del usuario, mostramos un mensaje para evitar pantallas en blanco.
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen bg-gray-100">Cargando plataforma...</div>;
+  }
+
+  // Si la carga terminó y hay un usuario, mostramos la plataforma.
+  // El código de abajo es el que ya tenías, solo he conectado el botón de "Cerrar Sesión".
+  return user ? (
+    <div className="flex h-screen bg-gray-50">
+      {/* --- Barra Lateral (Sidebar) --- */}
+      <aside className="w-64 flex flex-col bg-white shadow-md">
+        <div className="p-6">
+          <Link to="/plataforma/panel-de-control" className="text-2xl font-bold text-teal-600">R. Metabólico</Link>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2">
-          {/* --- NUEVO ENLACE A PANEL PRINCIPAL --- */}
-          <NavLink to="/plataforma/panel" className={navLinkClasses}>
-            <FiGrid className="mr-3" /> Panel Principal
+        <nav className="flex-1 px-4 space-y-2">
+          <NavLink to="/plataforma/panel-de-control" className={({ isActive }) => `flex items-center px-4 py-2 rounded-lg transition-colors ${isActive ? 'bg-teal-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
+            <HomeIcon className="w-6 h-6 mr-3" /> Panel Principal
           </NavLink>
-          <NavLink to="/plataforma/boveda-recetas" className={navLinkClasses}>
-            <FiBookOpen className="mr-3" /> Bóveda de Recetas
+          <NavLink to="/plataforma/boveda-recetas" className={({ isActive }) => `flex items-center px-4 py-2 rounded-lg transition-colors ${isActive ? 'bg-teal-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
+            <BookOpenIcon className="w-6 h-6 mr-3" /> Bóveda de Recetas
           </NavLink>
-          <NavLink to="/plataforma/gimnasio" className={navLinkClasses}>
-            <FiHeart className="mr-3" /> Gimnasio
+          <NavLink to="/plataforma/gimnasio" className={({ isActive }) => `flex items-center px-4 py-2 rounded-lg transition-colors ${isActive ? 'bg-teal-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
+            <ScaleIcon className="w-6 h-6 mr-3" /> Gimnasio
           </NavLink>
-          {/* --- ENLACE CORREGIDO --- */}
-          <NavLink to="/plataforma/bitacora" className={navLinkClasses}>
-            <FiClipboard className="mr-3" /> Mi Progreso
+          <NavLink to="/plataforma/bitacora" className={({ isActive }) => `flex items-center px-4 py-2 rounded-lg transition-colors ${isActive ? 'bg-teal-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
+            <ChartBarIcon className="w-6 h-6 mr-3" /> Mi Progreso
           </NavLink>
-          <NavLink to="/plataforma/biblioteca" className={navLinkClasses}>
-            <FiTool className="mr-3" /> Biblioteca
+          <NavLink to="/plataforma/biblioteca" className={({ isActive }) => `flex items-center px-4 py-2 rounded-lg transition-colors ${isActive ? 'bg-teal-500 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
+            <BeakerIcon className="w-6 h-6 mr-3" /> Biblioteca
           </NavLink>
         </nav>
-        <div className="p-4 border-t border-gray-700">
-          <p className="text-sm text-white truncate" title={user?.email}>Hola, {user?.email || 'Usuario'}</p>
-          <button onClick={handleSignOut} className="w-full mt-2 text-left px-4 py-2 text-sm text-gray-300 rounded-lg hover:bg-red-600 hover:text-white">Cerrar Sesión</button>
+        <div className="p-4 border-t border-gray-200">
+          <div className="text-sm text-gray-700">
+            <p className="font-semibold">Hola, {user.email}</p>
+          </div>
+          {/* --- BOTÓN DE CERRAR SESIÓN CORREGIDO --- */}
+          <button
+            onClick={handleLogout}
+            className="w-full mt-4 text-left text-sm text-gray-500 hover:text-red-600 transition-colors"
+          >
+            Cerrar Sesión
+          </button>
         </div>
       </aside>
 
-      {/* --- El Contenido Principal se renderiza aquí --- */}
-      <main className="flex-1 overflow-y-auto">
-        <Outlet />
+      {/* --- Contenido Principal --- */}
+      <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
+        <Outlet /> {/* Aquí se renderizan las páginas como Panel, Gimnasio, etc. */}
       </main>
     </div>
-  );
+  ) : null; // Si no hay usuario, no muestra nada mientras la redirección ocurre.
 };
 
 export default DashboardLayout;

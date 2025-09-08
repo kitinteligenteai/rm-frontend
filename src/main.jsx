@@ -1,60 +1,47 @@
-// Contenido COMPLETO Y ACTUALIZADO para: src/main.jsx
+// Contenido COMPLETO Y CORREGIDO para: src/main.jsx
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { UserProvider } from './context/UserContext';
-
 import './index.css';
-import App from './App';
-import Auth from './pages/Auth';
 
-// --- Layouts y Páginas ---
-import DashboardLayout from './pages/DashboardLayout';
-import PanelPrincipal from './pages/PanelPrincipal';
-import GuiaEsencial from './pages/GuiaEsencial';
-import Planeador from './pages/Planeador';
-import BovedaRecetas from './pages/BovedaRecetas';
+// Importación de Componentes y Páginas
+import App from './App';
+import AuthPage from './pages/Auth'; // <-- 1. IMPORTAMOS LA PÁGINA DE LOGIN
+import PlataformaLayout from './Layouts/PlataformaLayout';
+import PanelDeControl from './pages/PanelDeControl';
 import Gimnasio from './pages/Gimnasio';
+import BovedaRecetas from './pages/BovedaRecetas';
+import RecetaDetalle from './pages/RecetaDetalle';
 import Bitacora from './pages/Bitacora';
 import Biblioteca from './pages/Biblioteca';
 import Principios from './pages/Principios';
 import PrincipioDetalle from './pages/PrincipioDetalle';
-import RecetaDetalle from './pages/RecetaDetalle';
-// --- 1. IMPORTAMOS LA PÁGINA DE UPSELL ---
-import Upsell from './pages/Upsell'; 
+import { UserProvider } from './context/UserContext'; // Asegúrate de que el Provider esté aquí
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <UserProvider>
+    <UserProvider> {/* El Provider debe envolver toda la aplicación */}
+      <BrowserRouter>
         <Routes>
-          {/* --- RUTAS PÚBLICAS --- */}
-          <Route path="/login" element={<Auth />} />
+          {/* --- Rutas Públicas --- */}
           <Route path="/" element={<App />} />
-          {/* --- 2. AÑADIMOS LA RUTA PÚBLICA PARA UPSELL --- */}
-          <Route path="/upsell" element={<Upsell />} />
+          <Route path="/auth" element={<AuthPage />} /> {/* <-- 2. AÑADIMOS LA RUTA PARA /auth */}
 
-
-          {/* --- RUTAS PROTEGIDAS DENTRO DE LA PLATAFORMA --- */}
-          <Route path="/plataforma" element={<DashboardLayout />}>
-            <Route index element={<Navigate to="panel" replace />} />
-            
-            <Route path="panel" element={<PanelPrincipal />} />
-            <Route path="guia-esencial" element={<GuiaEsencial />} />
-            <Route path="planeador" element={<Planeador />} />
-            <Route path="boveda-recetas" element={<BovedaRecetas />} />
-            <Route path="receta/:id" element={<RecetaDetalle />} />
+          {/* --- Rutas Protegidas --- */}
+          <Route path="/plataforma" element={<PlataformaLayout />}>
+            <Route index element={<Navigate to="panel-de-control" replace />} />
+            <Route path="panel-de-control" element={<PanelDeControl />} />
             <Route path="gimnasio" element={<Gimnasio />} />
+            <Route path="boveda-recetas" element={<BovedaRecetas />} />
             <Route path="bitacora" element={<Bitacora />} />
             <Route path="biblioteca" element={<Biblioteca />} />
             <Route path="principios" element={<Principios />} />
-            <Route path="principio/:id" element={<PrincipioDetalle />} /> 
-
+            <Route path="receta/:id" element={<RecetaDetalle />} />
+            <Route path="principio/:id" element={<PrincipioDetalle />} />
           </Route>
-
         </Routes>
-      </UserProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </UserProvider>
   </React.StrictMode>
 );
