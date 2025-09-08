@@ -1,7 +1,7 @@
-// Contenido FINAL Y UNIFICADO para: src/pages/utils/ProtectedRoute.jsx
+// Contenido FINAL, CORREGIDO Y UNIFICADO para: src/utils/ProtectedRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useUser } from '../../context/UserContext'; // Asegúrate que la ruta al UserContext sea correcta
+import { useUser } from '../context/UserContext.jsx'; // <-- RUTA CORREGIDA
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useUser();
