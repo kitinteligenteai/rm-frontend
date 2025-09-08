@@ -1,7 +1,7 @@
 // Contenido REFORZADO para: src/context/UserContext.jsx
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import supabase from '../lib/supabaseClient';
+import { supabase } from '../lib/supabaseClient';
 
 const UserContext = createContext();
 
