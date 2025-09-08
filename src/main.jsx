@@ -1,15 +1,15 @@
-// Contenido FINAL Y UNIFICADO para: src/main.jsx
+// Contenido FINAL, CORREGIDO Y UNIFICADO para: src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { UserProvider } from './context/UserContext';
+import { UserProvider } from './context/UserContext.jsx';
 import './index.css'; // Asegúrate que tu archivo de estilos principal esté importado
 
 // --- Páginas y Layouts ---
-import App from './App'; // Tu página de inicio pública, si la tienes
-import AuthPage from './pages/Auth';
-import DashboardLayout from './pages/DashboardLayout';
-import ProtectedRoute from './pages/utils/ProtectedRoute';
+import App from './App.jsx'; // Tu página de inicio pública, si la tienes
+import AuthPage from './pages/Auth.jsx';
+import DashboardLayout from './pages/DashboardLayout.jsx';
+import ProtectedRoute from './utils/ProtectedRoute.jsx'; // <-- RUTA CORREGIDA
 
 // --- Componentes de las páginas del Dashboard (debes crearlos si no existen) ---
 const PanelPrincipal = () => <div>Contenido del Panel Principal</div>;
