@@ -1,11 +1,12 @@
-// Contenido COMPLETO, FINAL Y CORREGIDO para: rm-frontend/src/pages/Auth.jsx
+// Contenido DEFINITIVO para: src/pages/Auth.jsx
 
 import React, { useState } from 'react';
-// Ya no importamos 'useNavigate' porque no lo usaremos.
 import { useUser } from '../context/UserContext.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const AuthPage = () => {
   const { signIn, signUp } = useUser();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,29 +20,19 @@ const AuthPage = () => {
     setError('');
 
     try {
-      let response;
-      if (isLogin) {
-        response = await signIn({ email, password });
-      } else {
-        response = await signUp({ email, password });
-      }
+      const { error: authError } = isLogin 
+        ? await signIn({ email, password }) 
+        : await signUp({ email, password });
 
-      if (response.error) {
-        throw response.error;
-      }
+      if (authError) throw authError;
 
-      // --- ¡CORRECCIÓN DE SINCRONIZACIÓN APLICADA AQUÍ! ---
-      // En lugar de 'navigate', usamos 'window.location.href'.
-      // Esto fuerza una recarga completa de la página, asegurando que el UserContext
-      // se inicialice con la nueva sesión de Supabase.
-      window.location.href = '/plataforma/panel-de-control';
+      // Redirección limpia que funciona siempre
+      navigate('/plataforma/panel-de-control', { replace: true });
 
     } catch (err) {
       setError(err.message || 'Ha ocurrido un error.');
-      // Si hay un error, nos aseguramos de detener el estado de carga.
       setLoading(false);
     }
-    // No necesitamos un bloque 'finally' porque en caso de éxito, la página se recargará por completo.
   };
 
   return (
@@ -50,52 +41,25 @@ const AuthPage = () => {
         <h2 className="text-2xl font-bold text-center text-gray-900">
           {isLogin ? 'Acceso a la Plataforma' : 'Crear Nueva Cuenta'}
         </h2>
-
         <form onSubmit={handleAuth} className="space-y-6">
           <div>
             <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-            <input
-              id="email"
-              type="email"
-              required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-            />
+            <input id="email" type="email" required className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" />
           </div>
           <div>
             <label htmlFor="password" className="text-sm font-medium text-gray-700">Contraseña</label>
-            <input
-              id="password"
-              type="password"
-              required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="********"
-            />
+            <input id="password" type="password" required className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="********" />
           </div>
-
           {error && <p className="text-sm text-red-600">{error}</p>}
-
           <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full px-4 py-2 font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:bg-gray-400"
-            >
+            <button type="submit" disabled={loading} className="w-full px-4 py-2 font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:bg-gray-400">
               {loading ? 'Cargando...' : (isLogin ? 'Iniciar Sesión' : 'Registrarse')}
             </button>
           </div>
         </form>
-
         <p className="text-sm text-center text-gray-600">
           {isLogin ? '¿No tienes una cuenta?' : '¿Ya tienes una cuenta?'}
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="ml-1 font-medium text-teal-600 hover:underline"
-          >
+          <button onClick={() => setIsLogin(!isLogin)} className="ml-1 font-medium text-teal-600 hover:underline">
             {isLogin ? 'Regístrate' : 'Inicia Sesión'}
           </button>
         </p>
