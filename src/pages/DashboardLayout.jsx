@@ -1,29 +1,45 @@
-// Contenido DEFINITIVO Y BLINDADO para: src/pages/DashboardLayout.jsx
-
-import React, { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
+// Contenido FINAL Y UNIFICADO para: src/pages/DashboardLayout.jsx
+import React from 'react';
+import { Outlet, NavLink } from 'react-router-dom';
 
 const DashboardLayout = () => {
-  const { user, loading } = useUser();
-  const navigate = useNavigate();
+  // Define aquí los enlaces de tu barra lateral
+  const navItems = [
+    { path: '/plataforma/panel-de-control', label: 'Panel' },
+    { path: '/plataforma/boveda-recetas', label: 'Bóveda de Recetas' },
+    { path: '/plataforma/gimnasio', label: 'Gimnasio' },
+    { path: '/plataforma/bitacora', label: 'Bitácora' },
+    { path: '/plataforma/biblioteca', label: 'Biblioteca' },
+  ];
 
-  useEffect(() => {
-    // Esta es la única regla. Si la carga terminó y NO hay usuario...
-    if (!loading && !user) {
-      // ...te vas al login. Fin de la historia.
-      navigate('/auth', { replace: true });
-    }
-  }, [user, loading, navigate]);
+  return (
+    <div className="flex h-screen">
+      {/* Barra lateral */}
+      <aside className="w-64 bg-gray-900 text-white p-4 flex flex-col">
+        <h2 className="text-xl font-bold mb-6">Mi Plataforma</h2>
+        <nav className="space-y-2">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `block p-2 rounded transition-colors ${
+                  isActive ? 'bg-teal-600' : 'hover:bg-gray-700'
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
 
-  // Mientras se verifica la sesión, muestra un mensaje claro. Cero pantallas en blanco.
-  if (loading) {
-    return <div className="flex h-screen w-full items-center justify-center bg-gray-100"><p className="text-lg font-medium text-gray-600">Verificando acceso...</p></div>;
-  }
-
-  // Si la carga terminó y SÍ hay un usuario, se muestra el contenido.
-  // El 'Outlet' es el que carga PanelDeControl, Gimnasio, etc.
-  return user ? <Outlet /> : null;
+      {/* Contenido principal que cambiará según la ruta */}
+      <main className="flex-1 bg-gray-50 p-6 overflow-y-auto">
+        <Outlet />
+      </main>
+    </div>
+  );
 };
 
 export default DashboardLayout;

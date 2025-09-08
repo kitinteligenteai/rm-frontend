@@ -1,43 +1,58 @@
-// Contenido DESCONTAMINADO para: src/main.jsx
-
+// Contenido FINAL Y UNIFICADO para: src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { UserProvider } from './context/UserContext';
-import './index.css';
+import './index.css'; // Asegúrate que tu archivo de estilos principal esté importado
 
 // --- Páginas y Layouts ---
-import App from './App';
+import App from './App'; // Tu página de inicio pública, si la tienes
 import AuthPage from './pages/Auth';
 import DashboardLayout from './pages/DashboardLayout';
-import PanelPrincipal from './pages/PanelPrincipal';
-import BovedaRecetas from './pages/BovedaRecetas';
-import Gimnasio from './pages/Gimnasio';
-import Bitacora from './pages/Bitacora';
-import Biblioteca from './pages/Biblioteca';
+import ProtectedRoute from './pages/utils/ProtectedRoute';
+
+// --- Componentes de las páginas del Dashboard (debes crearlos si no existen) ---
+const PanelPrincipal = () => <div>Contenido del Panel Principal</div>;
+const BovedaRecetas = () => <div>Contenido de la Bóveda de Recetas</div>;
+const Gimnasio = () => <div>Contenido del Gimnasio</div>;
+const Bitacora = () => <div>Contenido de la Bitácora</div>;
+const Biblioteca = () => <div>Contenido de la Biblioteca</div>;
+
+const router = createBrowserRouter([
+  // --- Rutas Públicas ---
+  {
+    path: '/',
+    element: <App />, // Página de aterrizaje o marketing
+  },
+  {
+    path: '/auth',
+    element: <AuthPage />, // Página de login/registro
+  },
+  // --- Rutas Protegidas ---
+  {
+    path: '/plataforma',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { path: 'panel-de-control', element: <PanelPrincipal /> },
+      { path: 'boveda-recetas', element: <BovedaRecetas /> },
+      { path: 'gimnasio', element: <Gimnasio /> },
+      { path: 'bitacora', element: <Bitacora /> },
+      { path: 'biblioteca', element: <Biblioteca /> },
+      // Redirección por defecto si solo se entra a /plataforma
+      { index: true, element: <PanelPrincipal /> },
+    ],
+  },
+]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <UserProvider>
-        <Routes>
-          {/* --- Rutas Públicas --- */}
-          <Route path="/" element={<App />} />
-          <Route path="/auth" element={<AuthPage />} />
-          
-          {/* --- Ruta Protegida de la Plataforma --- */}
-          <Route path="/plataforma" element={<DashboardLayout />}>
-            <Route index element={<PanelPrincipal />} /> {/* Ruta por defecto */}
-            <Route path="panel-de-control" element={<PanelPrincipal />} />
-            <Route path="boveda-recetas" element={<BovedaRecetas />} />
-            <Route path="gimnasio" element={<Gimnasio />} />
-            <Route path="bitacora" element={<Bitacora />} />
-            <Route path="biblioteca" element={<Biblioteca />} />
-          </Route>
-
-        </Routes>
-      </UserProvider>
-    </BrowserRouter>
+    <UserProvider>
+      <RouterProvider router={router} />
+    </UserProvider>
   </React.StrictMode>
 );

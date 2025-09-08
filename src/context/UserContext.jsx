@@ -1,7 +1,6 @@
-// Contenido REFORZADO para: src/context/UserContext.jsx
-
+// Contenido FINAL Y UNIFICADO para: src/context/UserContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabaseClient'; // Asegúrate que la ruta a tu cliente Supabase sea correcta
 
 const UserContext = createContext();
 
@@ -10,39 +9,32 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Flag para evitar actualizaciones en un componente desmontado
-    let isMounted = true;
-
-    // Función para obtener la sesión inicial
+    // Sesión inicial
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (isMounted) {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
+      setUser(session?.user ?? null);
+      setLoading(false);
     };
 
-    // Listener para cambios futuros (login, logout)
+    // Escuchar cambios de sesión (login, logout, refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (isMounted) {
-        setUser(session?.user ?? null);
-      }
+      setUser(session?.user ?? null);
     });
 
-    // Iniciar la autenticación
     initAuth();
 
-    // Función de limpieza que se ejecuta al desmontar
+    // Limpieza al desmontar el componente
     return () => {
-      isMounted = false;
       subscription?.unsubscribe();
     };
   }, []);
 
+  // API de autenticación centralizada que se provee a la aplicación
   const value = {
     user,
     loading,
     signIn: (credentials) => supabase.auth.signInWithPassword(credentials),
+    signUp: (credentials) => supabase.auth.signUp(credentials),
     signOut: () => supabase.auth.signOut(),
   };
 
