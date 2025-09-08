@@ -1,12 +1,11 @@
-// Contenido COMPLETO Y CORREGIDO para: rm-frontend/src/pages/Auth.jsx
+// Contenido COMPLETO, FINAL Y CORREGIDO para: rm-frontend/src/pages/Auth.jsx
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Ya no importamos 'useNavigate' porque no lo usaremos.
 import { useUser } from '../context/UserContext.jsx';
 
 const AuthPage = () => {
   const { signIn, signUp } = useUser();
-  const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,18 +30,20 @@ const AuthPage = () => {
         throw response.error;
       }
 
-      // --- ¡CORRECCIÓN APLICADA AQUÍ! ---
-      // Redirigimos al panel de control, que es la ruta correcta.
-      navigate('/plataforma/panel-de-control', { replace: true });
+      // --- ¡CORRECCIÓN DE SINCRONIZACIÓN APLICADA AQUÍ! ---
+      // En lugar de 'navigate', usamos 'window.location.href'.
+      // Esto fuerza una recarga completa de la página, asegurando que el UserContext
+      // se inicialice con la nueva sesión de Supabase.
+      window.location.href = '/plataforma/panel-de-control';
 
     } catch (err) {
       setError(err.message || 'Ha ocurrido un error.');
-    } finally {
+      // Si hay un error, nos aseguramos de detener el estado de carga.
       setLoading(false);
     }
+    // No necesitamos un bloque 'finally' porque en caso de éxito, la página se recargará por completo.
   };
 
-  // El resto del código JSX (el formulario) no cambia y es correcto.
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
