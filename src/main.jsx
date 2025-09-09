@@ -1,32 +1,37 @@
-// Contenido FINAL, CORREGIDO Y UNIFICADO para: src/main.jsx
+// CÓDIGO DEFINITIVO Y FINAL para: src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { UserProvider } from './context/UserContext.jsx';
-import './index.css'; // Asegúrate que tu archivo de estilos principal esté importado
+import './index.css';
 
 // --- Páginas y Layouts ---
-import App from './App.jsx'; // Tu página de inicio pública, si la tienes
+import App from './App.jsx';
 import AuthPage from './pages/Auth.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx'; // <-- NUEVA PÁGINA IMPORTADA
 import DashboardLayout from './pages/DashboardLayout.jsx';
-import ProtectedRoute from './utils/ProtectedRoute.jsx'; // <-- RUTA CORREGIDA
+import ProtectedRoute from './utils/ProtectedRoute.jsx';
 
-// --- Componentes de las páginas del Dashboard (debes crearlos si no existen) ---
-const PanelPrincipal = () => <div>Contenido del Panel Principal</div>;
-const BovedaRecetas = () => <div>Contenido de la Bóveda de Recetas</div>;
-const Gimnasio = () => <div>Contenido del Gimnasio</div>;
-const Bitacora = () => <div>Contenido de la Bitácora</div>;
-const Biblioteca = () => <div>Contenido de la Biblioteca</div>;
+// --- Componentes de las páginas del Dashboard (marcadores de posición) ---
+const PanelPrincipal = () => <div className="text-white">Contenido del Panel Principal</div>;
+const BovedaRecetas = () => <div className="text-white">Contenido de la Bóveda de Recetas</div>;
+const Gimnasio = () => <div className="text-white">Contenido del Gimnasio</div>;
+const Bitacora = () => <div className="text-white">Contenido de la Bitácora</div>;
+const Biblioteca = () => <div className="text-white">Contenido de la Biblioteca</div>;
 
 const router = createBrowserRouter([
   // --- Rutas Públicas ---
   {
     path: '/',
-    element: <App />, // Página de aterrizaje o marketing
+    element: <App />,
   },
   {
     path: '/auth',
-    element: <AuthPage />, // Página de login/registro
+    element: <AuthPage />,
+  },
+  {
+    path: '/auth/reset', // <-- NUEVA RUTA AÑADIDA
+    element: <ResetPasswordPage />,
   },
   // --- Rutas Protegidas ---
   {
@@ -42,7 +47,6 @@ const router = createBrowserRouter([
       { path: 'gimnasio', element: <Gimnasio /> },
       { path: 'bitacora', element: <Bitacora /> },
       { path: 'biblioteca', element: <Biblioteca /> },
-      // Redirección por defecto si solo se entra a /plataforma
       { index: true, element: <PanelPrincipal /> },
     ],
   },

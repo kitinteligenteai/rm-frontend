@@ -15,6 +15,7 @@
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/auth-helpers-shared": "^0.7.0",
     "@supabase/supabase-js": "^2.56.0",
+    "framer-motion": "^12.23.12",
     "lucide-react": "^0.542.0",
     "mercadopago": "^2.8.0",
     "react": "^19.1.1",
