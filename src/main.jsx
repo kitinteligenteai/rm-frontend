@@ -1,4 +1,4 @@
-// CÓDIGO DEFINITIVO Y FINAL para: src/main.jsx
+// CÓDIGO FINAL Y COMPLETO para: src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -8,16 +8,10 @@ import './index.css';
 // --- Páginas y Layouts ---
 import App from './App.jsx';
 import AuthPage from './pages/Auth.jsx';
-import ResetPasswordPage from './pages/ResetPasswordPage.jsx'; // <-- NUEVA PÁGINA IMPORTADA
 import DashboardLayout from './pages/DashboardLayout.jsx';
 import ProtectedRoute from './utils/ProtectedRoute.jsx';
-
-// --- Componentes de las páginas del Dashboard (marcadores de posición) ---
-const PanelPrincipal = () => <div className="text-white">Contenido del Panel Principal</div>;
-const BovedaRecetas = () => <div className="text-white">Contenido de la Bóveda de Recetas</div>;
-const Gimnasio = () => <div className="text-white">Contenido del Gimnasio</div>;
-const Bitacora = () => <div className="text-white">Contenido de la Bitácora</div>;
-const Biblioteca = () => <div className="text-white">Contenido de la Biblioteca</div>;
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx'; // Asegúrate de importar la nueva página
+import PanelPrincipal from './pages/PanelPrincipal.jsx';
 
 const router = createBrowserRouter([
   // --- Rutas Públicas ---
@@ -30,7 +24,7 @@ const router = createBrowserRouter([
     element: <AuthPage />,
   },
   {
-    path: '/auth/reset', // <-- NUEVA RUTA AÑADIDA
+    path: '/auth/reset',
     element: <ResetPasswordPage />,
   },
   // --- Rutas Protegidas ---
@@ -43,10 +37,7 @@ const router = createBrowserRouter([
     ),
     children: [
       { path: 'panel-de-control', element: <PanelPrincipal /> },
-      { path: 'boveda-recetas', element: <BovedaRecetas /> },
-      { path: 'gimnasio', element: <Gimnasio /> },
-      { path: 'bitacora', element: <Bitacora /> },
-      { path: 'biblioteca', element: <Biblioteca /> },
+      // Aquí irán las otras rutas como Boveda, Gimnasio, etc.
       { index: true, element: <PanelPrincipal /> },
     ],
   },
