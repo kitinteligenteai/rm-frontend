@@ -1,8 +1,8 @@
-// CÓDIGO DEFINITIVO para: src/pages/ResetPasswordPage.jsx
+// CÓDIGO FINAL Y CORREGIDO para: src/pages/ResetPasswordPage.jsx
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // <-- LA LÍNEA CORREGIDA
 import { Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const ResetPasswordPage = () => {
@@ -12,8 +12,6 @@ const ResetPasswordPage = () => {
   const [feedback, setFeedback] = useState({ type: '', message: '' });
   const [isReady, setIsReady] = useState(false);
 
-  // Este useEffect verifica si el componente está listo para recibir la nueva contraseña.
-  // Supabase añade el token de acceso al URL como un hash (#).
   useEffect(() => {
     const handleHashChange = () => {
       if (window.location.hash.includes('access_token')) {
@@ -21,12 +19,8 @@ const ResetPasswordPage = () => {
       }
     };
     
-    // Comprobar el hash al cargar la página
     handleHashChange();
-
-    // Escuchar cambios en el hash (para SPAs)
     window.addEventListener('hashchange', handleHashChange);
-
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
@@ -52,8 +46,7 @@ const ResetPasswordPage = () => {
     }
   };
 
-  if (!isReady && !window.location.hash) {
-      // Muestra un estado de espera o un mensaje si se accede a la URL directamente sin un token
+  if (!isReady && !window.location.hash.includes('access_token')) {
       return (
           <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
               <p>Verificando enlace...</p>
@@ -93,7 +86,7 @@ const ResetPasswordPage = () => {
             type="password" required
             value={password} onChange={(e) => setPassword(e.target.value)}
             placeholder="Nueva contraseña"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all duration-300"
+            className="w-full px-4 py-3 border border-gray-700 rounded-xl bg-gray-900/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
             disabled={loading || feedback.type === 'success'}
           />
           <button
