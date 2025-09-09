@@ -1,4 +1,4 @@
-// CÓDIGO FINAL Y COMPLETO para: src/main.jsx
+// CÓDIGO FINAL Y REESTRUCTURADO para: src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -10,8 +10,15 @@ import App from './App.jsx';
 import AuthPage from './pages/Auth.jsx';
 import DashboardLayout from './pages/DashboardLayout.jsx';
 import ProtectedRoute from './utils/ProtectedRoute.jsx';
-import ResetPasswordPage from './pages/ResetPasswordPage.jsx'; // Asegúrate de importar la nueva página
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import PanelPrincipal from './pages/PanelPrincipal.jsx';
+
+// --- Componentes para las otras secciones (placeholders) ---
+const BovedaRecetas = () => <div>Contenido de la Bóveda de Recetas</div>;
+const Gimnasio = () => <div>Contenido del Gimnasio</div>;
+const Bitacora = () => <div>Contenido de la Bitácora</div>;
+const Biblioteca = () => <div>Contenido de la Biblioteca</div>;
+
 
 const router = createBrowserRouter([
   // --- Rutas Públicas ---
@@ -35,10 +42,33 @@ const router = createBrowserRouter([
         <DashboardLayout />
       </ProtectedRoute>
     ),
+    // Definimos las rutas hijas aquí
     children: [
-      { path: 'panel-de-control', element: <PanelPrincipal /> },
-      // Aquí irán las otras rutas como Boveda, Gimnasio, etc.
-      { index: true, element: <PanelPrincipal /> },
+      {
+        path: 'panel-de-control',
+        element: <PanelPrincipal />,
+      },
+      {
+        path: 'boveda-recetas',
+        element: <BovedaRecetas />,
+      },
+      {
+        path: 'gimnasio',
+        element: <Gimnasio />,
+      },
+      {
+        path: 'bitacora',
+        element: <Bitacora />,
+      },
+      {
+        path: 'biblioteca',
+        element: <Biblioteca />,
+      },
+      // Esta ruta actúa como el default para /plataforma
+      {
+        index: true,
+        element: <PanelPrincipal />,
+      },
     ],
   },
 ]);
