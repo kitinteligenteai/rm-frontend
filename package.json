@@ -13,6 +13,7 @@
     "@fontsource/plus-jakarta-sans": "^5.2.6",
     "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.2.0",
+    "@mercadopago/sdk-react": "^1.0.6",
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/auth-helpers-shared": "^0.7.0",
     "@supabase/supabase-js": "^2.56.0",

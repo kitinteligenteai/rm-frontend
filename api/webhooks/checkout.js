@@ -1,92 +1,83 @@
-// CÓDIGO DEFINITIVO para: src/api/webhooks/checkout.js
-import { supabaseAdmin } from '../../lib/supabaseAdmin'; // Asumimos que supabaseAdmin está en lib
+// CÓDIGO FINAL para: api/webhooks/checkout.js
+import { supabaseAdmin } from '../../src/lib/supabaseAdmin.js';
+import { Resend } from 'resend';
 
-// --- Lógica de extracción para cada proveedor ---
-const getMercadoPagoData = async (body) => {
-  const paymentId = body.data?.id;
-  if (!paymentId) return null;
+// Inicializamos Resend con la clave de API desde las variables de entorno
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-  const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-    headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` }
-  } );
-  const payment = await response.json();
-
-  if (payment.status !== 'approved') return null;
-
-  return {
-    email: payment.payer.email,
-    nombre: `${payment.payer.first_name || ''} ${payment.payer.last_name || ''}`.trim(),
-    productoId: payment.additional_info?.items?.[0]?.id || 'unknown',
-  };
-};
-
-const getGumroadData = (body) => {
-  if (!body.purchase || body.purchase.refunded || body.purchase.chargebacks > 0) return null;
-  
-  return {
-    email: body.purchase.email,
-    nombre: body.purchase.full_name || '',
-    productoId: body.purchase.product_id || 'unknown',
-  };
-};
-
-// --- Handler Principal ---
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    const provider = req.headers['x-provider']; // 'mercadopago' o 'gumroad'
-    let userData = null;
+    // Asumimos que el cuerpo de la notificación de Mercado Pago viene en req.body
+    const notification = req.body;
 
-    switch (provider) {
-      case 'mercadopago':
-        userData = await getMercadoPagoData(req.body);
-        break;
-      case 'gumroad':
-        userData = getGumroadData(req.body);
-        break;
-      default:
-        return res.status(400).json({ error: 'Provider not specified or unsupported' });
+    // --- 1. Validar que es una notificación de pago aprobada ---
+    // (Esta lógica puede necesitar ajustarse según el formato exacto de la notificación de MP)
+    if (notification.type !== 'payment' || !notification.data || !notification.data.id) {
+      return res.status(200).json({ message: 'Notificación ignorada (no es un pago).' });
     }
 
-    if (!userData) {
-      return res.status(200).json({ message: 'Payment not approved or data missing.' });
-    }
-
-    // Verificamos si el producto es el que da acceso a la plataforma
-    const productoAccesoId = process.env.PRODUCT_ACCESS_ID; // ID del producto de $75
-    if (userData.productoId !== productoAccesoId) {
-      return res.status(200).json({ message: 'Payment received for a different product.' });
-    }
-
-    // --- Lógica de Creación de Usuario en Supabase ---
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email: userData.email,
-      email_confirm: true, // El pago confirma la validez del email
-      user_metadata: {
-        full_name: userData.nombre,
-        source: provider,
-      },
-    });
-
-    if (error) {
-      // Si el usuario ya existe, es un caso de éxito, no un error.
-      if (error.message.includes('User already exists')) {
-        console.log(`Webhook: User ${userData.email} already exists. Granting access if needed.`);
-        // Aquí podrías añadir lógica para actualizar el rol del usuario si ya existía.
-        return res.status(200).json({ message: 'User already exists.' });
+    // --- 2. Obtener los detalles completos del pago desde Mercado Pago ---
+    // (Esta parte es crucial y requiere el MP_ACCESS_TOKEN)
+    const paymentResponse = await fetch(`https://api.mercadopago.com/v1/payments/${notification.data.id}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`
       }
-      // Para otros errores, sí los lanzamos.
-      throw error;
+    } );
+    const paymentDetails = await paymentResponse.json();
+
+    if (paymentDetails.status !== 'approved') {
+      return res.status(200).json({ message: 'Pago no aprobado.' });
     }
 
-    console.log(`Webhook: Successfully created user ${userData.email} from ${provider}.`);
-    return res.status(200).json({ message: 'User created successfully.', user: data.user });
+    // --- 3. Identificar el producto y el cliente ---
+    const customerEmail = paymentDetails.payer.email;
+    const productName = paymentDetails.description; // O el campo que uses para el nombre del producto
+    const productId = 'PRODUCTO_7_USD'; // Un identificador interno para tu producto
 
-  } catch (err) {
-    console.error('Webhook Error:', err.message);
+    // --- 4. Si es el producto correcto, proceder con la entrega ---
+    if (productName.includes("Tu Identificador del Producto de $7")) { // CAMBIAR ESTO
+
+      // --- 5. Generar un enlace de descarga seguro y temporal ---
+      const { data: signedUrlData, error: signedUrlError } = await supabaseAdmin
+        .storage
+        .from('productos-digitales')
+        .createSignedUrl('kits/kit-reinicio-7dias.pdf', 3600 * 24 * 7); // Válido por 7 días
+
+      if (signedUrlError) throw signedUrlError;
+
+      // --- 6. Enviar el correo de entrega con Resend ---
+      await resend.emails.send({
+        from: 'Reinicio Metabólico <noreply@tudominio.com>', // CAMBIAR A TU DOMINIO VERIFICADO EN RESEND
+        to: customerEmail,
+        subject: '✅ Aquí está tu Guía de Reinicio Metabólico',
+        html: `
+          <h1>¡Gracias por tu compra!</h1>
+          <p>Estamos emocionados de que comiences tu viaje de reinicio metabólico. Puedes descargar tu guía personal haciendo clic en el botón de abajo.</p>
+          <a href="${signedUrlData.signedUrl}" style="background-color:#0d9488;color:white;padding:15px 25px;text-decoration:none;border-radius:8px;display:inline-block;">Descargar mi Guía Ahora</a>
+          <p>Este enlace es único para ti y estará activo durante los próximos 7 días.</p>
+          <p>¡Mucho éxito!</p>
+        `
+      });
+
+      // --- 7. Registrar la compra en la base de datos ---
+      await supabaseAdmin.from('purchases').insert({
+        email: customerEmail,
+        product_id: productId,
+        provider: 'mercadopago',
+        status: 'paid',
+        meta: paymentDetails // Guardamos todos los detalles del pago por si los necesitamos
+      });
+    }
+
+    // --- 8. Responder a Mercado Pago que todo salió bien ---
+    return res.status(200).json({ success: true });
+
+  } catch (error) {
+    console.error('Error en el webhook:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
