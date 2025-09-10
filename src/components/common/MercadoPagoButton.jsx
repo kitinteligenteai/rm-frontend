@@ -1,102 +1,74 @@
-// Contenido FINAL, CORREGIDO Y ADAPTADO PARA VERCEL para: src/components/common/MercadoPagoButton.jsx
+// Contenido NUEVO, MODERNO Y CORRECTO para: src/components/common/MercadoPagoButton.jsx
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
+import { Wallet } from '@mercadopago/sdk-react';
+import { useUser } from '../../context/UserContext';
 
-// 1. OBTENEMOS LA CLAVE PÚBLICA DE FORMA SEGURA
-// Vite expone las variables de entorno del cliente en import.meta.env
-// Esta variable la configuramos en el panel de Vercel.
-const MP_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
+// Componente de botón genérico para mostrar mientras se carga.
+const PaymentButtonUI = ({ children, onClick, disabled }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className={`w-full sm:w-auto px-8 py-3 text-base font-bold rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2
+      bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400
+      ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`
+    }
+  >
+    {children}
+  </button>
+);
 
-// 2. URL DE NUESTRA FUNCIÓN SERVERLESS EN VERCEL
-// Esta es la ruta correcta que Vercel entenderá.
-const CREATE_PREFERENCE_URL = "/api/create-payment";
-
-const MercadoPagoButton = ({ items }) => { // 3. Aceptamos 'items' como prop para el producto
+const MercadoPagoButton = () => {
+  const { user } = useUser();
   const [preferenceId, setPreferenceId] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const effectRan = useRef(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // --- Efecto para crear la preferencia de pago ---
-  useEffect(() => {
-    // Prevenimos la doble ejecución en modo estricto de React
-    if (effectRan.current === true || process.env.NODE_ENV !== 'development') {
-        const createPreference = async () => {
-          if (!items || items.length === 0) {
-            setError("Error: No se han proporcionado productos para el pago.");
-            setIsLoading(false);
-            return;
-          }
-
-          try {
-            // 4. ENVIAMOS LOS 'ITEMS' A NUESTRA API
-            // Nuestra función serverless espera recibir los productos a cobrar.
-            const response = await fetch(CREATE_PREFERENCE_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ items }) // Enviamos los items en el cuerpo
-            });
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || `Error del servidor: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (data && data.id) { // La API de MercadoPago devuelve un 'id' de preferencia
-              setPreferenceId(data.id);
-            } else {
-              throw new Error("La respuesta de la API no contiene un ID de preferencia válido.");
-            }
-
-          } catch (err) {
-            setError(`Error al inicializar el pago: ${err.message}`);
-          } finally {
-            setIsLoading(false);
-          }
-        };
-        createPreference();
+  const handleBuyClick = async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      // 1. LLAMAMOS A LA API CORRECTA: /api/create-preference
+      const response = await fetch('/api/create-preference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Error del servidor al crear preferencia');
+      }
+      if (data.id) {
+        setPreferenceId(data.id);
+      }
+    } catch (err) {
+      setError('No se pudo iniciar el pago. Por favor, intenta de nuevo.');
+      console.error('Error creating preference:', err);
+    } finally {
+      setIsLoading(false);
     }
-    return () => {
-      effectRan.current = true;
-    };
-  }, [items]); // Se re-ejecuta si los 'items' cambian
+  };
 
-  // --- Efecto para renderizar el botón de MercadoPago ---
-  useEffect(() => {
-    if (preferenceId && MP_PUBLIC_KEY) {
-      const script = document.createElement('script');
-      script.src = 'https://sdk.mercadopago.com/js/v2';
-      script.async = true;
-      script.onload = ( ) => {
-        try {
-          const mp = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-MX' });
-          mp.checkout({
-            preference: { id: preferenceId },
-            render: {
-              container: '#mercado-pago-button-container',
-              label: 'Pagar Ahora'
-            }
-          });
-        } catch (err) {
-          setError(`Error al renderizar el botón de MercadoPago: ${err.message}`);
-        }
-      };
-      document.body.appendChild(script);
+  // Si hay un error, lo mostramos.
+  if (error) {
+    return <p className="mt-4 text-sm text-red-600">{error}</p>;
+  }
 
-      return () => {
-        // Limpieza: removemos el script cuando el componente se desmonta
-        document.body.removeChild(script);
-      };
-    }
-  }, [preferenceId]);
+  // Si ya tenemos el ID de la preferencia, mostramos el botón de la Wallet de MP.
+  if (preferenceId) {
+    return (
+      <div className="w-full sm:w-auto">
+        <Wallet initialization={{ preferenceId: preferenceId }} />
+      </div>
+    );
+  }
 
-  // --- Renderizado del componente ---
-  if (isLoading) return <div className="text-center p-4 animate-pulse">Cargando botón de pago...</div>;
-  if (error) return <div className="text-center p-4 text-red-600 bg-red-100 rounded-lg"><strong>Error:</strong> {error}</div>;
-
-  return <div id="mercado-pago-button-container" className="w-full"></div>;
+  // Estado inicial: mostramos nuestro botón que al hacer clic, crea la preferencia.
+  return (
+    <PaymentButtonUI onClick={handleBuyClick} disabled={isLoading}>
+      {isLoading ? 'Procesando...' : 'Desbloquear mi Sistema (México)'}
+    </PaymentButtonUI>
+  );
 };
 
 export default MercadoPagoButton;
