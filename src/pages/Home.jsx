@@ -56,7 +56,7 @@ export default function Home() {
                 Desbloquear mi Sistema (Internacional)
               </GumroadButton>
               
-              {/* Usamos el componente corregido y moderno */}
+              {/*  Usamos el componente corregido y moderno */}
               <MercadoPagoButton />
 
             </div>
@@ -72,3 +72,4 @@ export default function Home() {
     </div>
   );
 }
+// Comentario para forzar un nuevo hash de build: v1
