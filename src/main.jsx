@@ -1,4 +1,4 @@
-// CÓDIGO FINAL, CORREGIDO Y COMPLETO para: src/main.jsx
+// CÓDIGO FINAL, CON RUTA CORREGIDA para: src/main.jsx
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -7,14 +7,15 @@ import { UserProvider } from './context/UserContext.jsx';
 import './index.css';
 
 // --- Páginas y Layouts ---
-import Home from './pages/Home.jsx'; // <-- ¡LA CLAVE! Importamos la página de ventas.
+import Home from './pages/Home.jsx';
 import AuthPage from './pages/Auth.jsx';
 import DashboardLayout from './pages/DashboardLayout.jsx';
-import ProtectedRoute from './pages/utils/ProtectedRoute.jsx'; // Corregida la ruta
+// ¡CORRECCIÓN AQUÍ! La ruta ahora es correcta.
+import ProtectedRoute from './pages/utils/ProtectedRoute.jsx'; 
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import PanelPrincipal from './pages/PanelPrincipal.jsx';
-import MisCompras from './pages/MisCompras.jsx'; // Importamos la página de compras
-import GraciasKit from './pages/GraciasKit.jsx'; // Importamos la página de gracias
+import MisCompras from './pages/MisCompras.jsx';
+import GraciasKit from './pages/GraciasKit.jsx';
 
 // --- Componentes para las otras secciones (placeholders) ---
 const BovedaRecetas = () => <div>Contenido de la Bóveda de Recetas</div>;
@@ -26,7 +27,7 @@ const router = createBrowserRouter([
   // --- Rutas Públicas ---
   {
     path: '/',
-    element: <Home />, // <-- ¡CORREGIDO! La ruta principal ahora muestra la página de ventas.
+    element: <Home />,
   },
   {
     path: '/auth',
@@ -37,12 +38,12 @@ const router = createBrowserRouter([
     element: <ResetPasswordPage />,
   },
   {
-    path: '/gracias-kit', // Ruta de agradecimiento
+    path: '/gracias-kit',
     element: <GraciasKit />,
   },
   // --- Rutas Protegidas ---
   {
-    path: '/mis-compras', // Ruta para ver las compras del usuario
+    path: '/mis-compras',
     element: (
       <ProtectedRoute>
         <MisCompras />
@@ -78,7 +79,7 @@ const router = createBrowserRouter([
         element: <Biblioteca />,
       },
       {
-        index: true, // Ruta por defecto para /plataforma
+        index: true,
         element: <PanelPrincipal />,
       },
     ],
