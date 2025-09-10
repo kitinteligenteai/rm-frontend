@@ -1,24 +1,41 @@
-// Contenido de PRUEBA para: /api/generate-payment.js
+// CÓDIGO FINAL Y ROBUSTO para: api/generate-payment.js
+import { MercadoPagoConfig, Preference } from 'mercadopago';
+
 export default async function handler(req, res) {
-  console.log("generate-payment method:", req.method);
-
-  // Permitimos GET y POST solo para pruebas
-  if (req.method !== "GET" && req.method !== "POST") {
-    res.setHeader("Allow", ["GET", "POST"]);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-
-  // GET: prueba rápida en navegador
-  if (req.method === "GET") {
-    return res.status(200).json({ ok: true, note: "GET ok. Ahora prueba POST desde el botón." });
-  }
-
   try {
-    // Versión de prueba: devolvemos un preferenceId falso
-    // En el frontend, el componente espera una propiedad "id", no "preferenceId"
-    return res.status(201).json({ ok: true, id: "TEST-PREF-123" });
-  } catch (err) {
-    console.error("generate-payment error:", err);
-    return res.status(500).json({ error: "internal_error" });
+    const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    if (!accessToken) {
+      return res.status(500).json({ error: 'Error de configuración del servidor.' });
+    }
+    const client = new MercadoPagoConfig({ accessToken });
+    const preference = new Preference(client);
+    const { user } = req.body;
+    const preferenceData = {
+      items: [{
+        id: 'kit-reinicio-01',
+        title: 'Kit de Inicio Reinicio Metabólico',
+        quantity: 1,
+        unit_price: 7.00,
+        currency_id: 'USD',
+      }],
+      back_urls: {
+        success: `${process.env.APP_URL}/gracias-kit`,
+        failure: `${process.env.APP_URL}/pago-fallido`,
+        pending: `${process.env.APP_URL}/pago-pendiente`,
+      },
+      auto_return: 'approved',
+      notification_url: `${process.env.APP_URL}/api/webhooks/mercadopago`,
+      external_reference: user ? user.id : null,
+      payer: user ? { email: user.email } : undefined,
+    };
+    const result = await preference.create({ body: preferenceData });
+    return res.status(200).json({ id: result.id });
+  } catch (error) {
+    console.error('Error al crear la preferencia de pago:', error);
+    return res.status(500).json({ error: 'Fallo al crear la preferencia de pago.', details: error.message });
   }
 }
