@@ -1,4 +1,4 @@
-// CÓDIGO FINAL Y ROBUSTO para: api/generate-payment.js
+// api/generate-payment.js
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 export default async function handler(req, res) {
