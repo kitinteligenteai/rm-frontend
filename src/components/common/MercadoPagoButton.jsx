@@ -1,4 +1,4 @@
-// Contenido NUEVO, MODERNO Y CORRECTO para: src/components/common/MercadoPagoButton.jsx
+// Contenido FINAL, MODERNO Y CON LA RUTA DE API CORRECTA para: src/components/common/MercadoPagoButton.jsx
 
 import React, { useState } from 'react';
 import { Wallet } from '@mercadopago/sdk-react';
@@ -28,8 +28,8 @@ const MercadoPagoButton = () => {
     setIsLoading(true);
     setError('');
     try {
-      // 1. LLAMAMOS A LA API CORRECTA: /api/create-preference
-      const response = await fetch('/api/create-preference', {
+      // ¡¡¡CORRECCIÓN IMPORTANTE!!! LLAMAMOS A LA API RENOMBRADA
+      const response = await fetch('/api/generate-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user }),
