@@ -1,8 +1,16 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+// Contenido MODIFICADO para: vite.config.js
+
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path'; // Asegúrate de importar 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react( )],
-  base: '/', // Asegura que las rutas se resuelvan desde la raíz
-})
+  // AÑADIMOS ESTA SECCIÓN PARA RUTAS ABSOLUTAS
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});

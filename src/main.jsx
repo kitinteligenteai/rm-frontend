@@ -11,7 +11,7 @@ import Home from './pages/Home.jsx';
 import AuthPage from './pages/Auth.jsx';
 import DashboardLayout from './pages/DashboardLayout.jsx';
 // ¡CORRECCIÓN AQUÍ! La ruta ahora es correcta.
-import ProtectedRoute from './pages/utils/ProtectedRoute.jsx'; 
+import ProtectedRoute from '@/pages/utils/ProtectedRoute.jsx'; 
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import PanelPrincipal from './pages/PanelPrincipal.jsx';
 import MisCompras from './pages/MisCompras.jsx';
