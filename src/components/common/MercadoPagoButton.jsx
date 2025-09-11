@@ -5,8 +5,11 @@ import { Loader2, CreditCard } from 'lucide-react';
 import { useUser } from '../../context/UserContext'; // Importamos el contexto de usuario
 
 // Inicializamos el SDK de Mercado Pago con la clave pública
-// Es importante que VITE_MERCADOPAGO_PUBLIC_KEY esté configurada en Vercel
 const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
+
+// 👇 Línea de depuración para confirmar que la variable de entorno se está cargando
+console.log("DEBUG - Public Key desde Vercel:", publicKey);
+
 if (publicKey) {
   initMercadoPago(publicKey, { locale: 'es-MX' });
 }
@@ -33,8 +36,7 @@ const MercadoPagoButton = () => {
       const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // Enviamos el usuario al backend. Si es null, el backend lo manejará.
-        body: JSON.stringify({ user } ),
+        body: JSON.stringify({ user }),
       });
 
       if (!response.ok) {
@@ -44,7 +46,7 @@ const MercadoPagoButton = () => {
 
       const data = await response.json();
       if (data.id) {
-        setPreferenceId(data.id); // Guardamos el ID para que se renderice el botón de Wallet
+        setPreferenceId(data.id);
       } else {
         throw new Error('La respuesta de la API no contenía un ID de preferencia.');
       }
@@ -56,16 +58,17 @@ const MercadoPagoButton = () => {
     }
   };
 
-  // Si ya tenemos un preferenceId, mostramos el botón oficial de Mercado Pago
   if (preferenceId) {
     return (
       <div className="w-full">
-        <Wallet initialization={{ preferenceId }} customization={{ texts:{ valueProp: 'smart_option'}}} />
+        <Wallet
+          initialization={{ preferenceId }}
+          customization={{ texts: { valueProp: 'smart_option' } }}
+        />
       </div>
     );
   }
 
-  // Si no, mostramos nuestro botón personalizado para iniciar el proceso
   return (
     <div className="w-full">
       <button
