@@ -1,75 +1,101 @@
-// Contenido FINAL Y VERIFICADO para: src/pages/Home.jsx
-
+// src/pages/Home.jsx
 import React from 'react';
-import { initMercadoPago } from '@mercadopago/sdk-react';
-import Header from '../components/common/Header';
-import MasterKeyImage from '../assets/llave-maestra.png';
-import MercadoPagoButton from '../components/common/MercadoPagoButton'; // <-- IMPORTANTE: Usa el botón corregido
+import { motion } from 'framer-motion';
+import { CheckCircle2, ShieldCheck, Globe2, MapPinned } from 'lucide-react';
+import MercadoPagoButton from '../components/common/MercadoPagoButton';
 
-// Inicialización del SDK de Mercado Pago
-const mpPublicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
-if (mpPublicKey) {
-  initMercadoPago(mpPublicKey);
-}
+// URL de Gumroad para el pago internacional
+const GUMROAD_URL = 'https://inteligentekit.gumroad.com/l/sxwrn';
 
-// Botón para Gumroad (Internacional)
-const GumroadButton = ({ children, href, primary = false }) => (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={`block w-full sm:w-auto px-8 py-3 text-base font-bold text-center rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2
-    ${primary ? 'bg-[#00838F] text-white hover:bg-[#006064] focus:ring-[#00838F]' : ''}`}>
-        {children}
-    </a>
-);
+const features = [
+  { icon: CheckCircle2, text: 'El Menú Exacto: qué comer y cuándo para apagar la inflamación.' },
+  { icon: CheckCircle2, text: 'Recetas Deliciosas y Simples: diseñadas para sanar, sin ingredientes raros.' },
+  { icon: CheckCircle2, text: 'Lista de Compras Inteligente: organizada para una sola visita al súper.' },
+];
 
-export default function Home() {
-  const gumroadLink = "https://inteligentekit.gumroad.com/l/sxwrn";
-
+const Home = ( ) => {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
-      <Header />
-      <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
-            Recibe 7 Días de <span className="text-[#00838F]">Absoluta Paz Mental</span>
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Deja de adivinar. Te entregamos el sistema exacto donde cada comida y cada decisión ya están resueltos para ti. Es hora de apagar la inflamación y recuperar tu energía.
-          </p>
-          <div className="my-8 sm:my-10">
-            <img src={MasterKeyImage} alt="Kit Reinicio Metabólico" className="rounded-lg shadow-2xl mx-auto w-full max-w-md" />
-          </div>
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-200 mt-12 scroll-mt-20" id="comprar">
-            <h2 className="text-3xl font-bold text-gray-800">
-              Tu Sistema de Acción Inmediata (PDF )
-            </h2>
-            <div className="mt-4 text-left max-w-md mx-auto space-y-2">
-                <p>✅ <strong>El Menú Exacto:</strong> Qué comer y cuándo para apagar la inflamación. Cero adivinanzas.</p>
-                <p>✅ <strong>Recetas Deliciosas y Simples:</strong> Diseñadas para sanar, sin ingredientes raros.</p>
-                <p>✅ <strong>La Lista de Compras Inteligente:</strong> Organizada para una sola visita al súper.</p>
-            </div>
-            <p className="text-2xl font-light text-gray-800 my-4">
-              Consigue el Sistema por un pago único de
-              <span className="font-bold text-[#00838F]"> solo $7 USD</span>
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-              <GumroadButton href={gumroadLink} primary={true}>
-                Desbloquear mi Sistema (Internacional)
-              </GumroadButton>
-              
-              {/*  Usamos el componente corregido y moderno */}
-              <MercadoPagoButton />
-
-            </div>
-            <p className="mt-6 text-xs text-gray-500">
-              Compra 100% segura. Acceso instantáneo.
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans">
+      <header className="w-full border-b border-white/10 backdrop-blur-md bg-white/5 sticky top-0 z-20">
+        <div className="mx-auto max-w-5xl px-4 py-4">
+          <h1 className="text-xl font-semibold tracking-tight text-white">Reinicio Metabólico</h1>
         </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-4 py-10 md:py-14">
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mx-auto grid items-center gap-10 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-xl md:grid-cols-2 md:p-10"
+        >
+          <div className="flex items-center justify-center">
+            <motion.img
+              src="/llave-maestra.png" // Asegúrate de que la imagen esté en la carpeta `public`
+              alt="Sistema de Acción Inmediata"
+              className="w-full max-w-sm rounded-lg shadow-lg"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            />
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs uppercase tracking-[0.2em] text-teal-400/80 font-semibold">PDF DE ACCIÓN INMEDIATA</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-white">
+              Tu <span className="text-teal-400">Sistema de 7 Días</span>
+            </h2>
+            <p className="mt-3 text-slate-300">
+              Deja de adivinar. Te entregamos el plan exacto para decidir cada comida con claridad y recuperar tu energía.
+            </p>
+
+            <ul className="mt-6 space-y-3">
+              {features.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-start gap-3">
+                  <Icon className="mt-0.5 h-5 w-5 text-teal-400 flex-shrink-0" />
+                  <span className="text-slate-200">{text}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 flex items-baseline gap-2">
+              <span className="text-slate-300">Un solo pago de</span>
+              <span className="text-3xl font-extrabold text-teal-400">$7 USD</span>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-4">
+              <a
+                href={GUMROAD_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-slate-100 shadow-lg backdrop-blur transition hover:bg-white/10 active:scale-[.98]"
+              >
+                <Globe2 className="h-5 w-5 text-teal-400" />
+                <span>Desbloquear (Internacional)</span>
+              </a>
+
+              <div className="rounded-xl border border-teal-500/30 bg-teal-500/10 p-3">
+                <div className="mb-2 flex items-center gap-2 text-xs text-teal-300">
+                  <MapPinned className="h-4 w-4" />
+                  <span>Pago seguro para México</span>
+                </div>
+                <MercadoPagoButton />
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-400">
+              <ShieldCheck className="h-5 w-5 text-teal-400" />
+              <span>Compra 100% segura. Acceso instantáneo.</span>
+            </div>
+          </div>
+        </motion.section>
       </main>
-      <footer className="text-center py-8 text-gray-500 text-sm">
-        <p>&copy; {new Date().getFullYear()} Reinicio Metabólico. Todos los derechos reservados.</p>
+
+      <footer className="mx-auto max-w-5xl px-4 py-10 text-center text-xs text-slate-500">
+        © {new Date().getFullYear()} Reinicio Metabólico. Todos los derechos reservados.
       </footer>
     </div>
   );
-}
-// Comentario para forzar un nuevo hash de build: v1
+};
+
+export default Home;
