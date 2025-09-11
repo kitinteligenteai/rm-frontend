@@ -6,6 +6,10 @@ import { useUser } from '../../context/UserContext';
 
 const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
 
+// --- LÍNEA DE DEPURACIÓN AÑADIDA ---
+console.log('VITE_MERCADOPAGO_PUBLIC_KEY leída por el componente:', publicKey);
+// ------------------------------------
+
 const MercadoPagoButton = ( ) => {
   const { user } = useUser();
   const [preferenceId, setPreferenceId] = useState(null);
@@ -36,7 +40,7 @@ const MercadoPagoButton = ( ) => {
       const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user } ),
+        body: JSON.stringify({ user }  ),
       });
 
       if (!response.ok) {
