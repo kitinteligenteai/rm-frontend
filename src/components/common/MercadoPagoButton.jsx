@@ -1,24 +1,25 @@
 // src/components/common/MercadoPagoButton.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { Loader2, CreditCard } from 'lucide-react';
-import { useUser } from '../../context/UserContext'; // Importamos el contexto de usuario
+import { useUser } from '../../context/UserContext';
 
-// Inicializamos el SDK de Mercado Pago con la clave pública
 const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
 
-// 👇 Línea de depuración para confirmar que la variable de entorno se está cargando
-console.log("DEBUG - Public Key desde Vercel:", publicKey);
-
-if (publicKey) {
-  initMercadoPago(publicKey, { locale: 'es-MX' });
-}
-
 const MercadoPagoButton = () => {
-  const { user } = useUser(); // Obtenemos el usuario logueado (o null si no lo está)
+  const { user } = useUser();
   const [preferenceId, setPreferenceId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    console.log("PUBLIC_KEY:", publicKey);
+    if (publicKey) {
+      initMercadoPago(publicKey, { locale: 'es-MX' });
+    } else {
+      setError("Error de configuración: La clave pública de Mercado Pago no está disponible.");
+    }
+  }, []);
 
   const handleCreatePreference = async () => {
     if (!publicKey) {
@@ -30,7 +31,6 @@ const MercadoPagoButton = () => {
     setError('');
 
     try {
-      // La URL base de tus funciones de Supabase
       const supabaseFunctionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
 
       const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference`, {
@@ -61,10 +61,7 @@ const MercadoPagoButton = () => {
   if (preferenceId) {
     return (
       <div className="w-full">
-        <Wallet
-          initialization={{ preferenceId }}
-          customization={{ texts: { valueProp: 'smart_option' } }}
-        />
+        <Wallet initialization={{ preferenceId }} customization={{ texts: { valueProp: 'smart_option' } }} />
       </div>
     );
   }

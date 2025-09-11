@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, ShieldCheck, Globe2, MapPinned } from 'lucide-react';
 import MercadoPagoButton from '../components/common/MercadoPagoButton';
 
-// URL de Gumroad para el pago internacional
 const GUMROAD_URL = 'https://inteligentekit.gumroad.com/l/sxwrn';
 
 const features = [
@@ -13,7 +12,7 @@ const features = [
   { icon: CheckCircle2, text: 'Lista de Compras Inteligente: organizada para una sola visita al súper.' },
 ];
 
-const Home = ( ) => {
+const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans">
       <header className="w-full border-b border-white/10 backdrop-blur-md bg-white/5 sticky top-0 z-20">
@@ -31,7 +30,7 @@ const Home = ( ) => {
         >
           <div className="flex items-center justify-center">
             <motion.img
-              src="/llave-maestra.png" // Asegúrate de que la imagen esté en la carpeta `public`
+              src="/llave-maestra.png"
               alt="Sistema de Acción Inmediata"
               className="w-full max-w-sm rounded-lg shadow-lg"
               initial={{ scale: 0.9, opacity: 0 }}
