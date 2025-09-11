@@ -1,73 +1,88 @@
-// Contenido FINAL, MODERNO Y CON LA RUTA DE API CORRECTA para: src/components/common/MercadoPagoButton.jsx
+// src/components/common/MercadoPagoButton.jsx
+import React, { useState, useEffect } from 'react';
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
+import { Loader2, CreditCard } from 'lucide-react';
 
-import React, { useState } from 'react';
-import { Wallet } from '@mercadopago/sdk-react';
-import { useUser } from '../../context/UserContext';
+const MercadoPagoButton = ({
+  label = 'Desbloquear mi Sistema (México)',
+  className = '',
+}) => {
+  const [prefId, setPrefId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState('');
 
-// Componente de botón genérico para mostrar mientras se carga.
-const PaymentButtonUI = ({ children, onClick, disabled }) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    className={`w-full sm:w-auto px-8 py-3 text-base font-bold rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2
-      bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400
-      ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`
+  // Inicializa el SDK de Mercado Pago una sola vez
+  useEffect(() => {
+    const pk = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
+    if (pk) {
+      initMercadoPago(pk, { locale: 'es-MX' });
     }
-  >
-    {children}
-  </button>
-);
+  }, []);
 
-const MercadoPagoButton = () => {
-  const { user } = useUser();
-  const [preferenceId, setPreferenceId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleBuyClick = async () => {
-    setIsLoading(true);
-    setError('');
+  // Función que llama a nuestra nueva API en Supabase
+  const handleCreatePreference = async () => {
+    setLoading(true);
+    setErr('');
     try {
-      // ¡¡¡CORRECCIÓN IMPORTANTE!!! LLAMAMOS A LA API RENOMBRADA
-      const response = await fetch('/api/generate-payment', {
+      // La URL de nuestra nueva función en Supabase
+      const supabaseFunctionUrl = 'https://mgjzlohapnepvrqlxmpo.functions.supabase.co/mp-generate-preference';
+
+      const resp = await fetch(supabaseFunctionUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user }),
+        // Enviamos un cuerpo vacío por ahora. Más adelante podemos enviar info del usuario.
+        body: JSON.stringify({ user: null } )
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Error del servidor al crear preferencia');
+
+      if (!resp.ok) {
+        const errorData = await resp.json();
+        throw new Error(errorData.error || 'Error al comunicarse con la API.');
       }
-      if (data.id) {
-        setPreferenceId(data.id);
+
+      const data = await resp.json();
+      if (!data?.id) {
+        throw new Error('La respuesta de la API no contiene un ID de preferencia válido.');
       }
-    } catch (err) {
-      setError('No se pudo iniciar el pago. Por favor, intenta de nuevo.');
-      console.error('Error creating preference:', err);
+      
+      setPrefId(data.id);
+
+    } catch (e) {
+      setErr('No se pudo iniciar el pago. Por favor, intenta de nuevo más tarde.');
+      console.error('Error creando preferencia:', e);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  // Si hay un error, lo mostramos.
-  if (error) {
-    return <p className="mt-4 text-sm text-red-600">{error}</p>;
-  }
-
-  // Si ya tenemos el ID de la preferencia, mostramos el botón de la Wallet de MP.
-  if (preferenceId) {
+  // Si ya tenemos un ID de preferencia, mostramos el botón oficial de Mercado Pago
+  if (prefId) {
     return (
-      <div className="w-full sm:w-auto">
-        <Wallet initialization={{ preferenceId: preferenceId }} />
+      <div className="w-full">
+        <Wallet initialization={{ preferenceId: prefId }} customization={{ texts:{ valueProp: 'smart_option'}}} />
       </div>
     );
   }
 
-  // Estado inicial: mostramos nuestro botón que al hacer clic, crea la preferencia.
+  // Si no, mostramos nuestro botón personalizado
   return (
-    <PaymentButtonUI onClick={handleBuyClick} disabled={isLoading}>
-      {isLoading ? 'Procesando...' : 'Desbloquear mi Sistema (México)'}
-    </PaymentButtonUI>
+    <div className="w-full">
+      <button
+        onClick={handleCreatePreference}
+        disabled={loading}
+        className={`group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 
+          bg-teal-600 text-white font-semibold shadow-lg
+          hover:bg-teal-500 active:scale-[.99] transition
+          disabled:bg-gray-500 ${className}`}
+      >
+        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <CreditCard className="h-5 w-5" />}
+        <span>{loading ? 'Preparando…' : label}</span>
+      </button>
+      {err && (
+        <p className="mt-2 text-center text-sm text-red-400">
+          {err}
+        </p>
+      )}
+    </div>
   );
 };
 
