@@ -1,25 +1,29 @@
 // src/components/common/MercadoPagoButton.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { Loader2, CreditCard } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 
 const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
-console.log("🔑 PUBLIC_KEY (desde Vite):", publicKey);
 
-if (publicKey) {
-  initMercadoPago(publicKey, { locale: 'es-MX' });
-}
-
-const MercadoPagoButton = () => {
+const MercadoPagoButton = ( ) => {
   const { user } = useUser();
   const [preferenceId, setPreferenceId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Inicializamos el SDK de Mercado Pago de forma segura dentro del componente
+  useEffect(() => {
+    if (publicKey) {
+      initMercadoPago(publicKey, { locale: 'es-MX' });
+    }
+  }, []);
+
   const handleCreatePreference = async () => {
+    // Verificación inicial: si no hay clave pública, no continuamos.
     if (!publicKey) {
       setError("Error de configuración: La clave pública de Mercado Pago no está disponible.");
+      console.error("Error: VITE_MERCADOPAGO_PUBLIC_KEY no fue encontrada.");
       return;
     }
 
@@ -32,7 +36,7 @@ const MercadoPagoButton = () => {
       const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user }),
+        body: JSON.stringify({ user } ),
       });
 
       if (!response.ok) {
@@ -54,6 +58,7 @@ const MercadoPagoButton = () => {
     }
   };
 
+  // Si ya tenemos un preferenceId, mostramos el botón oficial de Mercado Pago
   if (preferenceId) {
     return (
       <div className="w-full">
@@ -62,11 +67,12 @@ const MercadoPagoButton = () => {
     );
   }
 
+  // Si no, mostramos nuestro botón personalizado
   return (
     <div className="w-full">
       <button
         onClick={handleCreatePreference}
-        disabled={isLoading}
+        disabled={isLoading || !publicKey} // Deshabilitamos si no hay clave
         className="group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 bg-teal-600 text-white font-semibold shadow-lg hover:bg-teal-500 active:scale-[.99] transition disabled:bg-gray-500 disabled:cursor-not-allowed"
       >
         {isLoading ? (
