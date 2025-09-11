@@ -1,85 +1,88 @@
 // src/components/common/MercadoPagoButton.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { Loader2, CreditCard } from 'lucide-react';
+import { useUser } from '../../context/UserContext'; // Importamos el contexto de usuario
 
-const MercadoPagoButton = ({
-  label = 'Desbloquear mi Sistema (México)',
-  className = '',
-}) => {
-  const [prefId, setPrefId] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState('');
+// Inicializamos el SDK de Mercado Pago con la clave pública
+// Es importante que VITE_MERCADOPAGO_PUBLIC_KEY esté configurada en Vercel
+const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
+if (publicKey) {
+  initMercadoPago(publicKey, { locale: 'es-MX' });
+}
 
-  // Inicializa el SDK de Mercado Pago una sola vez
-  useEffect(() => {
-    const pk = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
-    if (pk) {
-      initMercadoPago(pk, { locale: 'es-MX' });
-    }
-  }, []);
+const MercadoPagoButton = () => {
+  const { user } = useUser(); // Obtenemos el usuario logueado (o null si no lo está)
+  const [preferenceId, setPreferenceId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Función que llama a nuestra nueva API en Supabase
   const handleCreatePreference = async () => {
-    setLoading(true);
-    setErr('');
-    try {
-      // La URL de nuestra nueva función en Supabase
-      const supabaseFunctionUrl = 'https://mgjzlohapnepvrqlxmpo.functions.supabase.co/mp-generate-preference';
+    if (!publicKey) {
+      setError("Error de configuración: La clave pública de Mercado Pago no está disponible.");
+      return;
+    }
 
-      const resp = await fetch(supabaseFunctionUrl, {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // La URL base de tus funciones de Supabase
+      const supabaseFunctionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
+
+      const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // Enviamos un cuerpo vacío por ahora. Más adelante podemos enviar info del usuario.
-        body: JSON.stringify({ user: null } )
+        // Enviamos el usuario al backend. Si es null, el backend lo manejará.
+        body: JSON.stringify({ user } ),
       });
 
-      if (!resp.ok) {
-        const errorData = await resp.json();
-        throw new Error(errorData.error || 'Error al comunicarse con la API.');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'No se pudo generar la preferencia de pago.');
       }
 
-      const data = await resp.json();
-      if (!data?.id) {
-        throw new Error('La respuesta de la API no contiene un ID de preferencia válido.');
+      const data = await response.json();
+      if (data.id) {
+        setPreferenceId(data.id); // Guardamos el ID para que se renderice el botón de Wallet
+      } else {
+        throw new Error('La respuesta de la API no contenía un ID de preferencia.');
       }
-      
-      setPrefId(data.id);
-
-    } catch (e) {
-      setErr('No se pudo iniciar el pago. Por favor, intenta de nuevo más tarde.');
-      console.error('Error creando preferencia:', e);
+    } catch (err) {
+      console.error('Error al crear la preferencia:', err);
+      setError('No se pudo iniciar el pago. Por favor, intenta de nuevo más tarde.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  // Si ya tenemos un ID de preferencia, mostramos el botón oficial de Mercado Pago
-  if (prefId) {
+  // Si ya tenemos un preferenceId, mostramos el botón oficial de Mercado Pago
+  if (preferenceId) {
     return (
       <div className="w-full">
-        <Wallet initialization={{ preferenceId: prefId }} customization={{ texts:{ valueProp: 'smart_option'}}} />
+        <Wallet initialization={{ preferenceId }} customization={{ texts:{ valueProp: 'smart_option'}}} />
       </div>
     );
   }
 
-  // Si no, mostramos nuestro botón personalizado
+  // Si no, mostramos nuestro botón personalizado para iniciar el proceso
   return (
     <div className="w-full">
       <button
         onClick={handleCreatePreference}
-        disabled={loading}
-        className={`group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 
-          bg-teal-600 text-white font-semibold shadow-lg
-          hover:bg-teal-500 active:scale-[.99] transition
-          disabled:bg-gray-500 ${className}`}
+        disabled={isLoading}
+        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 bg-teal-600 text-white font-semibold shadow-lg hover:bg-teal-500 active:scale-[.99] transition disabled:bg-gray-500 disabled:cursor-not-allowed"
       >
-        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <CreditCard className="h-5 w-5" />}
-        <span>{loading ? 'Preparando…' : label}</span>
+        {isLoading ? (
+          <Loader2 className="h-5 w-5 animate-spin" />
+        ) : (
+          <CreditCard className="h-5 w-5" />
+        )}
+        <span>{isLoading ? 'Preparando…' : 'Desbloquear (México)'}</span>
       </button>
-      {err && (
-        <p className="mt-2 text-center text-sm text-red-400">
-          {err}
+      {error && (
+        <p className="mt-2 text-center text-sm text-red-400 bg-red-500/10 border border-red-400/30 px-3 py-2 rounded-md">
+          {error}
         </p>
       )}
     </div>
