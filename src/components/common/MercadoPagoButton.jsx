@@ -1,25 +1,21 @@
 // src/components/common/MercadoPagoButton.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { Loader2, CreditCard } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 
 const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
+console.log("🔑 PUBLIC_KEY (desde Vite):", publicKey);
+
+if (publicKey) {
+  initMercadoPago(publicKey, { locale: 'es-MX' });
+}
 
 const MercadoPagoButton = () => {
   const { user } = useUser();
   const [preferenceId, setPreferenceId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    console.log("PUBLIC_KEY:", publicKey);
-    if (publicKey) {
-      initMercadoPago(publicKey, { locale: 'es-MX' });
-    } else {
-      setError("Error de configuración: La clave pública de Mercado Pago no está disponible.");
-    }
-  }, []);
 
   const handleCreatePreference = async () => {
     if (!publicKey) {
