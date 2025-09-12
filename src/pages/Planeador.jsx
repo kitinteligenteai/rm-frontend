@@ -1,4 +1,4 @@
-// Contenido COMPLETO Y FINAL para: src/pages/Planeador.jsx
+//  Contenido COMPLETO Y FINAL para: src/pages/Planeador.jsx
 
 import React from 'react';
 
