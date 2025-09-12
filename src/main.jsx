@@ -15,7 +15,7 @@ import ProtectedRoute from './utils/ProtectedRoute.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import PanelPrincipal from './pages/PanelPrincipal.jsx';
 import MisCompras from './pages/MisCompras.jsx';
-import GraciasKit from './pages/GraciasKit.jsx';
+import GraciasKit from './pages/gracias-kit.jsx';
 
 // ... (el resto del archivo se queda exactamente igual)
 
