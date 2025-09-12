@@ -1,4 +1,4 @@
-// CÓDIGO FINAL CON LA RUTA MÁS CORRECTA para: src/main.jsx
+// CÓDIGO COMPLETO, FINAL Y LIMPIO para: src/main.jsx
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -10,14 +10,11 @@ import './index.css';
 import Home from './pages/Home.jsx';
 import AuthPage from './pages/Auth.jsx';
 import DashboardLayout from './pages/DashboardLayout.jsx';
-// ¡¡¡LA CORRECCIÓN DEFINITIVA!!!
 import ProtectedRoute from './utils/ProtectedRoute.jsx'; 
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import PanelPrincipal from './pages/PanelPrincipal.jsx';
 import MisCompras from './pages/MisCompras.jsx';
-import GraciasKit from './pages/gracias-kit.jsx';
-
-// ... (el resto del archivo se queda exactamente igual)
+import GraciasKitPage from './pages/gracias-kit.jsx';
 
 const BovedaRecetas = () => <div>Contenido de la Bóveda de Recetas</div>;
 const Gimnasio = () => <div>Contenido del Gimnasio</div>;
@@ -28,7 +25,7 @@ const router = createBrowserRouter([
   { path: '/', element: <Home /> },
   { path: '/auth', element: <AuthPage /> },
   { path: '/auth/reset', element: <ResetPasswordPage /> },
-  { path: '/gracias-kit', element: <GraciasKit /> },
+  { path: '/gracias-kit', element: <GraciasKitPage /> },
   {
     path: '/mis-compras',
     element: (<ProtectedRoute><MisCompras /></ProtectedRoute>),
