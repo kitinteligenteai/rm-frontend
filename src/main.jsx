@@ -15,7 +15,7 @@ import ProtectedRoute from './utils/ProtectedRoute.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import PanelPrincipal from './pages/PanelPrincipal.jsx';
 import MisCompras from './pages/MisCompras.jsx';
-import GraciasKitPage from './pages/gracias-kit.jsx';
+import GraciasKitPage from './pages/Gracias-kit.jsx';
 
 const BovedaRecetas = () => <div>Contenido de la Bóveda de Recetas</div>;
 const Gimnasio = () => <div>Contenido del Gimnasio</div>;
