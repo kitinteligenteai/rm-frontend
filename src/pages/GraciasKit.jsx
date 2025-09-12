@@ -13,7 +13,6 @@ const GraciasKitPage = () => {
 
   const functionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
   
-  // Esta es la "credencial" que le mostraremos a Supabase. Es segura para usar aquí.
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   useEffect((  ) => {
@@ -26,8 +25,6 @@ const GraciasKitPage = () => {
       return;
     }
 
-    // 1) Intentar prellenar con lo que tengamos en purchases (pre-registro o post-webhook)
-    // ✅ CORRECCIÓN: Añadimos el header de autorización
     fetch(`${functionsUrl}/claim-purchase?session_id=${encodeURIComponent(sid)}`, {
       headers: {
         'Authorization': `Bearer ${anonKey}`
@@ -54,7 +51,6 @@ const GraciasKitPage = () => {
     setError("");
 
     try {
-      // ✅ CORRECCIÓN: Añadimos el header de autorización también aquí
       const resp = await fetch(`${functionsUrl}/claim-purchase`, {
         method: "POST",
         headers: { 
@@ -67,7 +63,8 @@ const GraciasKitPage = () => {
       if (!resp.ok) throw new Error(data?.error || "No se pudo confirmar el email.");
 
       setDone(true);
-    } catch (err)      setError(err.message);
+    } catch (err) { // ✅ CORRECCIÓN: Añadida la llave que faltaba
+      setError(err.message);
     } finally {
       setSubmitting(false);
     }
