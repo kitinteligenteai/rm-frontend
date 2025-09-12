@@ -9,7 +9,7 @@ const PrincipioDetalle = () => {
   // 1. Leer el 'id' de la URL (ej: si la URL es /principio/3, id será "3")
   const { id } = useParams();
 
-  // 2. Encontrar el principio correspondiente en nuestros datos
+  // 2. Encontrar el principio correspondiente en nuestros datos 
   // Usamos '==' porque el id de la URL es un string, y nuestro id en los datos es un número.
   const principle = principles.find(p => p.id == id);
 

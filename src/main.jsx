@@ -1,5 +1,5 @@
 // CÓDIGO COMPLETO, FINAL Y LIMPIO para: src/main.jsx
-// Commit para forzar el redespliegue en Vercel
+// Commit para forzar el redespliegue en Vercel 
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

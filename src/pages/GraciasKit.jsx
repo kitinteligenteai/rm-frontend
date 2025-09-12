@@ -1,4 +1,4 @@
-// src/pages/gracias-kit.jsx
+// src/pages/GraciasKit.jsx
 import React, { useEffect, useState } from "react";
 import { CheckCircle, Mail, Loader2 } from "lucide-react";
 
