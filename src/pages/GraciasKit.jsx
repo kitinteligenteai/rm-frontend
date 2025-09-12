@@ -12,8 +12,11 @@ const GraciasKitPage = () => {
   const [error, setError] = useState("");
 
   const functionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
+  
+  // Esta es la "credencial" que le mostraremos a Supabase. Es segura para usar aquí.
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  useEffect(( ) => {
+  useEffect((  ) => {
     const params = new URLSearchParams(window.location.search);
     const sid = params.get("session_id") || "";
     setSessionId(sid);
@@ -24,7 +27,12 @@ const GraciasKitPage = () => {
     }
 
     // 1) Intentar prellenar con lo que tengamos en purchases (pre-registro o post-webhook)
-    fetch(`${functionsUrl}/claim-purchase?session_id=${encodeURIComponent(sid)}`)
+    // ✅ CORRECCIÓN: Añadimos el header de autorización
+    fetch(`${functionsUrl}/claim-purchase?session_id=${encodeURIComponent(sid)}`, {
+      headers: {
+        'Authorization': `Bearer ${anonKey}`
+      }
+    })
       .then(r => r.ok ? r.json() : Promise.reject({ message: "No se pudo verificar la sesión." }))
       .then((data) => {
         if (data.exists) {
@@ -46,17 +54,20 @@ const GraciasKitPage = () => {
     setError("");
 
     try {
+      // ✅ CORRECCIÓN: Añadimos el header de autorización también aquí
       const resp = await fetch(`${functionsUrl}/claim-purchase`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${anonKey}`
+        },
         body: JSON.stringify({ session_id: sessionId, email })
       });
       const data = await resp.json();
       if (!resp.ok) throw new Error(data?.error || "No se pudo confirmar el email.");
 
       setDone(true);
-    } catch (err) {
-      setError(err.message);
+    } catch (err)      setError(err.message);
     } finally {
       setSubmitting(false);
     }
