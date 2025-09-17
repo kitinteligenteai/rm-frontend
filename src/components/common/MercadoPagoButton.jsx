@@ -2,21 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 import { Loader2, CreditCard } from 'lucide-react';
-import { useUser } from '../../context/UserContext';
 
 const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// --- LÍNEA DE DEPURACIÓN AÑADIDA ---
 console.log('VITE_MERCADOPAGO_PUBLIC_KEY leída por el componente:', publicKey);
-// ------------------------------------
 
-const MercadoPagoButton = ( ) => {
-  const { user } = useUser();
+const MercadoPagoButton = () => {
   const [preferenceId, setPreferenceId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Inicializamos el SDK de Mercado Pago de forma segura dentro del componente
   useEffect(() => {
     if (publicKey) {
       initMercadoPago(publicKey, { locale: 'es-MX' });
@@ -24,7 +20,6 @@ const MercadoPagoButton = ( ) => {
   }, []);
 
   const handleCreatePreference = async () => {
-    // Verificación inicial: si no hay clave pública, no continuamos.
     if (!publicKey) {
       setError("Error de configuración: La clave pública de Mercado Pago no está disponible.");
       console.error("Error: VITE_MERCADOPAGO_PUBLIC_KEY no fue encontrada.");
@@ -37,10 +32,15 @@ const MercadoPagoButton = ( ) => {
     try {
       const supabaseFunctionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
 
-      const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference`, {
+      // ✅ CAMBIO: Apuntamos a la nueva función 'mp-generate-preference-v2'
+      const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference-v2`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user }  ),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${anonKey}` // ✅ AÑADIDO: Cabecera de autorización
+        },
+        // ✅ CAMBIO: El body ya no necesita enviar datos, la función v2 es autónoma.
+        body: JSON.stringify({} ), 
       });
 
       if (!response.ok) {
@@ -49,8 +49,9 @@ const MercadoPagoButton = ( ) => {
       }
 
       const data = await response.json();
-      if (data.id) {
-        setPreferenceId(data.id);
+      // ✅ CAMBIO: La nueva función devuelve 'preferenceId'
+      if (data.preferenceId) {
+        setPreferenceId(data.preferenceId);
       } else {
         throw new Error('La respuesta de la API no contenía un ID de preferencia.');
       }
@@ -62,7 +63,6 @@ const MercadoPagoButton = ( ) => {
     }
   };
 
-  // Si ya tenemos un preferenceId, mostramos el botón oficial de Mercado Pago
   if (preferenceId) {
     return (
       <div className="w-full">
@@ -71,12 +71,11 @@ const MercadoPagoButton = ( ) => {
     );
   }
 
-  // Si no, mostramos nuestro botón personalizado
   return (
     <div className="w-full">
       <button
         onClick={handleCreatePreference}
-        disabled={isLoading || !publicKey} // Deshabilitamos si no hay clave
+        disabled={isLoading || !publicKey}
         className="group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 bg-teal-600 text-white font-semibold shadow-lg hover:bg-teal-500 active:scale-[.99] transition disabled:bg-gray-500 disabled:cursor-not-allowed"
       >
         {isLoading ? (
