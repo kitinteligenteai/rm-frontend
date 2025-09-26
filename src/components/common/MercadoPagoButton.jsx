@@ -1,6 +1,5 @@
-// src/components/common/MercadoPagoButton.jsx
-import React, { useState, useEffect } from 'react';
-import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
+import React, { useState } from 'react'; // useEffect ya no es necesario
+import { Wallet } from '@mercadopago/sdk-react'; // initMercadoPago ya no es necesario
 import { Loader2, CreditCard } from 'lucide-react';
 
 const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
@@ -13,11 +12,7 @@ const MercadoPagoButton = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (publicKey) {
-      initMercadoPago(publicKey, { locale: 'es-MX' });
-    }
-  }, []);
+  // El bloque useEffect ha sido eliminado de aquí
 
   const handleCreatePreference = async () => {
     if (!publicKey) {
@@ -32,15 +27,13 @@ const MercadoPagoButton = () => {
     try {
       const supabaseFunctionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
 
-      // ✅ CAMBIO: Apuntamos a la nueva función 'mp-generate-preference-v2'
       const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference-v2`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${anonKey}` // ✅ AÑADIDO: Cabecera de autorización
+          'Authorization': `Bearer ${anonKey}`
         },
-        // ✅ CAMBIO: El body ya no necesita enviar datos, la función v2 es autónoma.
-        body: JSON.stringify({} ), 
+        body: JSON.stringify({}  ), 
       });
 
       if (!response.ok) {
@@ -49,7 +42,6 @@ const MercadoPagoButton = () => {
       }
 
       const data = await response.json();
-      // ✅ CAMBIO: La nueva función devuelve 'preferenceId'
       if (data.preferenceId) {
         setPreferenceId(data.preferenceId);
       } else {

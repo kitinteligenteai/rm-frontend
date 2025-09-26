@@ -1,11 +1,12 @@
-// CÓDIGO COMPLETO, FINAL Y LIMPIO para: src/main.jsx
-// Commit para forzar el redespliegue en Vercel 
+// CÓDIGO COMPLETO, FINAL Y CORRECTO para: src/main.jsx
+// Incluye la inicialización global de Mercado Pago
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { UserProvider } from './context/UserContext.jsx';
 import './index.css';
+import { initMercadoPago } from '@mercadopago/sdk-react'; // <-- 1. IMPORTACIÓN AÑADIDA
 
 // --- Páginas y Layouts ---
 import Home from './pages/Home.jsx';
@@ -16,6 +17,15 @@ import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import PanelPrincipal from './pages/PanelPrincipal.jsx';
 import MisCompras from './pages/MisCompras.jsx';
 import GraciasKitPage from './pages/GraciasKit.jsx';
+
+// --- 2. BLOQUE DE INICIALIZACIÓN AÑADIDO ---
+const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
+if (publicKey) {
+  initMercadoPago(publicKey, { locale: 'es-MX' });
+} else {
+  console.error("Error Crítico de Configuración: La variable VITE_MERCADOPAGO_PUBLIC_KEY no está definida en el archivo .env. El checkout de Mercado Pago no funcionará.");
+}
+// --- FIN DEL BLOQUE AÑADIDO ---
 
 const BovedaRecetas = () => <div>Contenido de la Bóveda de Recetas</div>;
 const Gimnasio = () => <div>Contenido del Gimnasio</div>;
