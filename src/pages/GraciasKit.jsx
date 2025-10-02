@@ -5,7 +5,7 @@ import { CheckCircle, Mail, Loader2 } from "lucide-react";
 const GraciasKitPage = () => {
   const [sessionId, setSessionId] = useState("");
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Ya no necesitamos cargar datos iniciales
+  const [isLoading, setIsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
@@ -14,13 +14,9 @@ const GraciasKitPage = () => {
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   useEffect(( ) => {
-    // Solo necesitamos obtener el session_id de la URL
     const params = new URLSearchParams(window.location.search);
     const sid = params.get("session_id") || "";
     setSessionId(sid);
-
-    // Opcional: podríamos pre-llenar el email si viene en la URL, pero lo mantenemos simple por ahora.
-    // La lógica de consulta inicial ya no es necesaria aquí.
   }, []);
 
   const onSubmit = async (e) => {
@@ -29,12 +25,13 @@ const GraciasKitPage = () => {
     setError("");
 
     try {
-      // ✅ CAMBIO: Apuntamos a la nueva función 'claim-purchase-v2'
-      const resp = await fetch(`${functionsUrl}/claim-purchase-v2`, {
+      // ✅ APUNTAMOS A LA NUEVA Y CORRECTA FUNCIÓN 'update-checkout-email'
+      const resp = await fetch(`${functionsUrl}/update-checkout-email`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          'Authorization': `Bearer ${anonKey}` // Mantenemos la autorización
+          "Authorization": `Bearer ${anonKey}`,
+          "apikey": anonKey // Buena práctica añadir también el apikey
         },
         body: JSON.stringify({ session_id: sessionId, email })
       });
