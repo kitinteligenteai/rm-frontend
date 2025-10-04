@@ -1,10 +1,8 @@
 // src/pages/Home.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ShieldCheck, Globe2, MapPinned } from 'lucide-react';
-import MercadoPagoButton from '../components/common/MercadoPagoButton';
-
-const GUMROAD_URL = 'https://inteligentekit.gumroad.com/l/sxwrn';
+import { CheckCircle2, ShieldCheck } from 'lucide-react';
+import SmartCheckoutCTA from '../components/SmartCheckoutCTA'; // ¡IMPORTAMOS EL NUEVO COMPONENTE!
 
 const features = [
   { icon: CheckCircle2, text: 'El Menú Exacto: qué comer y cuándo para apagar la inflamación.' },
@@ -62,25 +60,15 @@ const Home = () => {
               <span className="text-3xl font-extrabold text-teal-400">$7 USD</span>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-4">
-              <a
-                href={GUMROAD_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-slate-100 shadow-lg backdrop-blur transition hover:bg-white/10 active:scale-[.98]"
-              >
-                <Globe2 className="h-5 w-5 text-teal-400" />
-                <span>Desbloquear (Internacional)</span>
-              </a>
-
-              <div className="rounded-xl border border-teal-500/30 bg-teal-500/10 p-3">
-                <div className="mb-2 flex items-center gap-2 text-xs text-teal-300">
-                  <MapPinned className="h-4 w-4" />
-                  <span>Pago seguro para México</span>
-                </div>
-                <MercadoPagoButton />
-              </div>
+            {/* --- INICIO DE LA SECCIÓN DE PAGO REEMPLAZADA --- */}
+            <div className="mt-8">
+              <SmartCheckoutCTA
+                gumroadUrl="https://inteligentekit.gumroad.com/l/sxwrn" // ¡YA ESTÁ TU URL REAL!
+                mxnPrice="129"
+                usdPrice="7"
+              />
             </div>
+            {/* --- FIN DE LA SECCIÓN DE PAGO REEMPLAZADA --- */}
 
             <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-400">
               <ShieldCheck className="h-5 w-5 text-teal-400" />
@@ -91,7 +79,7 @@ const Home = () => {
       </main>
 
       <footer className="mx-auto max-w-5xl px-4 py-10 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} Reinicio Metabólico. Todos los derechos reservados.
+        © {new Date( ).getFullYear()} Reinicio Metabólico. Todos los derechos reservados.
       </footer>
     </div>
   );

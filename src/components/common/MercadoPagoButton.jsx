@@ -1,89 +1,100 @@
-import React, { useState } from 'react'; // useEffect ya no es necesario
-import { Wallet } from '@mercadopago/sdk-react'; // initMercadoPago ya no es necesario
-import { Loader2, CreditCard } from 'lucide-react';
+// src/components/common/MercadoPagoButton.jsx
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { Loader2, RefreshCw } from "lucide-react";
 
-const publicKey = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+export default function MercadoPagoButton({
+  placeholderText = "Pagar con Mercado Pago",
+  helperText = "Pago seguro • Confirmación inmediata",
+  theme = "dark",
+  className = "",
+}) {
+  const [ready, setReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const containerRef = useRef(null);
+  const scriptRef = useRef(null);
 
-console.log('VITE_MERCADOPAGO_PUBLIC_KEY leída por el componente:', publicKey);
+  const functionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const MercadoPagoButton = () => {
-  const [preferenceId, setPreferenceId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  // El bloque useEffect ha sido eliminado de aquí
-
-  const handleCreatePreference = async () => {
-    if (!publicKey) {
-      setError("Error de configuración: La clave pública de Mercado Pago no está disponible.");
-      console.error("Error: VITE_MERCADOPAGO_PUBLIC_KEY no fue encontrada.");
-      return;
+  const cleanupScript = ( ) => {
+    if (scriptRef.current) {
+      scriptRef.current.remove();
+      scriptRef.current = null;
     }
-
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const supabaseFunctionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
-
-      const response = await fetch(`${supabaseFunctionsUrl}/mp-generate-preference-v2`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${anonKey}`
-        },
-        body: JSON.stringify({}  ), 
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'No se pudo generar la preferencia de pago.');
-      }
-
-      const data = await response.json();
-      if (data.preferenceId) {
-        setPreferenceId(data.preferenceId);
-      } else {
-        throw new Error('La respuesta de la API no contenía un ID de preferencia.');
-      }
-    } catch (err) {
-      console.error('Error al crear la preferencia:', err);
-      setError('No se pudo iniciar el pago. Por favor, intenta de nuevo más tarde.');
-    } finally {
-      setIsLoading(false);
-    }
+    if (containerRef.current) containerRef.current.innerHTML = "";
   };
 
-  if (preferenceId) {
-    return (
-      <div className="w-full">
-        <Wallet initialization={{ preferenceId }} customization={{ texts: { valueProp: 'smart_option' } }} />
-      </div>
-    );
-  }
+  const injectScript = (preferenceId) => {
+    cleanupScript();
+    const script = document.createElement("script");
+    script.src = "https://www.mercadopago.com.mx/integrations/v1/web-payment-checkout.js";
+    script.setAttribute("data-preference-id", preferenceId );
+    script.async = true;
+    script.onload = () => setReady(true);
+    script.onerror = () => setErr("No se pudo cargar el botón de Mercado Pago.");
+    scriptRef.current = script;
+    containerRef.current?.appendChild(script);
+  };
+
+  const init = useCallback(async () => {
+    try {
+      setBusy(true);
+      setErr("");
+      setReady(false);
+
+      const resp = await fetch(`${functionsUrl}/mp-generate-preference-v2`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${anonKey}`,
+          apikey: anonKey,
+        },
+        body: JSON.stringify({}),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data?.preferenceId) {
+        throw new Error(data?.error || "No se pudo crear la preferencia.");
+      }
+
+      injectScript(data.preferenceId);
+    } catch (e) {
+      console.error(e);
+      setErr(e.message || "Error inicializando el checkout.");
+    } finally {
+      setBusy(false);
+    }
+  }, [anonKey, functionsUrl]);
+
+  useEffect(() => {
+    init();
+    return cleanupScript;
+  }, [init]);
 
   return (
-    <div className="w-full">
-      <button
-        onClick={handleCreatePreference}
-        disabled={isLoading || !publicKey}
-        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 bg-teal-600 text-white font-semibold shadow-lg hover:bg-teal-500 active:scale-[.99] transition disabled:bg-gray-500 disabled:cursor-not-allowed"
+    <div className={`w-full ${className}`}>
+      <div
+        className={`relative w-full h-[52px] rounded-lg border ${
+          theme === "dark" ? "border-gray-700 bg-gray-800/60" : "border-gray-200 bg-gray-50"
+        } ${ready ? "opacity-0 pointer-events-none absolute -z-10" : "opacity-100"}`}
       >
-        {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
-        ) : (
-          <CreditCard className="h-5 w-5" />
-        )}
-        <span>{isLoading ? 'Preparando…' : 'Desbloquear (México)'}</span>
-      </button>
-      {error && (
-        <p className="mt-2 text-center text-sm text-red-400 bg-red-500/10 border border-red-400/30 px-3 py-2 rounded-md">
-          {error}
-        </p>
-      )}
+        <div className="h-full w-full flex items-center justify-center gap-2 text-sm">
+          {busy ? (
+            <><Loader2 className="h-4 w-4 animate-spin" /><span>Cargando botón de pago…</span></>
+          ) : err ? (
+            <div className="flex items-center gap-2">
+              <span className="text-red-400">{err}</span>
+              <button type="button" onClick={init} className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-gray-600 hover:bg-gray-800">
+                <RefreshCw className="h-3.5 w-3.5" />Reintentar
+              </button>
+            </div>
+          ) : (
+            <><Loader2 className="h-4 w-4 animate-spin" /><span>{placeholderText}</span></>
+          )}
+        </div>
+      </div>
+      <div ref={containerRef} className={`${ready ? "opacity-100" : "opacity-0"} transition-opacity duration-150`} aria-live="polite" />
+      <p className="mt-2 text-center text-[11px] text-gray-500">{helperText}</p>
     </div>
   );
-};
-
-export default MercadoPagoButton;
+}
