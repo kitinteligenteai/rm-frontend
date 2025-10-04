@@ -1,94 +1,181 @@
-// src/pages/GraciasKit.jsx - v7 - SIMPLIFIED LOGIC
+// src/pages/GraciasKit.jsx — v9 (react-hook-form + Zod)
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle, Mail, Loader2, AlertTriangle } from "lucide-react";
 
-const GraciasKitPage = () => {
-  const [sessionId, setSessionId] = useState("");
-  const [email, setEmail] = useState("");
-  const [confirmEmail, setConfirmEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState("");
+// --- Schema de validación (mensajes en español)
+const EmailSchema = z
+  .string({ required_error: "El correo es obligatorio." })
+  .trim()
+  .toLowerCase()
+  .min(1, "El correo es obligatorio.")
+  .email("Introduce un correo válido.");
 
-  // --- LÓGICA DE VALIDACIÓN SIMPLIFICADA Y ROBUSTA ---
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-  const emailsMatch = email.trim().toLowerCase() === confirmEmail.trim().toLowerCase();
-  
-  // El error solo se muestra si el campo de confirmación tiene texto Y no coincide con el email
-  const showMismatchError = confirmEmail.length > 0 && !emailsMatch;
-  
-  // El botón solo se activa si ambos correos son válidos, coinciden y no se está enviando.
-  const canSubmit = isEmailValid && emailsMatch && !submitting;
+const FormSchema = z
+  .object({
+    email: EmailSchema,
+    confirmEmail: EmailSchema
+  })
+  .superRefine((val, ctx) => {
+    if (val.email !== val.confirmEmail) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["confirmEmail"],
+        message: "Los correos no coinciden."
+      });
+    }
+  });
+
+export default function GraciasKitPage() {
+  // Fingerprint de build para verificar bundle en prod
+  useEffect(() => {
+    console.info("GraciasKit v9 (Zod) build:", new Date().toISOString());
+  }, []);
+
+  const [sessionId, setSessionId] = useState("");
+  const [done, setDone] = useState(false);
+  const [finalEmail, setFinalEmail] = useState("");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sid = params.get("session_id") || params.get("external_reference") || "";
+    const p = new URLSearchParams(window.location.search);
+    const sid =
+      p.get("session_id") ||
+      p.get("external_reference") ||
+      "";
     setSessionId(sid);
   }, []);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    if (!canSubmit) return;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting }
+  } = useForm({
+    resolver: zodResolver(FormSchema),
+    mode: "onBlur",          // valida al salir del campo
+    reValidateMode: "onChange"
+  });
 
-    setSubmitting(true);
-    setError("");
-
+  const onSubmit = async (values) => {
     try {
-      const functionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
+      const email = values.email; // ya viene normalizado por el schema
+      const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_REF;
       const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
+      const functionsUrl = `https://${projectRef}.functions.supabase.co`;
+
       const resp = await fetch(`${functionsUrl}/update-checkout-email`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${anonKey}`, "apikey": anonKey },
-        body: JSON.stringify({ session_id: sessionId, email: email.trim( ).toLowerCase() }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${anonKey}`,
+          apikey: anonKey
+        },
+        body: JSON.stringify({ session_id: sessionId, email } )
       });
-      
-      const data = await resp.json();
-      if (!resp.ok) {
-        throw new Error(data?.error || "No se pudo confirmar el email.");
-      }
-      
-      // En lugar de solo poner 'done', esperamos un segundo para que el usuario vea el feedback.
-      setTimeout(() => {
-        setDone(true);
-      }, 1000);
 
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data?.error || "No se pudo confirmar el email.");
+
+      setFinalEmail(email);
+      setDone(true);
     } catch (err) {
-      setError(err.message);
-      setSubmitting(false); // Permitimos reintentar si hay un error
+      console.error("Confirm email error:", err);
+      alert("Hubo un problema al confirmar tu correo. Intenta de nuevo en unos segundos.");
     }
   };
 
-  // --- VISTAS ---
-  if (done) { /* ... (código de pantalla de éxito sin cambios) ... */ }
-  if (!sessionId) { /* ... (código de error de sesión sin cambios) ... */ }
+  if (done) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-gray-900 text-white p-6">
+        <div className="max-w-md w-full rounded-2xl bg-gray-800 p-8 text-center shadow-lg">
+          <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+          <h1 className="mt-6 text-3xl font-bold text-teal-400">¡Listo! Correo en camino.</h1>
+          <p className="mt-4 text-gray-300">
+            Enviamos el acceso a <span className="font-bold">{finalEmail}</span>. Revisa tu
+            bandeja (y Spam/Promociones).
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen grid place-items-center bg-gray-900 text-white p-6">
-      <div className="w-full max-w-md rounded-xl bg-gray-800 p-8 shadow-lg">
-        <h1 className="text-2xl font-bold text-teal-400">¡Pago exitoso!</h1>
-        <p className="mt-2 text-gray-300">Último paso: confirma tu correo.</p>
-        
-        <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
+      <div className="w-full max-w-md rounded-2xl bg-gray-800 p-8 shadow-lg">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-teal-400">¡Pago exitoso!</h1>
+        <p className="mt-2 text-gray-300">Último paso: confirma tu correo para enviarte el acceso al Kit.</p>
+
+        <form className="mt-6 space-y-5" noValidate onSubmit={handleSubmit(onSubmit)}>
+          {/* Email */}
           <div>
-            <label htmlFor="email-input" className="block text-sm font-medium text-gray-400 mb-1">Correo electrónico</label>
-            <input id="email-input" type="email" required placeholder="nombre@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent outline-none border border-gray-700 p-3 rounded-lg" />
-          </div>
-          <div>
-            <label htmlFor="confirm-email-input" className="block text-sm font-medium text-gray-400 mb-1">Confirma tu correo</label>
-            <input id="confirm-email-input" type="email" required placeholder="Vuelve a escribir tu correo" value={confirmEmail} onChange={(e) => setConfirmEmail(e.target.value)} className="w-full bg-transparent outline-none border border-gray-700 p-3 rounded-lg" />
-            {showMismatchError && (
-              <p className="mt-2 text-sm text-yellow-400">Los correos no coinciden.</p>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">
+              Correo electrónico
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <input
+                id="email"
+                type="email"
+                placeholder="nombre@correo.com"
+                className="w-full bg-transparent outline-none border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
+                autoComplete="email"
+                {...register("email")}
+              />
+            </div>
+            {errors.email && (
+              <p className="mt-2 text-sm text-yellow-400 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                {errors.email.message}
+              </p>
             )}
           </div>
-          {error && (<p className="text-red-400">{error}</p>)}
-          <button type="submit" disabled={!canSubmit} className="w-full flex items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 px-6 py-4 font-semibold disabled:bg-gray-700 disabled:opacity-60 transition-all">
-            {submitting ? <><Loader2 className="h-5 w-5 animate-spin mr-3" /> Procesando...</> : "Confirmar y Recibir mi Kit"}
+
+          {/* Confirm Email */}
+          <div>
+            <label htmlFor="confirmEmail" className="block text-sm font-medium text-gray-400 mb-1">
+              Confirma tu correo
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <input
+                id="confirmEmail"
+                type="email"
+                placeholder="Vuelve a escribir tu correo"
+                className="w-full bg-transparent outline-none border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
+                autoComplete="email"
+                {...register("confirmEmail")}
+              />
+            </div>
+            {errors.confirmEmail && (
+              <p className="mt-2 text-sm text-yellow-400 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                {errors.confirmEmail.message}
+              </p>
+            )}
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full flex items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 px-6 py-4 font-semibold disabled:bg-gray-700 disabled:opacity-60 transition"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin mr-3" />
+                Procesando…
+              </>
+            ) : (
+              "Confirmar y Recibir mi Kit"
+            )}
           </button>
+
+          <p className="text-xs text-gray-400 text-center">
+            Usaremos este correo sólo para enviarte tu acceso y soporte.
+          </p>
         </form>
       </div>
     </div>
   );
-};
-
-export default GraciasKitPage;
+}
