@@ -2,7 +2,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { CheckCircle, ShieldCheck } from 'lucide-react';
-import SmartCheckoutCTA from '../components/ui/SmartCheckoutCTA'; // Ajusta la ruta si es necesario
+import SmartCheckoutCTA from '../components/SmartCheckoutCTA'; // Ajusta la ruta si es necesario
 
 const FEATURES = [
   'Acceso ANUAL a la plataforma completa.',

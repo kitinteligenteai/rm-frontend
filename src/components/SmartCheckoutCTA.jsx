@@ -1,4 +1,4 @@
-// RUTA: src/components/ui/SmartCheckoutCTA.jsx
+// RUTA: src/components/SmartCheckoutCTA.jsx
 // ESTADO: FINAL - Versión con generación dinámica de preferencias de MP
 
 import React, { useEffect, useMemo, useState } from "react";

@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ShieldCheck } from 'lucide-react';
-import SmartCheckoutCTA from '../components/ui/SmartCheckoutCTA'; // Ajusta la ruta si es necesario
+import SmartCheckoutCTA from '../components/SmartCheckoutCTA'; // Ajusta la ruta si es necesario
 
 const features = [
   { icon: CheckCircle2, text: 'El Menú Exacto: qué comer y cuándo para apagar la inflamación.' },
