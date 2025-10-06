@@ -1,8 +1,8 @@
-// src/pages/Home.jsx
+// RUTA: src/pages/Home.jsx (Versión Final y Dinámica )
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ShieldCheck } from 'lucide-react';
-import SmartCheckoutCTA from '../components/SmartCheckoutCTA'; // ¡IMPORTAMOS EL NUEVO COMPONENTE!
+import SmartCheckoutCTA from '../components/ui/SmartCheckoutCTA'; // Ajusta la ruta si es necesario
 
 const features = [
   { icon: CheckCircle2, text: 'El Menú Exacto: qué comer y cuándo para apagar la inflamación.' },
@@ -11,6 +11,10 @@ const features = [
 ];
 
 const Home = () => {
+  // Leemos las variables desde el archivo .env.local
+  const priceUSD = Number(import.meta.env.VITE_KIT_PRICE_USD) || 7;
+  const gumroadUrl = import.meta.env.VITE_GUMROAD_KIT_URL;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans">
       <header className="w-full border-b border-white/10 backdrop-blur-md bg-white/5 sticky top-0 z-20">
@@ -57,18 +61,18 @@ const Home = () => {
 
             <div className="mt-6 flex items-baseline gap-2">
               <span className="text-slate-300">Un solo pago de</span>
-              <span className="text-3xl font-extrabold text-teal-400">$7 USD</span>
+              <span className="text-3xl font-extrabold text-teal-400">${priceUSD} USD</span>
             </div>
 
-            {/* --- INICIO DE LA SECCIÓN DE PAGO REEMPLAZADA --- */}
+            {/* --- INICIO DE LA SECCIÓN DE PAGO INTELIGENTE --- */}
             <div className="mt-8">
               <SmartCheckoutCTA
-                gumroadUrl="https://inteligentekit.gumroad.com/l/sxwrn" // ¡YA ESTÁ TU URL REAL!
-                mxnPrice="129"
-                usdPrice="7"
+                productName="Kit de 7 Días Reinicio Metabólico"
+                basePriceUSD={priceUSD}
+                gumroadLink={gumroadUrl}
               />
             </div>
-            {/* --- FIN DE LA SECCIÓN DE PAGO REEMPLAZADA --- */}
+            {/* --- FIN DE LA SECCIÓN DE PAGO INTELIGENTE --- */}
 
             <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-400">
               <ShieldCheck className="h-5 w-5 text-teal-400" />
@@ -79,7 +83,7 @@ const Home = () => {
       </main>
 
       <footer className="mx-auto max-w-5xl px-4 py-10 text-center text-xs text-slate-500">
-        © {new Date( ).getFullYear()} Reinicio Metabólico. Todos los derechos reservados.
+        © {new Date().getFullYear()} Reinicio Metabólico. Todos los derechos reservados.
       </footer>
     </div>
   );

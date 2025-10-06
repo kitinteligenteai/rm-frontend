@@ -1,23 +1,44 @@
-// Contenido COMPLETO y CORRECTO para: src/App.jsx
+// RUTA: src/App.jsx (Versión Final con Router y EnvGuard)
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async'; // Necesario para el SEO en Programa.jsx
 
-function App() {
+import EnvGuard from './components/common/EnvGuard'; // Nuestro guardián de seguridad
+
+// Importamos todas las páginas que usaremos en las rutas
+import Home from './pages/Home';
+import Programa from './pages/Programa';
+import GraciasKit from './pages/GraciasKit';
+import GraciasUpsell from './pages/GraciasUpsell';
+import Plataforma from './pages/Plataforma'; // Asumo que tienes una página de plataforma
+// ... importa aquí cualquier otra página que necesites en tus rutas
+
+export default function App() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold mb-4">Página de Inicio (Landing)</h1>
-      <p className="text-lg text-gray-600 mb-8">
-        Esta es la página principal de la aplicación.
-      </p>
-      <Link 
-        to="/plataforma" 
-        className="px-6 py-3 bg-teal-600 text-white font-bold rounded-lg shadow-md hover:bg-teal-700 transition-colors"
-      >
-        Ir a la Plataforma
-      </Link>
-    </div>
+    // HelmetProvider envuelve toda la app para que el SEO funcione
+    <HelmetProvider>
+      <EnvGuard /> {/* Nuestro guardián, siempre vigilante */}
+      
+      <BrowserRouter>
+        <Routes>
+          {/* Ruta para la página de inicio (venta del Kit) */}
+          <Route path="/" element={<Home />} />
+          
+          {/* Ruta para la página de venta del Programa Completo */}
+          <Route path="/programa" element={<Programa />} />
+          
+          {/* Rutas para las páginas de "Gracias" */}
+          <Route path="/gracias-kit" element={<GraciasKit />} />
+          <Route path="/gracias-upsell" element={<GraciasUpsell />} />
+
+          {/* Ruta para la plataforma de miembros (área privada) */}
+          <Route path="/plataforma" element={<Plataforma />} />
+
+          {/* Puedes añadir más rutas aquí según las necesites */}
+
+        </Routes>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }
-
-export default App; // <-- LA LÍNEA CLAVE QUE FALTABA

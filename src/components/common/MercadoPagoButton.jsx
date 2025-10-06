@@ -2,7 +2,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 
+// !! ESTA ES LA VERSIÓN FINAL Y REUTILIZABLE !!
 export default function MercadoPagoButton({
+  product, // <-- ¡NUEVO PROP! Recibirá el objeto del producto
   placeholderText = "Pagar con Mercado Pago",
   helperText = "Pago seguro • Confirmación inmediata",
   theme = "dark",
@@ -38,6 +40,12 @@ export default function MercadoPagoButton({
   };
 
   const init = useCallback(async () => {
+    // Validamos que tengamos un producto para vender
+    if (!product || !product.id || !product.title || !product.unit_price) {
+      setErr("Producto no especificado.");
+      return;
+    }
+
     try {
       setBusy(true);
       setErr("");
@@ -50,7 +58,11 @@ export default function MercadoPagoButton({
           Authorization: `Bearer ${anonKey}`,
           apikey: anonKey,
         },
-        body: JSON.stringify({}),
+        // ¡AQUÍ ESTÁ EL CAMBIO! Enviamos la información del producto.
+        body: JSON.stringify({
+          items: [product],
+          // Aquí podrías añadir más datos si tu función los necesita
+        }),
       });
       const data = await resp.json();
       if (!resp.ok || !data?.preferenceId) {
@@ -64,13 +76,14 @@ export default function MercadoPagoButton({
     } finally {
       setBusy(false);
     }
-  }, [anonKey, functionsUrl]);
+  }, [anonKey, functionsUrl, product]);
 
   useEffect(() => {
     init();
     return cleanupScript;
   }, [init]);
 
+  // ... el resto del JSX es idéntico ...
   return (
     <div className={`w-full ${className}`}>
       <div
