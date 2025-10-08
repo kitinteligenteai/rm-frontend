@@ -1,127 +1,91 @@
 // RUTA: src/components/SmartCheckoutCTA.jsx
-// ESTADO: FINAL - Versión con generación dinámica y rutas CORRECTAS
-
-import React, { useEffect, useMemo, useState } from "react";
-import { Globe, Loader2 } from "lucide-react";
-import MercadoPagoButton from "./common/MercadoPagoButton";  // <- ./common (mismo nivel)
-import PaymentButton from "./common/PaymentButton";          // <- ./common (mismo nivel)
-import { getUsdToMxnFx, usdToMxn, roundMXN, formatMoney } from "../lib/fx"; // <- ../lib (subir 1 nivel)
-
-const MARKET_KEY = "rm.market.v1";
-
-function softGuessMarket() {
-  try {
-    const lang = (navigator.language || "").toLowerCase();
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-    if (lang.includes("es-mx") || tz.includes("Mexico")) return "MX";
-  } catch {}
-  return "USD";
-}
+import React, { useMemo, useState } from "react";
+import MercadoPagoButton from "./common/MercadoPagoButton";
 
 export default function SmartCheckoutCTA({
-  productName,
-  basePriceUSD,
-  gumroadLink,
-  mxnRounding = "auto-9",
+  productName = "Kit de 7 Días Reinicio Metabólico",
+  basePriceUSD = 7,
+  gumroadLink,                // VITE_GUMROAD_KIT_URL
+  mxnRounding = "auto-9",     // sin cambios: solo estética del precio
 }) {
-  const [market, setMarket] = useState("USD");
-  const [hydrated, setHydrated] = useState(false);
-  const [calculatedMxnPrice, setCalculatedMxnPrice] = useState(null);
-  const [isLoadingFx, setIsLoadingFx] = useState(true);
+  const [currency, setCurrency] = useState("USD");
 
-  useEffect(() => {
-    const saved = localStorage.getItem(MARKET_KEY);
-    if (saved === "MX" || saved === "USD") {
-      setMarket(saved);
-    } else {
-      setMarket(softGuessMarket());
+  // precio “bonito” en MXN (solo para mostrar)
+  const priceMXN = useMemo(() => {
+    const raw = basePriceUSD * 18.9; // tipo estimado local
+    if (mxnRounding === "auto-9") {
+      return Math.round(raw / 10) * 10 - 1; // 139, 129, etc.
     }
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-    (async () => {
-      if (typeof basePriceUSD !== "number" || basePriceUSD <= 0) {
-        setIsLoadingFx(false);
-        return;
-      }
-      setIsLoadingFx(true);
-      const rate = await getUsdToMxnFx();
-      if (isMounted) {
-        const rawMxn = usdToMxn(basePriceUSD, rate);
-        const prettyMxn = roundMXN(rawMxn, mxnRounding);
-        setCalculatedMxnPrice(prettyMxn);
-        setIsLoadingFx(false);
-      }
-    })();
-    return () => { isMounted = false; };
+    return Math.round(raw);
   }, [basePriceUSD, mxnRounding]);
 
-  const priceLabel = useMemo(() => {
-    if (market === "MX") {
-      if (isLoadingFx) return <Loader2 className="h-7 w-7 animate-spin text-teal-300" />;
-      if (calculatedMxnPrice) return formatMoney(calculatedMxnPrice, "MXN");
-      return "No disponible";
-    }
-    return formatMoney(basePriceUSD, "USD", { fractionDigits: 2 });
-  }, [market, calculatedMxnPrice, basePriceUSD, isLoadingFx]);
-
-  const selectMarket = (selected) => {
-    setMarket(selected);
-    localStorage.setItem(MARKET_KEY, selected);
-  };
-
-  if (!hydrated) {
-    return <div className="h-[220px] w-full animate-pulse bg-slate-800/50 rounded-lg" />;
-  }
-
   return (
-    <div className="w-full rounded-lg border border-slate-700 bg-slate-800/50 p-4 backdrop-blur-sm">
-      <div className="mb-4">
-        <div className="text-xs text-slate-400 mb-2 flex items-center gap-2">
-          <Globe className="h-4 w-4" />
-          <span>Elige tu moneda de pago:</span>
-        </div>
-        <div className="inline-flex w-full rounded-md bg-slate-900 p-1">
+    <div className="rounded-2xl border border-white/10 bg-slate-800/50 p-5 md:p-6 backdrop-blur-xl">
+      {/* selector moneda */}
+      <div className="mb-3">
+        <p className="text-[12px] text-slate-400 mb-2">Elige tu moneda de pago:</p>
+        <div className="grid grid-cols-2 gap-2">
           <button
-            type="button"
-            onClick={() => selectMarket("USD")}
-            className={`w-1/2 py-2 rounded text-sm font-bold transition ${market === "USD" ? "bg-teal-500 text-white" : "text-slate-300 hover:bg-slate-700"}`}>
-            🇺🇸 USD
+            onClick={() => setCurrency("USD")}
+            className={`h-10 rounded-md border px-3 text-sm ${
+              currency === "USD"
+                ? "bg-slate-900 border-slate-700 text-white"
+                : "bg-slate-700/40 border-slate-600 text-slate-200"
+            }`}
+          >
+            us USD
           </button>
           <button
-            type="button"
-            onClick={() => selectMarket("MX")}
-            className={`w-1/2 py-2 rounded text-sm font-bold transition ${market === "MX" ? "bg-teal-500 text-white" : "text-slate-300 hover:bg-slate-700"}`}>
-            🇲🇽 MXN
+            onClick={() => setCurrency("MXN")}
+            className={`h-10 rounded-md border px-3 text-sm ${
+              currency === "MXN"
+                ? "bg-slate-900 border-slate-700 text-white"
+                : "bg-slate-700/40 border-slate-600 text-slate-200"
+            }`}
+          >
+            mx MXN
           </button>
         </div>
       </div>
 
-      <div className="mb-4 text-center">
-        <p className="text-3xl font-extrabold text-white h-10 flex items-center justify-center">
-          {priceLabel}
-        </p>
+      {/* precio */}
+      <div className="my-2 text-center">
+        {currency === "USD" ? (
+          <span className="text-3xl font-extrabold text-teal-400 leading-none tracking-tight">
+            ${basePriceUSD}
+          </span>
+        ) : (
+          <span className="text-3xl font-extrabold text-teal-400 leading-none tracking-tight">
+            ${priceMXN}
+          </span>
+        )}
       </div>
 
-      {market === "MX" ? (
+      {/* CTAs */}
+      {currency === "USD" ? (
+        <a
+          href={gumroadLink}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-flex w-full h-11 items-center justify-center rounded-lg bg-teal-500 text-slate-900 font-semibold hover:bg-teal-400 transition-colors leading-none"
+        >
+          Comprar en Gumroad
+        </a>
+      ) : (
         <MercadoPagoButton
+          className="mt-3"
           product={{
-            id: `RM-PROD-${basePriceUSD}`,
+            id: "kit-reinicio-01",
             title: productName,
-            description: `Acceso a ${productName}`,
-            quantity: 1,
-            unit_price: calculatedMxnPrice,
+            unit_price: priceMXN,
             currency_id: "MXN",
           }}
-          className="w-full"
         />
-      ) : (
-        <PaymentButton href={gumroadLink} primary>
-          Pagar con Tarjeta (USD)
-        </PaymentButton>
       )}
+
+      <p className="mt-3 text-center text-[12px] text-slate-400">
+        Pago seguro • Confirmación inmediata
+      </p>
     </div>
   );
 }

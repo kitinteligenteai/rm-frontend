@@ -1,55 +1,61 @@
-// src/components/common/MercadoPagoButton.jsx
+// RUTA: src/components/common/MercadoPagoButton.jsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 
-// !! ESTA ES LA VERSIÓN FINAL Y REUTILIZABLE !!
+/**
+ * Renderiza el botón AMARILLO de MP embebido (Checkout Pro modal).
+ * Evita el doble-mount de React 18 StrictMode en dev.
+ */
 export default function MercadoPagoButton({
-  product, // <-- ¡NUEVO PROP! Recibirá el objeto del producto
-  placeholderText = "Pagar con Mercado Pago",
-  helperText = "Pago seguro • Confirmación inmediata",
-  theme = "dark",
+  product,                 // { id, title, unit_price, currency_id: 'MXN' }
   className = "",
+  theme = "dark",
+  placeholderText = "Cargando botón de pago…",
+  helperText = "Pago seguro • Confirmación inmediata",
 }) {
-  const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const containerRef = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  const holderRef = useRef(null);
   const scriptRef = useRef(null);
+  const didInit = useRef(false); // ← evita doble ejecución en dev
 
   const functionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  const cleanupScript = ( ) => {
+  const cleanup = () => {
+    // remueve el script y lo que haya renderizado
     if (scriptRef.current) {
       scriptRef.current.remove();
       scriptRef.current = null;
     }
-    if (containerRef.current) containerRef.current.innerHTML = "";
+    if (holderRef.current) holderRef.current.innerHTML = "";
+    setReady(false);
   };
 
-  const injectScript = (preferenceId) => {
-    cleanupScript();
-    const script = document.createElement("script");
-    script.src = "https://www.mercadopago.com.mx/integrations/v1/web-payment-checkout.js";
-    script.setAttribute("data-preference-id", preferenceId );
-    script.async = true;
-    script.onload = () => setReady(true);
-    script.onerror = () => setErr("No se pudo cargar el botón de Mercado Pago.");
-    scriptRef.current = script;
-    containerRef.current?.appendChild(script);
+  const injectMpScript = (preferenceId) => {
+    cleanup();
+    const s = document.createElement("script");
+    s.src = "https://www.mercadopago.com.mx/integrations/v1/web-payment-checkout.js";
+    s.async = true;
+    s.setAttribute("data-preference-id", preferenceId);
+    // Nota: este script REEMPLAZA al propio <script/> por el botón.
+    // por eso lo insertamos dentro del holderRef.
+    s.onload = () => setReady(true);
+    s.onerror = () => setErr("No se pudo cargar el botón de Mercado Pago.");
+    scriptRef.current = s;
+    holderRef.current?.appendChild(s);
   };
 
   const init = useCallback(async () => {
-    // Validamos que tengamos un producto para vender
-    if (!product || !product.id || !product.title || !product.unit_price) {
+    if (!product || !product.title || !product.unit_price) {
       setErr("Producto no especificado.");
       return;
     }
-
     try {
       setBusy(true);
       setErr("");
-      setReady(false);
 
       const resp = await fetch(`${functionsUrl}/mp-generate-preference-v2`, {
         method: "POST",
@@ -58,18 +64,25 @@ export default function MercadoPagoButton({
           Authorization: `Bearer ${anonKey}`,
           apikey: anonKey,
         },
-        // ¡AQUÍ ESTÁ EL CAMBIO! Enviamos la información del producto.
         body: JSON.stringify({
-          items: [product],
-          // Aquí podrías añadir más datos si tu función los necesita
+          items: [
+            {
+              title: product.title,
+              quantity: 1,
+              unit_price: Number(product.unit_price),
+              currency_id: product.currency_id || "MXN",
+              id: product.id || "kit-reinicio-01",
+            },
+          ],
         }),
       });
+
       const data = await resp.json();
       if (!resp.ok || !data?.preferenceId) {
         throw new Error(data?.error || "No se pudo crear la preferencia.");
       }
 
-      injectScript(data.preferenceId);
+      injectMpScript(data.preferenceId);
     } catch (e) {
       console.error(e);
       setErr(e.message || "Error inicializando el checkout.");
@@ -79,34 +92,56 @@ export default function MercadoPagoButton({
   }, [anonKey, functionsUrl, product]);
 
   useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
     init();
-    return cleanupScript;
+    return cleanup;
   }, [init]);
 
-  // ... el resto del JSX es idéntico ...
   return (
     <div className={`w-full ${className}`}>
-      <div
-        className={`relative w-full h-[52px] rounded-lg border ${
-          theme === "dark" ? "border-gray-700 bg-gray-800/60" : "border-gray-200 bg-gray-50"
-        } ${ready ? "opacity-0 pointer-events-none absolute -z-10" : "opacity-100"}`}
-      >
-        <div className="h-full w-full flex items-center justify-center gap-2 text-sm">
+      {/* placeholder / estado */}
+      {!ready && (
+        <div
+          className={`relative w-full h-[52px] rounded-lg border ${
+            theme === "dark"
+              ? "border-gray-700 bg-gray-800/60"
+              : "border-gray-200 bg-gray-50"
+          } flex items-center justify-center`}
+        >
           {busy ? (
-            <><Loader2 className="h-4 w-4 animate-spin" /><span>Cargando botón de pago…</span></>
+            <span className="flex items-center gap-2 text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {placeholderText}
+            </span>
           ) : err ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-sm">
               <span className="text-red-400">{err}</span>
-              <button type="button" onClick={init} className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-gray-600 hover:bg-gray-800">
-                <RefreshCw className="h-3.5 w-3.5" />Reintentar
+              <button
+                type="button"
+                onClick={init}
+                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-gray-600 hover:bg-gray-800"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Reintentar
               </button>
             </div>
           ) : (
-            <><Loader2 className="h-4 w-4 animate-spin" /><span>{placeholderText}</span></>
+            <span className="flex items-center gap-2 text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {placeholderText}
+            </span>
           )}
         </div>
-      </div>
-      <div ref={containerRef} className={`${ready ? "opacity-100" : "opacity-0"} transition-opacity duration-150`} aria-live="polite" />
+      )}
+
+      {/* aquí MercadoPago inyecta el botón amarillo */}
+      <div
+        ref={holderRef}
+        className={`${ready ? "opacity-100" : "opacity-0"} transition-opacity duration-150`}
+        aria-live="polite"
+      />
+
       <p className="mt-2 text-center text-[11px] text-gray-500">{helperText}</p>
     </div>
   );
