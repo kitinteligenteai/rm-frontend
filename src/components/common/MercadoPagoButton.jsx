@@ -1,126 +1,94 @@
-// src/components/common/MercadoPagoButton.jsx
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import { Loader2, RefreshCw } from "lucide-react";
+// RUTA: src/components/common/MercadoPagoButton.jsx
+import React, { useMemo, useState } from "react";
 
+/**
+ * Botón "amarillo Mercado Pago" (simulado) que:
+ * 1) Llama a la Edge Function mp-generate-preference-v2 con items dinámicos
+ * 2) Redirige al checkout hosted de MP
+ *
+ * Props:
+ * - items: [{ title, quantity, unit_price, currency_id }]
+ * - label: string
+ * - disabled: boolean
+ * - size: "compact" | "normal"
+ * - onError: (msg) => void
+ */
 export default function MercadoPagoButton({
-  product,
-  placeholderText = "Preparando Mercado Pago…",
-  helperText = "Pago seguro • Confirmación inmediata",
-  theme = "dark",
-  className = "",
+  items = [],
+  label = "Pagar con Mercado Pago",
+  disabled = false,
+  size = "compact",
+  onError,
 }) {
-  const [ready, setReady] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
-  const containerRef = useRef(null);
-  const scriptRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
-  const functionsUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_REF}.functions.supabase.co`;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  // Base público de Edge Functions
+  const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_REF;
+  const FN_BASE = useMemo(() => {
+    if (projectRef) return `https://${projectRef}.functions.supabase.co`;
+    const supaUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/+$/, "");
+    return `${supaUrl}/functions/v1`;
+  }, [projectRef]);
 
-  const cleanupScript = () => {
-    if (scriptRef.current) {
-      scriptRef.current.remove();
-      scriptRef.current = null;
-    }
-    if (containerRef.current) containerRef.current.innerHTML = "";
-  };
-
-  const injectScript = (preferenceId) => {
-    cleanupScript();
-    const script = document.createElement("script");
-    script.src = "https://www.mercadopago.com.mx/integrations/v1/web-payment-checkout.js";
-    script.setAttribute("data-preference-id", preferenceId);
-    script.setAttribute("data-open", "modal");               // 👈 modal, no nueva pestaña
-    script.setAttribute("data-button-label", "Pagar (MXN)"); // 👈 etiqueta del botón
-    script.async = true;
-    script.onload = () => setReady(true);
-    script.onerror = () => setErr("No se pudo cargar el botón de Mercado Pago.");
-    scriptRef.current = script;
-    containerRef.current?.appendChild(script);
-  };
-
-  const init = useCallback(async () => {
-    if (!product || !product.id || !product.title || !product.unit_price) {
-      setErr("Producto no especificado.");
-      return;
-    }
-
+  async function handleClick() {
+    if (disabled || loading) return;
     try {
-      setBusy(true);
-      setErr("");
-      setReady(false);
+      setLoading(true);
 
-      const resp = await fetch(`${functionsUrl}/mp-generate-preference-v2`, {
+      const res = await fetch(`${FN_BASE}/mp-generate-preference-v2`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${anonKey}`, // 👈 NECESARIO (función protegida)
-          apikey: anonKey,
-        },
-        body: JSON.stringify({ items: [product] }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
       });
-      const data = await resp.json();
-      if (!resp.ok || !data?.preferenceId) {
-        throw new Error(data?.error || "No se pudo crear la preferencia.");
+
+      const data = await res.json();
+      if (!res.ok || !data?.preferenceId) {
+        throw new Error(data?.error || "No se pudo iniciar el pago.");
       }
 
-      injectScript(data.preferenceId);
+      // Redirección a checkout hosted de Mercado Pago
+      window.location.href = `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${data.preferenceId}`;
     } catch (e) {
-      console.error(e);
-      setErr(e.message || "Error inicializando el checkout.");
+      console.error("[MP Button]", e);
+      onError?.(e?.message || "Error al iniciar el pago.");
     } finally {
-      setBusy(false);
+      setLoading(false);
     }
-  }, [anonKey, functionsUrl, product]);
+  }
 
-  useEffect(() => {
-    init();
-    return cleanupScript;
-  }, [init]);
+  // Estética "Mercado Pago" (amarillo)
+  const base =
+    "w-full inline-flex items-center justify-center rounded-xl shadow-sm " +
+    "transition-colors duration-150 focus:outline-none focus:ring-2 " +
+    "focus:ring-offset-2 focus:ring-[#ffe600]/60 text-slate-900 select-none";
+  const sizeCls = size === "compact" ? "h-11 text-[15px]" : "h-12 text-[16px]";
+  const color =
+    disabled || loading
+      ? "bg-[#ffe600]/70 cursor-not-allowed"
+      : "bg-[#ffe600] hover:bg-[#ffd800] active:bg-[#ffcf00]";
+  const weight = "font-semibold";
+  const gap = "gap-2";
 
   return (
-    <div className={`w-full ${className}`}>
-      {/* Placeholder mientras carga el botón */}
-      <div
-        className={`relative w-full h-[52px] rounded-lg border ${
-          theme === "dark" ? "border-gray-700 bg-gray-800/60" : "border-gray-200 bg-gray-50"
-        } ${ready ? "opacity-0 pointer-events-none absolute -z-10" : "opacity-100"}`}
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={disabled || loading}
+      aria-busy={loading ? "true" : "false"}
+      className={`${base} ${sizeCls} ${weight} ${color} ${gap}`}
+    >
+      {/* Ícono genérico de “pago” */}
+      <svg
+        aria-hidden="true"
+        className="h-[18px] w-[18px]"
+        viewBox="0 0 24 24"
+        fill="currentColor"
       >
-        <div className="h-full w-full flex items-center justify-center gap-2 text-sm">
-          {busy ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>{placeholderText}</span>
-            </>
-          ) : err ? (
-            <div className="flex items-center gap-2">
-              <span className="text-red-400">{err}</span>
-              <button
-                type="button"
-                onClick={init}
-                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-gray-600 hover:bg-gray-800"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                Reintentar
-              </button>
-            </div>
-          ) : (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>{placeholderText}</span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Aquí aparece el botón amarillo */}
-      <div
-        ref={containerRef}
-        className={`${ready ? "opacity-100" : "opacity-0"} transition-opacity duration-150`}
-        aria-live="polite"
-      />
-      <p className="mt-2 text-center text-[11px] text-gray-500">{helperText}</p>
-    </div>
+        <path d="M3 7a2 2 0 012-2h7.5a2 2 0 012 2v1H21a1 1 0 011 1v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-1H4a1 1 0 01-1-1V7zM6 9v8a1 1 0 001 1h12a1 1 0 001-1v-7H6zm5 5a1 1 0 100 2h4a1 1 0 100-2h-4z" />
+      </svg>
+      <span className="leading-none">
+        {loading ? "Preparando pago…" : label}
+      </span>
+    </button>
   );
 }

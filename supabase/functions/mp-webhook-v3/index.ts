@@ -1,12 +1,13 @@
-// supabase/functions/mp-webhook-v3/index.ts - ARCHITECTURE REFINED
+// supabase/functions/mp-webhook-v3/index.ts
+// BUILD: 2025-10-09 — idempotente + onConflict compuesto
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const BUILD = 'mp-webhook-v3@2025-10-03-ARCH-REFINED';
+const BUILD = 'mp-webhook-v3@2025-10-09-IDEMPOTENT';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -19,117 +20,132 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // --- 1) Parseo robusto de notificación MP ---
-    const body = await req.json().catch(() => ({} as any));
+    // --- Parseo robusto del evento ---
+    const body = await req.json().catch(() => ({}));
     const url = new URL(req.url);
     const qpType = url.searchParams.get('type') || url.searchParams.get('topic');
     const qpId = url.searchParams.get('id');
+
     const action = body?.action;
     const bType = body?.type || body?.topic || qpType;
-
-    let paymentId: string | null =
-      body?.data?.id || body?.id || qpId || null;
+    let paymentId: string | null = body?.data?.id || body?.id || qpId || null;
 
     if (!paymentId && body?.resource) {
       const parts = String(body.resource).split('/');
       paymentId = parts[parts.length - 1] || null;
     }
 
-    console.log(`[${BUILD}] Event received:`, { bType, action, paymentId });
+    console.log(`[${BUILD}] Event:`, { bType, action, paymentId });
 
-    // Ignoramos eventos no-relacionados a pagos o sin ID
-    if (!(bType === 'payment' || action?.startsWith('payment')) || !paymentId) {
+    if (!(bType === 'payment' || (action && action.startsWith('payment'))) || !paymentId) {
       return new Response(JSON.stringify({ ok: true, ignored: true, build: BUILD }), {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // --- 2) Obtener detalles del pago desde MP ---
+    // --- Consulta a MP ---
     const accessToken =
       Deno.env.get('MP_ACCESS_TOKEN') || Deno.env.get('MERCADOPAGO_ACCESS_TOKEN');
-
     const r = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     const payment = await r.json();
 
     if (!r.ok) {
-      console.error(`[${BUILD}] MP fetch error`, r.status, payment);
+      console.error(`[${BUILD}] MP error`, r.status, payment);
       return new Response(JSON.stringify({ ok: true, mp_error: r.status, build: BUILD }), {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const status = payment?.status ?? '';
-    const sessionId = payment?.external_reference ?? null;
+    const status: string = payment?.status ?? '';
+    const sessionId: string | null = payment?.external_reference ?? null;
 
-    // Visibilidad en checkout_sessions
+    // reflejamos status en checkout_sessions
     if (sessionId) {
       await supabase
         .from('checkout_sessions')
-        .update({ payment_id: paymentId, status })
+        .update({ payment_id: String(paymentId), status })
         .eq('id', sessionId);
     }
 
-    // --- 3) Si approved: notificar y guardar compra ---
+    // resolvemos email “seguro”
+    let emailFromSession: string | null = null;
+    if (sessionId) {
+      const { data: s } = await supabase
+        .from('checkout_sessions')
+        .select('email_final')
+        .eq('id', sessionId)
+        .single();
+      emailFromSession = s?.email_final?.trim().toLowerCase() || null;
+    }
+    const emailFromMP = (payment?.payer?.email || '').trim().toLowerCase();
+    const isMPTestUser = emailFromMP.endsWith('@testuser.com');
+    const safeEmail =
+      emailFromSession && !emailFromSession.endsWith('@testuser.com')
+        ? emailFromSession
+        : !isMPTestUser
+        ? emailFromMP
+        : null;
+
+    // --- UPSERT idempotente en purchases (conflicto compuesto) ---
+    const row = {
+      provider: 'mercadopago',
+      provider_payment_id: String(paymentId),
+      email: safeEmail, // puede ser null; luego lo rellenamos si llega
+      product_id: payment?.additional_info?.items?.[0]?.id ?? 'kit-reinicio-01',
+      status,
+      session_id: sessionId,
+      meta: payment,
+    };
+
+    const { error: upsertErr } = await supabase
+      .from('purchases')
+      .upsert(row, { onConflict: 'provider,provider_payment_id' }); // <— clave
+
+    if (upsertErr) {
+      // Si MP manda varias notificaciones, ignoramos duplicados sin romper el flujo
+      console.error(`[${BUILD}] Upsert error`, upsertErr);
+    }
+
+    // si ya existía y sólo faltaba el email, lo rellenamos sin sobreescribir si ya hay uno
+    if (safeEmail) {
+      await supabase
+        .from('purchases')
+        .update({ email: safeEmail })
+        .eq('provider', 'mercadopago')
+        .eq('provider_payment_id', String(paymentId))
+        .is('email', null);
+    }
+
+    // Notificación ntfy (si configuraste NTFY_TOPIC)
     if (status === 'approved') {
-      // ntfy (único por payment_id)
       const topic = Deno.env.get('NTFY_TOPIC');
       if (topic) {
-        const { data: shouldSend, error: rpcError } = await supabase.rpc('log_notification_if_not_exists', {
-          p_payment_id: paymentId,
-          p_channel: 'ntfy',
-          p_meta: { to: topic }
-        });
-        if (rpcError) console.error(`[${BUILD}] ntfy RPC Error:`, rpcError.message);
-
-        if (shouldSend) {
-          console.log(`[${BUILD}] Sending UNIQUE ntfy notification for ${paymentId}.`);
-          fetch(`https://ntfy.sh/${topic}`, {
+        try {
+          await fetch(`https://ntfy.sh/${topic}`, {
             method: 'POST',
-            body: `Venta aprobada: ${payment.transaction_amount} ${payment.currency_id}`,
-            headers: { 'Title': '¡Nueva venta!', 'Priority': 'high', 'Tags': 'tada,moneybag' }
-          }).catch((e) => console.error('ntfy fetch err', e));
-        } else {
-          console.log(`[${BUILD}] ntfy notification for ${paymentId} already sent. Skipping.`);
+            body: `Venta aprobada: ${payment.transaction_amount} ${payment.currency_id}\n${String(paymentId)}`,
+            headers: { Title: '¡Nueva venta!', Priority: 'high', Tags: 'tada,moneybag' },
+          });
+        } catch (e) {
+          console.error('ntfy error', e);
         }
-      }
-
-      // Guardar/actualizar compra (email = null; lo pondrá update-checkout-email)
-      console.log(`[${BUILD}] Upserting purchase ${paymentId}. Email enqueue happens in update-checkout-email.`);
-      const { error: upsertError } = await supabase.from('purchases').upsert({
-        provider: 'mercadopago',
-        provider_payment_id: paymentId,
-        email: null,
-        product_id: payment?.additional_info?.items?.[0]?.id ?? 'kit-reinicio-01',
-        status: 'approved',
-        session_id: sessionId,
-        meta: payment
-      }, { onConflict: 'provider_payment_id' });
-
-      if (upsertError) {
-        console.error(`[${BUILD}] FATAL Upsert Error:`, upsertError);
       }
     }
 
     console.log(`[${BUILD}] OK paymentId=${paymentId} status=${status}`);
     return new Response(JSON.stringify({ ok: true, build: BUILD }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-
-  } catch (e: any) {
-    console.error(`[${BUILD}] FATAL ERROR`, e);
-    return new Response(JSON.stringify({
-      ok: true,
-      error: true,
-      build: BUILD,
-      message: e?.message || String(e)
-    }), {
+  } catch (e) {
+    console.error(`[${BUILD}] FATAL`, e);
+    return new Response(JSON.stringify({ ok: true, error: true, build: BUILD, message: e.message }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
