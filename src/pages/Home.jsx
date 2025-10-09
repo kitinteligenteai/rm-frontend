@@ -1,13 +1,13 @@
-// RUTA: src/pages/Home.jsx (Versión Final - Cero Scroll Desktop y optimizado para Móvil)
+// RUTA: src/pages/Home.jsx (Versión de Foco Absoluto - Cero Scroll Garantizado)
 import React from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
 
 const FEATURES = [
-  "El Menú Exacto: qué comer y cuándo para apagar la inflamación.",
-  "Recetas Deliciosas y Simples: diseñadas para sanar, sin ingredientes raros.",
-  "Lista de Compras Inteligente: organizada para una sola visita al súper.",
+  "El Menú Exacto para apagar la inflamación.",
+  "Recetas Deliciosas y Simples, sin ingredientes raros.",
+  "Lista de Compras Inteligente para una sola visita al súper.",
 ];
 
 export default function Home() {
@@ -15,88 +15,65 @@ export default function Home() {
   const gumroadUrl = import.meta.env.VITE_GUMROAD_KIT_URL;
 
   return (
-    // CAMBIO CLAVE 1: Usamos flexbox para centrar el contenido verticalmente en pantallas grandes
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans flex flex-col">
       
-      {/* Header muy bajo */}
-      <header className="sticky top-0 z-20 bg-white/5 backdrop-blur-md border-b border-white/10">
-        <div className="mx-auto max-w-[980px] px-4 py-2">
-          <h1 className="text-base font-semibold tracking-tight">Reinicio Metabólico</h1>
+      <header className="sticky top-0 z-20 bg-slate-900/60 backdrop-blur-md border-b border-white/10">
+        <div className="mx-auto max-w-5xl px-4 py-3">
+          <h1 className="text-base font-bold tracking-tight text-white">Reinicio Metabólico</h1>
         </div>
       </header>
 
-      {/* CAMBIO CLAVE 2: El main crece para ocupar el espacio y centra la tarjeta */}
-      <main className="flex-grow flex items-center justify-center w-full px-4 py-6">
-        <motion.section
-          initial={{ opacity: 0, y: 14 }}
+      {/* Contenedor principal que centra todo vertical y horizontalmente */}
+      <main className="flex-grow flex items-center justify-center w-full px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          // CAMBIO CLAVE 3: El grid ahora es de 1 columna en móvil y 2 en desktop
-          className="grid w-full max-w-[980px] md:grid-cols-2 items-center gap-6 rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 shadow-2xl backdrop-blur-xl"
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          // CAMBIO RADICAL: Contenedor de una sola columna, centrado y estrecho
+          className="w-full max-w-lg mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-center"
         >
-          {/* Columna imagen (más pequeña y oculta en móvil) */}
-          <div className="hidden sm:flex items-center justify-center">
+          {/* Columna 1: Título y Características */}
+          <div className="text-center md:text-left">
+            <p className="text-sm font-semibold uppercase tracking-widest text-teal-400">
+              PDF DE ACCIÓN INMEDIATA
+            </p>
+            <h2 className="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+              Tu <span className="text-teal-400">Sistema de 7 Días</span>
+            </h2>
+            <p className="mt-4 max-w-md mx-auto md:mx-0 text-base text-slate-300">
+              Deja de adivinar. Te entregamos el plan exacto para decidir cada comida con claridad.
+            </p>
+            <ul className="mt-5 space-y-3 text-left">
+              {FEATURES.map((txt) => (
+                <li key={txt} className="flex items-start gap-3">
+                  <CheckCircle2 className="mt-1 h-5 w-5 text-teal-400 flex-shrink-0" />
+                  <span className="text-base text-slate-200">{txt}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Columna 2: Imagen y CTA de Compra */}
+          <div className="flex flex-col items-center">
             <img
               src="/llave-maestra.png"
               alt=""
               aria-hidden="true"
-              className="w-full max-w-[240px] md:max-w-[280px] object-contain drop-shadow-xl"
-              width={280}
-              height={280}
-              loading="eager"
-              fetchPriority="high"
+              className="w-32 h-32 object-contain drop-shadow-xl mb-5"
             />
-          </div>
-
-          {/* Columna texto + checkout compactados */}
-          <div className="md:pr-1">
-            <p className="mb-1 text-xs uppercase tracking-widest text-teal-400/80 font-semibold">
-              PDF DE ACCIÓN INMEDIATA
-            </p>
-
-            <h2 className="text-2xl md:text-3xl font-extrabold leading-tight">
-              Tu <span className="text-teal-400">Sistema de 7 Días</span>
-            </h2>
-
-            <p className="mt-2 text-sm text-slate-300">
-              Deja de adivinar. Te entregamos el plan exacto para decidir cada comida con claridad y recuperar tu energía.
-            </p>
-
-            <ul className="mt-4 space-y-2">
-              {FEATURES.map((txt) => (
-                <li key={txt} className="flex items-start gap-2.5">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-teal-400 flex-shrink-0" />
-                  <span className="text-sm text-slate-200">{txt}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="text-sm text-slate-300">Un solo pago de</span>
-              <span className="text-2xl md:text-3xl font-extrabold text-teal-400">
-                ${priceUSD} USD
-              </span>
-            </div>
-
-            {/* Checkout inteligente (MXN/USD) */}
-            <div className="mt-4">
+            <div className="w-full max-w-sm">
               <SmartCheckoutCTA
                 productName="Kit de 7 Días Reinicio Metabólico"
                 basePriceUSD={priceUSD}
                 gumroadLink={gumroadUrl}
                 mxnRounding="auto-9"
-                size="compact"
-                dense={true}
+                size="normal"
+                dense={false}
               />
             </div>
           </div>
-        </motion.section>
+        </motion.div>
       </main>
-
-      {/* Footer compacto */}
-      <footer className="w-full px-4 py-4 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} Reinicio Metabólico.
-      </footer>
     </div>
   );
 }
