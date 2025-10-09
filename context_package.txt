@@ -1,0 +1,810 @@
+﻿=== CONTEXT PACKAGE - Reinicio Metabolico ===
+Date: 09/10/2025 04:33:15 p. m.
+Git branch: main
+
+--- Modified files (git status) ---
+
+ M package.json
+?? context_package.txt
+?? make_context.ps1
+?? make_context_utf8.ps1
+
+--- Git diff (names only) ---
+
+package.json
+
+--- Last commits (5) ---
+
+3e7f0af UX: gu├¡a clara de moneda + MP amarillo y Gumroad verde + auto-select MXN
+f82910d // src/components/common/MercadoPagoButton.jsx import React, { useEffect, useRef, useState, useCallback } from "react"; import { Loader2, RefreshCw } from "lucide-react";
+1fd45f1 feat(checkout): MP mismo tab + return a /gracias-kit (initPoint+sessionId)
+4cfe5ec feat(ui): Home compacto + tipograf├¡a; fix(checkout): bot├│n MP embebido y back_urls; chore(tailwind): fuente; feat(functions): mp-generate-preference-v2 y mp-webhook-v3
+cf2a343 fix: rutas en SmartCheckoutCTA y build ok
+
+--- HEAD of key files ---
+
+
+--- FILE: supabase/functions/mp-generate-preference-v2/index.ts ---
+
+// mp-generate-preference-v2 â€” acepta items dinÃ¡micos y usa dominio pÃºblico para webhooks
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { v4 as uuidv4 } from 'https://esm.sh/uuid';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS'
+};
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // 1) Creamos la sesiÃ³n
+    const sessionId = uuidv4();
+    const { error: sessionError } = await supabase
+      .from('checkout_sessions')
+      .insert({ id: sessionId, status: 'pending' });
+    if (sessionError) throw new Error(`Error al crear la sesiÃ³n de checkout: ${sessionError.message}`);
+
+    // 2) Items desde el body (o fallback)
+    let body: any = {};
+    try { body = await req.json(); } catch {}
+    const items = Array.isArray(body?.items) && body.items.length
+      ? body.items
+      : [{
+          title: 'Kit de 7 DÃ­as - Reinicio MetabÃ³lico',
+          quantity: 1,
+          unit_price: 129.0,
+          currency_id: 'MXN',
+        }];
+
+    const sanitizedItems = items.map((i: any) => ({
+      title: String(i.title || 'Producto'),
+      quantity: Number(i.quantity || 1),
+      unit_price: Number(i.unit_price || 0),
+      currency_id: String(i.currency_id || 'MXN'),
+    }));
+
+    const accessToken = Deno.env.get('MP_ACCESS_TOKEN');
+    if (!accessToken) throw new Error('Falta MP_ACCESS_TOKEN en Secrets');
+
+    const projectRef = Deno.env.get('PROJECT_REF') || 'mgjzlohapnepvrqlxmpo';
+    const notification_url = `https://${projectRef}.functions.supabase.co/mp-webhook-v3`;
+
+    const preferenceData = {
+      items: sanitizedItems,
+      back_urls: {
+        success: `https://reiniciometabolico.net/gracias-kit?session_id=${sessionId}`,
+        failure: `https://reiniciometabolico.net/pago-fallido`,
+        pending: `https://reiniciometabolico.net/pago-pendiente`,
+      },
+      auto_return: 'approved',
+      statement_descriptor: 'REINICIO METABOLICO',
+      notification_url,
+      external_reference: sessionId,
+    };
+
+    const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(preferenceData),
+    });
+
+    const preference = await mpResponse.json();
+    if (!mpResponse.ok) throw new Error(`Error de Mercado Pago: ${JSON.stringify(preference)}`);
+
+    // Guardamos el preference_id
+    await supabase.from('checkout_sessions').update({ preference_id: preference.id }).eq('id', sessionId);
+
+    // 3) Devolver init_point y sessionId (NUEVO)
+    return new Response(
+      JSON.stringify({
+        preferenceId: preference.id,
+        initPoint: preference.init_point || preference.sandbox_init_point || null,
+        sessionId,
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error: any) {
+    console.error('Error en mp-generate-preference-v2:', error?.message || error);
+    return new Response(JSON.stringify({ error: String(error?.message || error) }), {
+      status: 500,
+      headers: corsHeaders,
+    });
+  }
+});
+
+--- FILE: supabase/functions/mp-webhook-v3/index.ts ---
+
+// supabase/functions/mp-webhook-v3/index.ts
+// BUILD: 2025-10-09 â€” idempotente + onConflict compuesto
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+const BUILD = 'mp-webhook-v3@2025-10-09-IDEMPOTENT';
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // --- Parseo robusto del evento ---
+    const body = await req.json().catch(() => ({}));
+    const url = new URL(req.url);
+    const qpType = url.searchParams.get('type') || url.searchParams.get('topic');
+    const qpId = url.searchParams.get('id');
+
+    const action = body?.action;
+    const bType = body?.type || body?.topic || qpType;
+    let paymentId: string | null = body?.data?.id || body?.id || qpId || null;
+
+    if (!paymentId && body?.resource) {
+      const parts = String(body.resource).split('/');
+      paymentId = parts[parts.length - 1] || null;
+    }
+
+    console.log(`[${BUILD}] Event:`, { bType, action, paymentId });
+
+    if (!(bType === 'payment' || (action && action.startsWith('payment'))) || !paymentId) {
+      return new Response(JSON.stringify({ ok: true, ignored: true, build: BUILD }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // --- Consulta a MP ---
+    const accessToken =
+      Deno.env.get('MP_ACCESS_TOKEN') || Deno.env.get('MERCADOPAGO_ACCESS_TOKEN');
+    const r = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const payment = await r.json();
+
+    if (!r.ok) {
+      console.error(`[${BUILD}] MP error`, r.status, payment);
+      return new Response(JSON.stringify({ ok: true, mp_error: r.status, build: BUILD }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const status: string = payment?.status ?? '';
+    const sessionId: string | null = payment?.external_reference ?? null;
+
+    // reflejamos status en checkout_sessions
+    if (sessionId) {
+      await supabase
+        .from('checkout_sessions')
+        .update({ payment_id: String(paymentId), status })
+        .eq('id', sessionId);
+    }
+
+    // resolvemos email â€œseguroâ€
+    let emailFromSession: string | null = null;
+    if (sessionId) {
+      const { data: s } = await supabase
+        .from('checkout_sessions')
+        .select('email_final')
+        .eq('id', sessionId)
+        .single();
+      emailFromSession = s?.email_final?.trim().toLowerCase() || null;
+    }
+    const emailFromMP = (payment?.payer?.email || '').trim().toLowerCase();
+    const isMPTestUser = emailFromMP.endsWith('@testuser.com');
+    const safeEmail =
+      emailFromSession && !emailFromSession.endsWith('@testuser.com')
+        ? emailFromSession
+        : !isMPTestUser
+        ? emailFromMP
+        : null;
+
+    // --- UPSERT idempotente en purchases (conflicto compuesto) ---
+    const row = {
+      provider: 'mercadopago',
+      provider_payment_id: String(paymentId),
+      email: safeEmail, // puede ser null; luego lo rellenamos si llega
+      product_id: payment?.additional_info?.items?.[0]?.id ?? 'kit-reinicio-01',
+      status,
+      session_id: sessionId,
+      meta: payment,
+    };
+
+    const { error: upsertErr } = await supabase
+      .from('purchases')
+      .upsert(row, { onConflict: 'provider,provider_payment_id' }); // <â€” clave
+
+    if (upsertErr) {
+      // Si MP manda varias notificaciones, ignoramos duplicados sin romper el flujo
+      console.error(`[${BUILD}] Upsert error`, upsertErr);
+    }
+
+    // si ya existÃ­a y sÃ³lo faltaba el email, lo rellenamos sin sobreescribir si ya hay uno
+    if (safeEmail) {
+      await supabase
+        .from('purchases')
+        .update({ email: safeEmail })
+        .eq('provider', 'mercadopago')
+        .eq('provider_payment_id', String(paymentId))
+        .is('email', null);
+    }
+
+    // NotificaciÃ³n ntfy (si configuraste NTFY_TOPIC)
+    if (status === 'approved') {
+      const topic = Deno.env.get('NTFY_TOPIC');
+      if (topic) {
+        try {
+          await fetch(`https://ntfy.sh/${topic}`, {
+            method: 'POST',
+            body: `Venta aprobada: ${payment.transaction_amount} ${payment.currency_id}\n${String(paymentId)}`,
+            headers: { Title: 'Â¡Nueva venta!', Priority: 'high', Tags: 'tada,moneybag' },
+          });
+        } catch (e) {
+          console.error('ntfy error', e);
+        }
+      }
+    }
+
+    console.log(`[${BUILD}] OK paymentId=${paymentId} status=${status}`);
+    return new Response(JSON.stringify({ ok: true, build: BUILD }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    console.error(`[${BUILD}] FATAL`, e);
+    return new Response(JSON.stringify({ ok: true, error: true, build: BUILD, message: e.message }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
+
+--- FILE: src/components/common/MercadoPagoButton.jsx ---
+
+// RUTA: src/components/common/MercadoPagoButton.jsx
+import React, { useMemo, useState } from "react";
+
+/**
+ * BotÃ³n "amarillo Mercado Pago" (simulado) que:
+ * 1) Llama a la Edge Function mp-generate-preference-v2 con items dinÃ¡micos
+ * 2) Redirige al checkout hosted de MP
+ *
+ * Props:
+ * - items: [{ title, quantity, unit_price, currency_id }]
+ * - label: string
+ * - disabled: boolean
+ * - size: "compact" | "normal"
+ * - onError: (msg) => void
+ */
+export default function MercadoPagoButton({
+  items = [],
+  label = "Pagar con Mercado Pago",
+  disabled = false,
+  size = "compact",
+  onError,
+}) {
+  const [loading, setLoading] = useState(false);
+
+  // Base pÃºblico de Edge Functions
+  const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_REF;
+  const FN_BASE = useMemo(() => {
+    if (projectRef) return `https://${projectRef}.functions.supabase.co`;
+    const supaUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/+$/, "");
+    return `${supaUrl}/functions/v1`;
+  }, [projectRef]);
+
+  async function handleClick() {
+    if (disabled || loading) return;
+    try {
+      setLoading(true);
+
+      const res = await fetch(`${FN_BASE}/mp-generate-preference-v2`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data?.preferenceId) {
+        throw new Error(data?.error || "No se pudo iniciar el pago.");
+      }
+
+      // RedirecciÃ³n a checkout hosted de Mercado Pago
+      window.location.href = `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${data.preferenceId}`;
+    } catch (e) {
+      console.error("[MP Button]", e);
+      onError?.(e?.message || "Error al iniciar el pago.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // EstÃ©tica "Mercado Pago" (amarillo)
+  const base =
+    "w-full inline-flex items-center justify-center rounded-xl shadow-sm " +
+    "transition-colors duration-150 focus:outline-none focus:ring-2 " +
+    "focus:ring-offset-2 focus:ring-[#ffe600]/60 text-slate-900 select-none";
+  const sizeCls = size === "compact" ? "h-11 text-[15px]" : "h-12 text-[16px]";
+  const color =
+    disabled || loading
+      ? "bg-[#ffe600]/70 cursor-not-allowed"
+      : "bg-[#ffe600] hover:bg-[#ffd800] active:bg-[#ffcf00]";
+  const weight = "font-semibold";
+  const gap = "gap-2";
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={disabled || loading}
+      aria-busy={loading ? "true" : "false"}
+      className={`${base} ${sizeCls} ${weight} ${color} ${gap}`}
+    >
+      {/* Ãcono genÃ©rico de â€œpagoâ€ */}
+      <svg
+        aria-hidden="true"
+        className="h-[18px] w-[18px]"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M3 7a2 2 0 012-2h7.5a2 2 0 012 2v1H21a1 1 0 011 1v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-1H4a1 1 0 01-1-1V7zM6 9v8a1 1 0 001 1h12a1 1 0 001-1v-7H6zm5 5a1 1 0 100 2h4a1 1 0 100-2h-4z" />
+      </svg>
+      <span className="leading-none">
+        {loading ? "Preparando pagoâ€¦" : label}
+      </span>
+    </button>
+  );
+}
+
+--- FILE: src/components/SmartCheckoutCTA.jsx ---
+
+// RUTA: src/components/SmartCheckoutCTA.jsx
+import React, { useEffect, useMemo, useState } from "react";
+import MercadoPagoButton from "./common/MercadoPagoButton";
+
+// HeurÃ­stica sencilla para preseleccionar MXN si parece MÃ©xico
+function guessDefaultCurrency() {
+  try {
+    const saved = localStorage.getItem("rm.currency");
+    if (saved === "USD" || saved === "MXN") return saved;
+
+    const lang = navigator.language?.toLowerCase() || "";
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+
+    if (lang.includes("es-mx")) return "MXN";
+    if (/mexico|mexico_city|america\/mexico_city/i.test(tz)) return "MXN";
+
+    return "USD";
+  } catch {
+    return "USD";
+  }
+}
+
+function toMXN(usd, mode = "auto-9") {
+  const rate = 18.5; // display-only
+  const raw = Math.round(usd * rate);
+  if (mode === "auto-9") {
+    const x = Math.max(99, raw);
+    return x - (x % 10) + 9;
+  }
+  return raw;
+}
+
+/**
+ * Props:
+ * - productName
+ * - basePriceUSD
+ * - gumroadLink
+ * - mxnRounding: "auto-9" | null
+ * - size: "compact" | "normal"
+ * - dense: boolean
+ */
+export default function SmartCheckoutCTA({
+  productName = "Producto",
+  basePriceUSD = 7,
+  gumroadLink,
+  mxnRounding = "auto-9",
+  size = "compact",
+  dense = true,
+}) {
+  const [currency, setCurrency] = useState(guessDefaultCurrency);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("rm.currency", currency);
+    } catch {}
+  }, [currency]);
+
+  const mxnPrice = useMemo(
+    () => toMXN(basePriceUSD, mxnRounding),
+    [basePriceUSD, mxnRounding]
+  );
+  const isMXN = currency === "MXN";
+
+  const cardPad = dense ? "p-4" : "p-5";
+  const card =
+    "rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur " +
+    cardPad;
+
+  const toggleBtn =
+    "flex-1 h-10 text-[13px] md:text-[14px] rounded-md border border-white/10 " +
+    "bg-slate-800/70 text-slate-200 hover:bg-slate-700 transition-colors";
+  const toggleBtnActive = "bg-slate-700 text-white border-slate-600";
+
+  return (
+    <div className={card}>
+      {/* Texto guÃ­a muy claro */}
+      <div className="mb-3 text-[12px] md:text-[13px] leading-relaxed text-slate-300">
+        <span className="font-semibold text-slate-200">Â¿CÃ³mo quieres pagar?</span>{" "}
+        <span className="text-slate-400">
+          Si estÃ¡s en <span className="font-medium text-slate-200">MÃ©xico</span>,
+          elige <span className="font-medium text-slate-200">Pesos (MXN)</span> y paga con{" "}
+          <span className="font-medium text-slate-200">Mercado Pago</span>.  
+          Si estÃ¡s fuera de MÃ©xico, elige{" "}
+          <span className="font-medium text-slate-200">USD</span> y paga con{" "}
+          <span className="font-medium text-slate-200">Gumroad</span>.
+        </span>
+      </div>
+
+      {/* Toggle moneda */}
+      <div className="text-[12px] text-slate-400 mb-2">Elige tu moneda:</div>
+      <div className="flex gap-2">
+        <button
+          className={`${toggleBtn} ${!isMXN ? toggleBtnActive : ""}`}
+          onClick={() => setCurrency("USD")}
+          type="button"
+          aria-pressed={!isMXN}
+        >
+          us USD
+        </button>
+        <button
+          className={`${toggleBtn} ${isMXN ? toggleBtnActive : ""}`}
+          onClick={() => setCurrency("MXN")}
+          type="button"
+          aria-pressed={isMXN}
+        >
+          mx MXN
+        </button>
+      </div>
+
+      {/* Precio visible y claro */}
+      <div className="mt-3 text-center">
+        <div className="text-3xl font-extrabold tracking-tight text-teal-400">
+          {isMXN ? `$${mxnPrice}` : `$${basePriceUSD}`}
+        </div>
+        <div className="text-[12px] text-slate-500 mt-1">
+          Un solo pago â€” acceso inmediato
+        </div>
+      </div>
+
+      {/* AcciÃ³n principal */}
+      <div className="mt-3">
+        {isMXN ? (
+          <MercadoPagoButton
+            size={size}
+            label="Pagar con Mercado Pago"
+            items={[
+              {
+                title: productName,
+                quantity: 1,
+                unit_price: mxnPrice,
+                currency_id: "MXN",
+              },
+            ]}
+            onError={(m) => alert(m)}
+          />
+        ) : (
+          <a
+            href={gumroadLink}
+            target="_blank"
+            rel="noreferrer"
+            className={
+              "w-full inline-flex items-center justify-center rounded-xl h-12 " +
+              // Verde Gumroad aproximado
+              "bg-[#36c28b] hover:bg-[#2fb17e] active:bg-[#27a372] " +
+              "text-white font-semibold text-[15px] shadow-sm transition-colors"
+            }
+          >
+            Comprar en Gumroad
+          </a>
+        )}
+      </div>
+
+      {/* Sello de confianza */}
+      <p className="mt-3 text-center text-[12px] text-slate-400">
+        Compra 100% segura â€¢ ConfirmaciÃ³n inmediata
+      </p>
+    </div>
+  );
+}
+
+--- FILE: src/pages/Home.jsx ---
+
+// RUTA: src/pages/Home.jsx (ultra-compact v2)
+import React from "react";
+import { motion } from "framer-motion";
+import { CheckCircle2, ShieldCheck } from "lucide-react";
+import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
+
+const FEATURES = [
+  "El MenÃº Exacto: quÃ© comer y cuÃ¡ndo para apagar la inflamaciÃ³n.",
+  "Recetas Deliciosas y Simples: diseÃ±adas para sanar, sin ingredientes raros.",
+  "Lista de Compras Inteligente: organizada para una sola visita al sÃºper.",
+];
+
+export default function Home() {
+  const priceUSD = Number(import.meta.env.VITE_KIT_PRICE_USD) || 7;
+  const gumroadUrl = import.meta.env.VITE_GUMROAD_KIT_URL;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100">
+      {/* Header muy bajo */}
+      <header className="sticky top-0 z-20 bg-white/5 backdrop-blur-md border-b border-white/10">
+        <div className="mx-auto max-w-[980px] px-3 py-2">
+          <h1 className="text-[15px] font-semibold tracking-tight">Reinicio MetabÃ³lico</h1>
+        </div>
+      </header>
+
+      {/* Contenido centrado y mÃ¡s estrecho */}
+      <main className="mx-auto max-w-[980px] px-3 py-4">
+        <motion.section
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="grid md:grid-cols-2 items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4 md:p-5 shadow-xl backdrop-blur-xl"
+        >
+          {/* Columna imagen (mÃ¡s pequeÃ±a) */}
+          <div className="flex items-center justify-center">
+            <img
+              src="/llave-maestra.png"
+              alt=""
+              aria-hidden="true"
+              className="w-full max-w-[240px] md:max-w-[260px] lg:max-w-[280px] object-contain drop-shadow-xl"
+              width={280}
+              height={280}
+              loading="eager"
+              fetchPriority="high"
+            />
+          </div>
+
+          {/* Columna texto + checkout compactados */}
+          <div className="md:pr-1">
+            <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-teal-400/80 font-semibold">
+              PDF DE ACCIÃ“N INMEDIATA
+            </p>
+
+            <h2 className="text-[26px] md:text-[28px] font-extrabold leading-snug">
+              Tu <span className="text-teal-400">Sistema de 7 DÃ­as</span>
+            </h2>
+
+            <p className="mt-1.5 text-[13px] text-slate-300">
+              Deja de adivinar. Te entregamos el plan exacto para decidir cada comida con claridad y
+              recuperar tu energÃ­a.
+            </p>
+
+            <ul className="mt-3 space-y-1.5">
+              {FEATURES.map((txt) => (
+                <li key={txt} className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-teal-400 flex-shrink-0" />
+                  <span className="text-[13px] text-slate-200">{txt}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="text-slate-300 text-[13px]">Un solo pago de</span>
+              <span className="text-[22px] md:text-[24px] font-extrabold text-teal-400">
+                ${priceUSD} USD
+              </span>
+            </div>
+
+            {/* Checkout inteligente (MXN/USD) */}
+            <div className="mt-3">
+              <SmartCheckoutCTA
+                productName="Kit de 7 DÃ­as Reinicio MetabÃ³lico"
+                basePriceUSD={priceUSD}
+                gumroadLink={gumroadUrl}
+                mxnRounding="auto-9"
+                // Compactar el card interno del CTA (estas props ya las soporta nuestro componente)
+                size="compact"          // usa variantes pequeÃ±as internas
+                dense={true}            // reduce paddings y fuentes dentro del CTA
+              />
+            </div>
+
+            <div className="mt-3 flex items-center gap-2 text-[12px] text-slate-400">
+              <ShieldCheck className="h-4 w-4 text-teal-400" />
+              <span>Compra 100% segura. Acceso instantÃ¡neo.</span>
+            </div>
+          </div>
+        </motion.section>
+      </main>
+
+      <footer className="mx-auto max-w-[980px] px-3 py-4 text-center text-[11px] text-slate-500">
+        Â© {new Date().getFullYear()} Reinicio MetabÃ³lico.
+      </footer>
+    </div>
+  );
+}
+
+--- FILE: index.html ---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- TÃ­tulo de la AplicaciÃ³n -->
+    <title>Reinicio MetabÃ³lico</title>
+    <meta name="facebook-domain-verification" content="0k5kvx18xxoyr365wied01ujknjq0e" />
+
+    <!-- Iconos -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Colores del Tema -->
+    <meta name="msapplication-TileColor" content="#5a6d57">
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1260441005544821');
+    fbq('track', 'PageView');
+    </script>
+    <!-- End Meta Pixel Code -->
+
+    <!-- SDK de Mercado Pago ELIMINADO DE AQUÃ -->
+  </head>
+  <body>
+    <!-- Meta Pixel noscript Fallback -->
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1260441005544821&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End noscript Fallback -->
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+--- FILE: tailwind.config.js ---
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+
+  // Si algÃºn dÃ­a quieres controlar modo oscuro por clase, descomenta:
+  // darkMode: "class",
+
+  theme: {
+    // Contenedor centrado y con padding sensible
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "1rem",
+        lg: "2rem",
+      },
+      screens: {
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1440px",
+      },
+    },
+
+    extend: {
+      // Pila de fuentes: usa Plus Jakarta Sans como primaria
+      fontFamily: {
+        sans: [
+          "Plus Jakarta Sans",
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica",
+          "Arial",
+          "Noto Sans",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Segoe UI Symbol",
+        ],
+      },
+
+      // Paleta de marca (opcional, Ãºtil para utilidades como text-brand-500)
+      colors: {
+        brand: {
+          DEFAULT: "#14b8a6",
+          50: "#f1fcfa",
+          100: "#ccfbf7",
+          200: "#99f6ee",
+          300: "#5eead4",
+          400: "#2dd4bf",
+          500: "#14b8a6",
+          600: "#0d9488",
+          700: "#0f766e",
+          800: "#115e59",
+          900: "#134e4a",
+        },
+      },
+
+      // Sombras Ãºtiles para tarjetas/bloques
+      boxShadow: {
+        card: "0 10px 30px rgba(0,0,0,.25)",
+      },
+    },
+  },
+
+  plugins: [
+    require("@tailwindcss/typography"),
+  ],
+};
+
+--- FILE: src/index.css ---
+
+/* Carga solo los pesos que sÃ­ usas */
+@import '@fontsource/plus-jakarta-sans/400.css';
+@import '@fontsource/plus-jakarta-sans/600.css';
+@import '@fontsource/plus-jakarta-sans/700.css';
+@import '@fontsource/plus-jakarta-sans/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos base (prioridad correcta en Tailwind) */
+@layer base {
+  :root { color-scheme: dark; }
+  html, body, #root { height: 100%; }
+
+  body {
+    @apply font-sans bg-slate-900 text-slate-200 antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Componentes reutilizables (opcional) */
+@layer components {
+  /* Ãšsala si algÃºn botÃ³n te queda con el texto â€œarribaâ€. */
+  .fix-btn-baseline {
+    @apply leading-none;      /* elimina extra line-height */
+    line-height: 1;           /* respaldo */
+  }
+}
+
+--- END OF CONTEXT PACKAGE ---
+

@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "context": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\make_context_utf8.ps1",
+    "context:open": "powershell -NoProfile -Command \"code .\\context_package.txt\""
   },
   "dependencies": {
     "@fontsource/plus-jakarta-sans": "^5.2.6",
