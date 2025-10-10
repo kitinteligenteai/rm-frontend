@@ -1,8 +1,17 @@
-// RUTA: src/pages/Home.jsx (Versión Final de Diseño Equilibrado)
+// RUTA: src/pages/Home.jsx
 import React from "react";
-import { motion } from "framer-motion";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
 import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
+
+/**
+ * Versión COMPACTA + LUMINOSA (optimizada para escala 150%)
+ * - Fondo azul/teal con radiales claras (más “vivo”, menos fúnebre)
+ * - Paddings y tamaños reducidos para caber sin scroll en 1280×720 (≈ 1920×1080 @ 150%)
+ * - Héroe + Panel “glass” (vidrio) con sombra suave y alto contraste
+ * - Accesible: h1 único, roles correctos, buen contraste
+ *
+ * No requiere librerías nuevas. Mantiene tu SmartCheckoutCTA.
+ */
 
 const FEATURES = [
   "El Menú Exacto para apagar la inflamación.",
@@ -15,89 +24,110 @@ export default function Home() {
   const gumroadUrl = import.meta.env.VITE_GUMROAD_KIT_URL;
 
   return (
-    // CAMBIO CLAVE: Usamos flexbox en el contenedor principal para un control total del centrado vertical.
-    // font-sans asegura que la tipografía por defecto sea la correcta.
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans flex flex-col">
-      
-      {/* El header se mantiene igual, es simple y efectivo. */}
-      <header className="sticky top-0 z-20 bg-slate-900/60 backdrop-blur-md border-b border-white/10">
-        <div className="mx-auto max-w-5xl px-4 py-3">
-          <h1 className="text-base font-bold tracking-tight text-white">Reinicio Metabólico</h1>
+    <div className="min-h-screen text-slate-900 font-sans relative overflow-hidden flex flex-col"
+         style={{ background: "linear-gradient(180deg,#0f1f2e 0%, #0e2f3b 55%, #0b3840 100%)" }}>
+      {/* Radiales luminosas (teal + azules) para dar vida */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 mix-blend-screen opacity-70"
+           style={{
+             background:
+               "radial-gradient(900px 520px at 12% 30%, rgba(0,200,210,.35), transparent 60%), " +
+               "radial-gradient(700px 420px at 82% 22%, rgba(90,170,255,.25), transparent 60%)"
+           }} />
+      {/* Vignette suave para foco central */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0"
+           style={{
+             background:
+               "radial-gradient(80% 60% at 50% 8%, rgba(255,255,255,.10), transparent 70%), " +
+               "radial-gradient(120% 90% at 50% 110%, rgba(0,0,0,.35), transparent 70%)"
+           }} />
+
+      {/* Header COMPACTO (reduce alto total) */}
+      <header role="banner" className="sticky top-0 z-20 bg-white/8 backdrop-blur-md border-b border-white/15">
+        <div className="mx-auto w-full max-w-[1080px] px-4 py-2">
+          <div className="flex items-center justify-between">
+            <h1 className="text-[13px] font-bold tracking-tight text-white">Reinicio Metabólico</h1>
+            <div className="hidden md:flex items-center gap-2 text-[11.5px] text-teal-200/90">
+              <ShieldCheck className="h-4 w-4" />
+              Compra 100% segura
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* CAMBIO CLAVE: Este 'main' es ahora el responsable de centrar el contenido en el espacio disponible.
-          'flex-grow' hace que ocupe todo el alto restante. 'grid' y 'place-items-center' lo centran perfectamente. */}
-      <main className="flex-grow grid place-items-center w-full px-4 py-8">
-        
-        {/* Usamos motion.div para una entrada suave y profesional. */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          // CAMBIO CLAVE: Grid de 2 columnas en desktop (md:). La columna de la derecha (CTA) es más estrecha (0.8fr).
-          // 'items-center' alinea verticalmente el contenido de ambas columnas.
-          // max-w-5xl nos da un ancho máximo generoso pero controlado.
-          className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr,0.8fr] gap-x-12 lg:gap-x-16 items-center"
-        >
-          
-          {/* Columna Izquierda: La Propuesta de Valor (El "Por qué") */}
-          <div className="text-center md:text-left">
-            <div className="flex justify-center md:justify-start mb-6">
-              {/* CAMBIO CLAVE: Aumentamos el tamaño de la imagen para darle más impacto visual. */}
-              <img
-                src="/llave-maestra.png"
-                alt="Llave maestra del sistema metabólico"
-                aria-hidden="true"
-                className="w-48 h-48 object-contain drop-shadow-[0_5px_15px_rgba(0,255,255,0.1)]"
-              />
+      {/* Main COMPACTO: paddings medidos para viewport bajo */}
+      <main role="main" className="flex-1">
+        <section aria-labelledby="hero-title" className="mx-auto w-full max-w-[1080px] px-4 py-5 md:py-6">
+          <div className="grid grid-cols-1 md:grid-cols-[1.05fr,0.95fr] gap-7 md:gap-10 items-center">
+            {/* IZQUIERDA — Héroe */}
+            <div className="text-center md:text-left text-white">
+              <div className="flex justify-center md:justify-start mb-3 md:mb-4">
+                <img
+                  src="/llave-maestra.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-32 h-32 md:w-36 md:h-36 object-contain drop-shadow-[0_14px_38px_rgba(0,200,210,0.35)]"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+
+              <span className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-teal-500/15 text-teal-200 border border-teal-300/25 text-[10.5px] uppercase tracking-[0.18em]">
+                <Sparkles className="h-3.5 w-3.5" />
+                PDF DE ACCIÓN INMEDIATA
+              </span>
+
+              <h2 id="hero-title"
+                  className="mt-2 text-[30px] md:text-[34px] leading-[1.12] font-extrabold tracking-[-0.015em]">
+                Tu <span className="text-teal-200">Sistema de 7 Días</span>
+              </h2>
+
+              <p className="mt-2.5 max-w-[560px] mx-auto md:mx-0 text-[15.5px] md:text-[16px] text-slate-100/85">
+                Deja de adivinar. Te entregamos el plan exacto para decidir cada
+                comida con claridad y recuperar tu energía.
+              </p>
             </div>
-            
-            {/* Jerarquía de texto clara y con espaciado intencionado. */}
-            <p className="text-sm font-semibold uppercase tracking-widest text-teal-400">
-              PDF DE ACCIÓN INMEDIATA
-            </p>
-            <h2 className="mt-2 text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
-              Tu <span className="text-teal-400">Sistema de 7 Días</span>
-            </h2>
-            <p className="mt-4 max-w-lg mx-auto md:mx-0 text-lg text-slate-300">
-              Deja de adivinar. Te entregamos el plan exacto para decidir cada comida con claridad y recuperar tu energía.
-            </p>
-          </div>
 
-          {/* Columna Derecha: El Panel de Acción (El "Cómo") */}
-          <div className="w-full max-w-md mx-auto mt-8 md:mt-0">
-            {/* CAMBIO CLAVE: Usamos un borde sutil y un fondo para crear una "tarjeta" o "panel" definido. */}
-            <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6 lg:p-8 shadow-2xl shadow-teal-500/5">
-              
-              {/* La lista de beneficios se mantiene, pero con un ligero ajuste de espaciado para más aire. */}
-              <ul className="space-y-4">
-                {FEATURES.map((txt) => (
-                  <li key={txt} className="flex items-start gap-3">
-                    <CheckCircle2 className="mt-1 h-5 w-5 text-teal-400 flex-shrink-0" />
-                    <span className="text-base text-slate-200">{txt}</span>
-                  </li>
-                ))}
-              </ul>
+            {/* DERECHA — Panel “glass” + CTA */}
+            <div className="w-full max-w-md mx-auto md:mx-0">
+              <div className="rounded-2xl border border-white/20 bg-white/12 backdrop-blur-xl p-5 md:p-5 shadow-[0_16px_55px_-18px_rgba(0,0,0,.55),0_10px_36px_-24px_rgba(0,200,210,.35)]">
+                <ul className="space-y-3">
+                  {FEATURES.map((txt) => (
+                    <li key={txt} className="flex items-start gap-3">
+                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-teal-200 flex-shrink-0" />
+                      <span className="text-[15px] text-slate-50/95">{txt}</span>
+                    </li>
+                  ))}
+                </ul>
 
-              {/* Un separador más sutil y elegante. */}
-              <div className="mt-8 mb-6 h-px bg-white/10"></div>
+                <div className="mt-5 mb-4 h-px bg-white/15" />
 
-              {/* El componente de CTA se mantiene, ahora dentro de su contenedor bien definido. */}
-              <div>
+                {/* CTA existente: respeta tu lógica (MXN→MP, USD→Gumroad) */}
                 <SmartCheckoutCTA
-                  productName="Kit de 7 Días Reinicio Metabólico"
+                  productName="Kit de 7 Días — Reinicio Metabólico"
                   basePriceUSD={priceUSD}
                   gumroadLink={gumroadUrl}
                   mxnRounding="auto-9"
-                  size="normal" // 'normal' es ideal para este layout.
-                  dense={false}
+                  size="normal"
+                  dense={true}   // más compacto
                 />
+
+                <p className="mt-2.5 text-[12px] text-slate-200/80 text-center">
+                  Acceso inmediato · Confirmación por email
+                </p>
               </div>
             </div>
           </div>
-        </motion.div>
+        </section>
       </main>
+
+      {/* Footer mínimo (no empuja contenido) */}
+      <footer role="contentinfo" className="px-4 py-2.5">
+        <div className="mx-auto w-full max-w-[1080px]">
+          <p className="text-[11.5px] text-slate-200/70">
+            © {new Date().getFullYear()} Reinicio Metabólico. Todos los derechos reservados.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
