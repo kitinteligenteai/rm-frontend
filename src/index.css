@@ -8,7 +8,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos base (prioridad correcta en Tailwind) */
+/* =========================
+   BASE
+========================= */
 @layer base {
   :root { color-scheme: dark; }
   html, body, #root { height: 100%; }
@@ -20,11 +22,65 @@
   }
 }
 
-/* Componentes reutilizables (opcional) */
+/* =========================
+   COMPONENTES
+========================= */
 @layer components {
   /* Úsala si algún botón te queda con el texto “arriba”. */
   .fix-btn-baseline {
-    @apply leading-none;      /* elimina extra line-height */
-    line-height: 1;           /* respaldo */
+    @apply leading-none;
+    line-height: 1; /* respaldo */
+  }
+}
+
+/* =========================
+   UTILIDADES PERSONALIZADAS
+   (para tamaños intermedios que Tailwind no trae)
+========================= */
+@layer utilities {
+  .p-4\.5 { padding: 1.125rem !important; }       /* 18px */
+  .mt-4\.5 { margin-top: 1.125rem !important; }
+  .mb-3\.5 { margin-bottom: 0.875rem !important; } /* 14px */
+
+  /* ancho/alto exactos para el hero si se requiere fuera de las mq */
+  .w-38 { width: 9.5rem !important; }              /* 152px */
+  .h-38 { height: 9.5rem !important; }
+}
+
+/* =========================
+   COMPACTACIÓN POR ALTURA BAJA
+   - Evita scroll en laptops con Windows al 150% (≈1280×720)
+   - SOLO actúa si la altura del viewport es chica
+========================= */
+@media (max-height: 740px) {
+  /* Reducir padding del header si usa py-2/py-2.5 dentro del header */
+  .rm-compact header .py-2,
+  .rm-compact header .py-2\.5 {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+  }
+
+  /* Héroe: imagen un toque más pequeña para ganar filas */
+  .rm-compact .hero-img {
+    width: 9.5rem !important;   /* 152px */
+    height: 9.5rem !important;
+  }
+
+  /* Título un punto más compacto */
+  .rm-compact .shrink-h1 {
+    font-size: 28px !important;
+    line-height: 1.15 !important;
+  }
+
+  /* Sección principal: menos padding vertical */
+  .rm-compact section {
+    padding-top: 0.9rem !important;
+    padding-bottom: 0.9rem !important;
+  }
+
+  /* Nota del CTA: aseguramos que entre siempre */
+  .rm-compact .cta-note {
+    margin-top: 0.35rem !important;
+    font-size: 11.2px !important;
   }
 }
