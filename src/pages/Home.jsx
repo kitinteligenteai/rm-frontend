@@ -5,12 +5,11 @@ import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
 
 /**
  * Landing “Esperanza A++”
- * - Estética luminosa y esperanzadora (teal + azul vivo, radiales)
- * - Llave protagonista y centrada visualmente
- * - Mensaje de valor empático (de dolor → claridad/energía)
- * - CTA premium (panel con “glass” sutil, sin ruido)
- * - Solo 2 menciones de confianza: header y debajo del botón
- * - Compacta: cabe bien incluso con escala 150% (viewport bajo)
+ * - Paleta luminosa (teal/azules) con radiales de profundidad
+ * - Llave protagonista (más grande) y centrada respecto al bloque
+ * - Mensaje empático y claro
+ * - CTA premium (glass sutil) con solo 2 menciones de confianza (header + bajo botón)
+ * - Compacta: cabe bien incluso con escala 150 %
  */
 
 const FEATURES = [
@@ -26,14 +25,14 @@ export default function Home() {
   return (
     <div
       className="min-h-screen font-sans relative overflow-hidden flex flex-col"
-      // Fondo luminoso (esperanza) con radiales
       style={{
+        // Fondo luminoso & esperanzador
         background:
-          "radial-gradient(1100px 700px at 15% 25%, rgba(0, 200, 210, .30), transparent 60%), radial-gradient(900px 550px at 85% 15%, rgba(120, 190, 255, .22), transparent 60%), linear-gradient(180deg, #0f2e3b 0%, #0d3b46 55%, #0b454b 100%)",
+          "radial-gradient(1200px 760px at 18% 26%, rgba(0, 207, 219, .32), transparent 60%), radial-gradient(980px 600px at 86% 16%, rgba(120, 195, 255, .22), transparent 60%), linear-gradient(180deg, #103040 0%, #0f3e4a 55%, #0b474e 100%)",
         color: "#f5f7fa",
       }}
     >
-      {/* Vignette para foco central (sin “funeral”) */}
+      {/* Vignette para foco central */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
@@ -43,16 +42,16 @@ export default function Home() {
         }}
       />
 
-      {/* HEADER — limpio y con sello de confianza (1 de 2) */}
+      {/* HEADER — sello confianza (1 de 2) */}
       <header role="banner" className="sticky top-0 z-20 bg-white/10 backdrop-blur-md border-b border-white/15">
         <div className="mx-auto w-full max-w-[1060px] px-5 py-3">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <h1 className="text-white font-extrabold text-[15px] leading-none tracking-tight">
+              <h1 className="text-white font-extrabold text-[16px] leading-none tracking-tight">
                 Reinicio Metabólico
               </h1>
-              <span className="text-teal-100/80 text-[12px] leading-none mt-1">
-                Transforma tu energía en 7 días
+              <span className="text-teal-100/85 text-[12px] leading-none mt-1">
+                Claridad y energía en 7 días
               </span>
             </div>
             <div className="hidden md:flex items-center gap-2 text-[12px] text-teal-100/85">
@@ -69,13 +68,13 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr,0.9fr] gap-8 md:gap-10 items-center">
             {/* IZQUIERDA — HÉROE LUMINOSO */}
             <div className="text-center md:text-left">
-              {/* Llave protagonista, centrada respecto al bloque */}
+              {/* Llave protagonista (más grande y con sombra energética) */}
               <div className="flex justify-center md:justify-start mb-4">
                 <img
                   src="/llave-maestra.png"
                   alt=""
                   aria-hidden="true"
-                  className="w-48 h-48 md:w-56 md:h-56 object-contain drop-shadow-[0_18px_46px_rgba(0,200,210,0.40)]"
+                  className="w-56 h-56 md:w-64 md:h-64 object-contain drop-shadow-[0_22px_58px_rgba(0,200,210,0.45)]"
                   loading="eager"
                   decoding="async"
                 />
@@ -88,21 +87,20 @@ export default function Home() {
 
               <h2
                 id="hero-title"
-                className="mt-3 text-[34px] md:text-[40px] leading-[1.08] font-extrabold tracking-[-0.015em] text-white"
+                className="mt-3 text-[36px] md:text-[42px] leading-[1.06] font-extrabold tracking-[-0.015em] text-white"
               >
                 Tu <span className="text-teal-200">Sistema de 7 Días</span>
               </h2>
 
-              <p className="mt-3 max-w-[560px] mx-auto md:mx-0 text-[16px] text-slate-100/90">
-                Si vienes del dolor y el cansancio, aquí recuperas claridad.
-                Te damos el plan exacto para decidir cada comida con confianza y volver a sentir energía.
+              <p className="mt-3 max-w-[560px] mx-auto md:mx-0 text-[16px] text-slate-100/92">
+                Si vienes del dolor y el cansancio, aquí recuperas claridad. Te damos el
+                plan exacto para decidir cada comida con confianza — y volver a sentir energía.
               </p>
             </div>
 
-            {/* DERECHA — CONSOLA / CTA (glass sutil, premium) */}
+            {/* DERECHA — CONSOLA / CTA */}
             <div className="w-full max-w-md mx-auto md:mx-0">
               <div className="rounded-2xl border border-white/18 bg-white/14 backdrop-blur-xl p-5 shadow-[0_16px_55px_-18px_rgba(0,0,0,.52),0_12px_36px_-22px_rgba(0,190,210,.35)]">
-                {/* Beneficios claros */}
                 <ul className="space-y-3">
                   {FEATURES.map((txt) => (
                     <li key={txt} className="flex items-start gap-3">
@@ -114,7 +112,6 @@ export default function Home() {
 
                 <div className="mt-5 mb-4 h-px bg-white/15" />
 
-                {/* CTA — tu componente (MXN → MP, USD → Gumroad) */}
                 <SmartCheckoutCTA
                   productName="Kit de 7 Días — Reinicio Metabólico"
                   basePriceUSD={priceUSD}
@@ -134,7 +131,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* FOOTER mínimo (no interfiere) */}
+      {/* FOOTER mínimo */}
       <footer role="contentinfo" className="px-5 py-3">
         <div className="mx-auto w-full max-w-[1060px]">
           <p className="text-[11.5px] text-slate-100/75">
