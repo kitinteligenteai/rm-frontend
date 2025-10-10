@@ -4,11 +4,10 @@ import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
 import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
 
 /**
- * Versión COMPACTA+LUMINOSA v2
- * - Cabe sin scroll incluso con Windows a 150% (≈1280×720)
- * - Llave más grande y mejor centrada visualmente
- * - CTA “glass panel” con menos paddings y mejor contraste
- * - Mensaje final visible (reduce márgenes y tipografías donde importa)
+ * Versión COMPACTA + LUMINOSA (sin clases personalizadas)
+ * - Cabe sin scroll incluso con Windows 150% (~1280×720)
+ * - Llave más grande y centrada
+ * - CTA “glass” con mensaje final visible
  */
 
 const FEATURES = [
@@ -23,7 +22,7 @@ export default function Home() {
 
   return (
     <div
-      className="rm-compact min-h-screen text-slate-900 font-sans relative overflow-hidden flex flex-col"
+      className="min-h-screen text-slate-900 font-sans relative overflow-hidden flex flex-col"
       style={{ background: "linear-gradient(180deg,#102436 0%, #0e3140 55%, #0b3b43 100%)" }}
     >
       {/* Radiales luminosas */}
@@ -45,8 +44,8 @@ export default function Home() {
         }}
       />
 
-      {/* Header COMPACTO */}
-      <header role="banner" className="sticky top-0 z-20 bg-white/8 backdrop-blur-md border-b border-white/15">
+      {/* Header compacto */}
+      <header role="banner" className="sticky top-0 z-20 bg-white/10 backdrop-blur-md border-b border-white/15">
         <div className="mx-auto w-full max-w-[1060px] px-4 py-2">
           <div className="flex items-center justify-between">
             <h1 className="text-[13px] font-bold tracking-tight text-white">Reinicio Metabólico</h1>
@@ -58,19 +57,18 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main COMPACTO */}
+      {/* Main compacto */}
       <main role="main" className="flex-1">
         <section aria-labelledby="hero-title" className="mx-auto w-full max-w-[1060px] px-4 py-5 md:py-6">
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr,0.9fr] gap-7 md:gap-9 items-center">
             {/* IZQUIERDA — Héroe */}
             <div className="text-center md:text-left text-white">
-              {/* Llave más grande y centrada respecto al bloque de texto */}
-              <div className="flex justify-center md:justify-start mb-3 md:mb-4">
+              <div className="flex justify-center md:justify-start mb-4">
                 <img
                   src="/llave-maestra.png"
                   alt=""
                   aria-hidden="true"
-                  className="hero-img w-36 h-36 md:w-44 md:h-44 lg:w-48 lg:h-48 object-contain drop-shadow-[0_16px_40px_rgba(0,200,210,0.32)]"
+                  className="w-40 h-40 md:w-48 md:h-48 object-contain drop-shadow-[0_16px_40px_rgba(0,200,210,0.32)]"
                   loading="eager"
                   decoding="async"
                 />
@@ -83,7 +81,7 @@ export default function Home() {
 
               <h2
                 id="hero-title"
-                className="shrink-h1 mt-2 text-[30px] md:text-[34px] leading-[1.12] font-extrabold tracking-[-0.015em]"
+                className="mt-2 text-[30px] md:text-[34px] leading-[1.12] font-extrabold tracking-[-0.015em]"
               >
                 Tu <span className="text-teal-200">Sistema de 7 Días</span>
               </h2>
@@ -96,17 +94,45 @@ export default function Home() {
 
             {/* DERECHA — Panel + CTA */}
             <div className="w-full max-w-md mx-auto md:mx-0">
-              <div className="rounded-2xl border border-white/18 bg-white/12 backdrop-blur-xl p-4.5 md:p-5 shadow-[0_14px_52px_-18px_rgba(0,0,0,.55),0_10px_32px_-24px_rgba(0,200,210,.32)]">
-                <ul className="space-y-2.5">
+              <div className="rounded-2xl border border-white/20 bg-white/15 backdrop-blur-xl p-5 shadow-[0_14px_52px_-18px_rgba(0,0,0,.55),0_10px_32px_-24px_rgba(0,200,210,.32)]">
+                <ul className="space-y-3">
                   {FEATURES.map((txt) => (
                     <li key={txt} className="flex items-start gap-3">
                       <CheckCircle2 className="mt-0.5 h-5 w-5 text-teal-200 flex-shrink-0" />
-                      <span className="text-[14.8px] text-slate-50/95">{txt}</span>
+                      <span className="text-[15px] text-slate-50/95">{txt}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="mt-4.5 mb-3.5 h-px bg-white/14" />
+                <div className="mt-5 mb-4 h-px bg-white/15" />
 
+                {/* CTA CORRECTA y COMPLETA */}
                 <SmartCheckoutCTA
-                  pro
+                  productName="Kit de 7 Días — Reinicio Metabólico"
+                  basePriceUSD={priceUSD}
+                  gumroadLink={gumroadUrl}
+                  mxnRounding="auto-9"
+                  size="normal"
+                  dense={true}
+                />
+
+                <p className="mt-2 text-[12px] text-slate-200/85 text-center">
+                  Compra 100% segura · Confirmación inmediata
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer mínimo */}
+      <footer role="contentinfo" className="px-4 py-2">
+        <div className="mx-auto w-full max-w-[1060px]">
+          <p className="text-[11.5px] text-slate-200/75">
+            © {new Date().getFullYear()} Reinicio Metabólico. Todos los derechos reservados.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
