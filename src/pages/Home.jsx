@@ -15,48 +15,63 @@ export default function Home() {
   const gumroadUrl = import.meta.env.VITE_GUMROAD_KIT_URL;
 
   return (
+    // CAMBIO CLAVE: Usamos flexbox en el contenedor principal para un control total del centrado vertical.
+    // font-sans asegura que la tipografía por defecto sea la correcta.
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans flex flex-col">
       
+      {/* El header se mantiene igual, es simple y efectivo. */}
       <header className="sticky top-0 z-20 bg-slate-900/60 backdrop-blur-md border-b border-white/10">
         <div className="mx-auto max-w-5xl px-4 py-3">
           <h1 className="text-base font-bold tracking-tight text-white">Reinicio Metabólico</h1>
         </div>
       </header>
 
-      {/* Contenedor principal que centra todo vertical y horizontalmente */}
-      <main className="flex-grow flex items-center justify-center w-full px-4 py-8">
+      {/* CAMBIO CLAVE: Este 'main' es ahora el responsable de centrar el contenido en el espacio disponible.
+          'flex-grow' hace que ocupe todo el alto restante. 'grid' y 'place-items-center' lo centran perfectamente. */}
+      <main className="flex-grow grid place-items-center w-full px-4 py-8">
+        
+        {/* Usamos motion.div para una entrada suave y profesional. */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          // CAMBIO CLAVE: Volvemos a un grid de 2 columnas, pero con proporciones controladas
-          className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[1fr,0.9fr] gap-8 items-center"
+          // CAMBIO CLAVE: Grid de 2 columnas en desktop (md:). La columna de la derecha (CTA) es más estrecha (0.8fr).
+          // 'items-center' alinea verticalmente el contenido de ambas columnas.
+          // max-w-5xl nos da un ancho máximo generoso pero controlado.
+          className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr,0.8fr] gap-x-12 lg:gap-x-16 items-center"
         >
-          {/* Columna 1: Imagen y Título */}
+          
+          {/* Columna Izquierda: La Propuesta de Valor (El "Por qué") */}
           <div className="text-center md:text-left">
-            <div className="flex justify-center md:justify-start mb-4">
+            <div className="flex justify-center md:justify-start mb-6">
+              {/* CAMBIO CLAVE: Aumentamos el tamaño de la imagen para darle más impacto visual. */}
               <img
                 src="/llave-maestra.png"
-                alt=""
+                alt="Llave maestra del sistema metabólico"
                 aria-hidden="true"
-                className="w-40 h-40 object-contain drop-shadow-xl"
+                className="w-48 h-48 object-contain drop-shadow-[0_5px_15px_rgba(0,255,255,0.1)]"
               />
             </div>
+            
+            {/* Jerarquía de texto clara y con espaciado intencionado. */}
             <p className="text-sm font-semibold uppercase tracking-widest text-teal-400">
               PDF DE ACCIÓN INMEDIATA
             </p>
-            <h2 className="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+            <h2 className="mt-2 text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
               Tu <span className="text-teal-400">Sistema de 7 Días</span>
             </h2>
-            <p className="mt-3 max-w-md mx-auto md:mx-0 text-base text-slate-300">
+            <p className="mt-4 max-w-lg mx-auto md:mx-0 text-lg text-slate-300">
               Deja de adivinar. Te entregamos el plan exacto para decidir cada comida con claridad y recuperar tu energía.
             </p>
           </div>
 
-          {/* Columna 2: Características y CTA de Compra */}
-          <div className="w-full max-w-md mx-auto">
-            <div className="rounded-2xl border border-white/10 bg-slate-800/40 p-6">
-              <ul className="space-y-3">
+          {/* Columna Derecha: El Panel de Acción (El "Cómo") */}
+          <div className="w-full max-w-md mx-auto mt-8 md:mt-0">
+            {/* CAMBIO CLAVE: Usamos un borde sutil y un fondo para crear una "tarjeta" o "panel" definido. */}
+            <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-6 lg:p-8 shadow-2xl shadow-teal-500/5">
+              
+              {/* La lista de beneficios se mantiene, pero con un ligero ajuste de espaciado para más aire. */}
+              <ul className="space-y-4">
                 {FEATURES.map((txt) => (
                   <li key={txt} className="flex items-start gap-3">
                     <CheckCircle2 className="mt-1 h-5 w-5 text-teal-400 flex-shrink-0" />
@@ -65,15 +80,17 @@ export default function Home() {
                 ))}
               </ul>
 
-              <div className="mt-6 border-t border-white/10"></div>
+              {/* Un separador más sutil y elegante. */}
+              <div className="mt-8 mb-6 h-px bg-white/10"></div>
 
-              <div className="mt-6">
+              {/* El componente de CTA se mantiene, ahora dentro de su contenedor bien definido. */}
+              <div>
                 <SmartCheckoutCTA
                   productName="Kit de 7 Días Reinicio Metabólico"
                   basePriceUSD={priceUSD}
                   gumroadLink={gumroadUrl}
                   mxnRounding="auto-9"
-                  size="normal"
+                  size="normal" // 'normal' es ideal para este layout.
                   dense={false}
                 />
               </div>
