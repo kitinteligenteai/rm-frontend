@@ -76,7 +76,8 @@ function GraciasKitPage() {
         <h1 className="text-2xl md:text-3xl font-extrabold text-teal-400">¡Pago exitoso!</h1>
         <p className="mt-2 text-gray-300">Último paso: confirma tu correo para enviarte el acceso al Kit.</p>
 
-        <form className="mt-6 space-y-5" noValidate onSubmit={handleSubmit(onSubmit)}>
+        {/* form autocomplete="off" para minimizar autofill global */}
+        <form className="mt-6 space-y-5" noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
           {/* Email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">
@@ -86,10 +87,15 @@ function GraciasKitPage() {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="nombre@correo.com"
                 className="w-full bg-transparent outline-none border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
                 autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                inputMode="email"
                 {...register("email", {
                   required: "El correo es obligatorio.",
                   pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, message: "Introduce un correo válido." }
@@ -101,7 +107,7 @@ function GraciasKitPage() {
             )}
           </div>
 
-          {/* Confirm Email */}
+          {/* Confirm Email (autofill desactivado) */}
           <div>
             <label htmlFor="confirmEmail" className="block text-sm font-medium text-gray-400 mb-1">
               Confirma tu correo
@@ -110,13 +116,20 @@ function GraciasKitPage() {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <input
                 id="confirmEmail"
+                name="confirmEmail"
                 type="email"
                 placeholder="Vuelve a escribir tu correo"
                 className="w-full bg-transparent outline-none border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
-                autoComplete="email"
+                autoComplete="off"       // 👈 evita sugerencias/autofill del navegador
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                inputMode="email"
                 {...register("confirmEmail", {
                   required: "Confirma tu correo.",
-                  validate: (v) => v?.trim().toLowerCase() === emailValue?.trim().toLowerCase() || "Los correos no coinciden."
+                  validate: (v) =>
+                    v?.trim().toLowerCase() === emailValue?.trim().toLowerCase() ||
+                    "Los correos no coinciden."
                 })}
               />
             </div>
