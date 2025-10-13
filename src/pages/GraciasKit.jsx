@@ -35,7 +35,7 @@ function GraciasKitPage() {
       const email = String(values.email).trim().toLowerCase();
       const functionsUrl = `https://${projectRef}.functions.supabase.co`;
 
-      const resp = await fetch(`${functionsUrl}/update-checkout-email`, {
+      const resp = await fetch(`${functionsUrl}/update-checkout-email-v2`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,8 +76,7 @@ function GraciasKitPage() {
         <h1 className="text-2xl md:text-3xl font-extrabold text-teal-400">¡Pago exitoso!</h1>
         <p className="mt-2 text-gray-300">Último paso: confirma tu correo para enviarte el acceso al Kit.</p>
 
-        {/* form autocomplete="off" para minimizar autofill global */}
-        <form className="mt-6 space-y-5" noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+        <form className="mt-6 space-y-5" noValidate onSubmit={handleSubmit(onSubmit)}>
           {/* Email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">
@@ -87,27 +86,20 @@ function GraciasKitPage() {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <input
                 id="email"
-                name="email"
                 type="email"
                 placeholder="nombre@correo.com"
                 className="w-full bg-transparent outline-none border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
                 autoComplete="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                inputMode="email"
                 {...register("email", {
                   required: "El correo es obligatorio.",
                   pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, message: "Introduce un correo válido." }
                 })}
               />
             </div>
-            {errors.email && (
-              <p className="mt-2 text-sm text-yellow-400">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="mt-2 text-sm text-yellow-400">{errors.email.message}</p>}
           </div>
 
-          {/* Confirm Email (autofill desactivado) */}
+          {/* Confirm Email */}
           <div>
             <label htmlFor="confirmEmail" className="block text-sm font-medium text-gray-400 mb-1">
               Confirma tu correo
@@ -116,26 +108,17 @@ function GraciasKitPage() {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <input
                 id="confirmEmail"
-                name="confirmEmail"
                 type="email"
                 placeholder="Vuelve a escribir tu correo"
                 className="w-full bg-transparent outline-none border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
-                autoComplete="off"       // 👈 evita sugerencias/autofill del navegador
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                inputMode="email"
+                autoComplete="off"   /* 👈 evita el autocompletar raro */
                 {...register("confirmEmail", {
                   required: "Confirma tu correo.",
-                  validate: (v) =>
-                    v?.trim().toLowerCase() === emailValue?.trim().toLowerCase() ||
-                    "Los correos no coinciden."
+                  validate: (v) => v?.trim().toLowerCase() === emailValue?.trim().toLowerCase() || "Los correos no coinciden."
                 })}
               />
             </div>
-            {errors.confirmEmail && (
-              <p className="mt-2 text-sm text-yellow-400">{errors.confirmEmail.message}</p>
-            )}
+            {errors.confirmEmail && <p className="mt-2 text-sm text-yellow-400">{errors.confirmEmail.message}</p>}
           </div>
 
           {/* Submit */}
@@ -144,14 +127,7 @@ function GraciasKitPage() {
             disabled={isSubmitting || !isValid}
             className="w-full flex items-center justify-center rounded-lg bg-teal-600 hover:bg-teal-500 px-6 py-4 font-semibold disabled:bg-gray-700 disabled:opacity-60 transition"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin mr-3" />
-                Procesando…
-              </>
-            ) : (
-              "Confirmar y Recibir mi Kit"
-            )}
+            {isSubmitting ? (<><Loader2 className="h-5 w-5 animate-spin mr-3" />Procesando…</>) : ("Confirmar y Recibir mi Kit")}
           </button>
 
           <p className="text-xs text-gray-400 text-center">
@@ -163,4 +139,4 @@ function GraciasKitPage() {
   );
 }
 
-export default GraciasKitPage; // 👈 export default, requerido por App.jsx
+export default GraciasKitPage;
