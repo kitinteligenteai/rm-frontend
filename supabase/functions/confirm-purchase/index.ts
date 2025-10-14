@@ -1,8 +1,8 @@
-// confirm-purchase v6.1 — FIX DEFINITIVO UUID + CORS + LOGS LIMPIOS
+// confirm-purchase v6.2 — FIX DEFINITIVO CORS HEADERS + LOGS
 // Fecha: 2025-10-14
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-console.log("[confirm-purchase v6.1] Function initialized");
+console.log("[confirm-purchase v6.2] Function initialized");
 
 Deno.serve(async (req) => {
   try {
@@ -14,7 +14,8 @@ Deno.serve(async (req) => {
         headers: {
           "Access-Control-Allow-Origin": origin,
           "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Authorization, apikey, x-client-info",
           "Access-Control-Max-Age": "86400",
         },
       });
@@ -22,10 +23,10 @@ Deno.serve(async (req) => {
 
     // --- Leer cuerpo ---
     const { session_id, email } = await req.json();
-    console.log("[confirm-purchase v6.1] Payload recibido:", { session_id, email });
+    console.log("[confirm-purchase v6.2] Payload recibido:", { session_id, email });
 
     if (!session_id || !email) {
-      console.error("[confirm-purchase v6.1] Faltan datos requeridos");
+      console.error("[confirm-purchase v6.2] ❌ Faltan datos requeridos");
       return new Response(
         JSON.stringify({
           success: false,
@@ -41,19 +42,15 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // --- 1️⃣ Usar RPC SQL para evitar el conflicto text/uuid ---
-    console.log("[confirm-purchase v6.1] Actualizando checkout_sessions vía RPC...");
-
+    // --- 1️⃣ Usar RPC para actualizar el email ---
+    console.log("[confirm-purchase v6.2] Ejecutando update_checkout_email...");
     const { error: rpcError } = await supabase.rpc("update_checkout_email", {
       p_session_id: session_id,
       p_email: email,
     });
 
     if (rpcError) {
-      console.error(
-        "[confirm-purchase v6.1] Error en RPC update_checkout_email:",
-        rpcError.message
-      );
+      console.error("[confirm-purchase v6.2] ❌ Error RPC:", rpcError.message);
       return new Response(
         JSON.stringify({
           success: false,
@@ -63,9 +60,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("[confirm-purchase v6.1] checkout_sessions actualizado correctamente.");
+    console.log("[confirm-purchase v6.2] ✅ Email actualizado vía RPC");
 
-    // --- 2️⃣ Insertar correo en outbox_emails ---
+    // --- 2️⃣ Insertar en outbox_emails ---
     const { error: insertError } = await supabase.from("outbox_emails").insert([
       {
         to_email: email,
@@ -77,10 +74,7 @@ Deno.serve(async (req) => {
     ]);
 
     if (insertError) {
-      console.error(
-        "[confirm-purchase v6.1] Error al insertar en outbox_emails:",
-        insertError.message
-      );
+      console.error("[confirm-purchase v6.2] ❌ Error al insertar en outbox_emails:", insertError.message);
       return new Response(
         JSON.stringify({
           success: false,
@@ -90,13 +84,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("[confirm-purchase v6.1] Email agregado exitosamente a outbox_emails.");
+    console.log("[confirm-purchase v6.2] ✅ Email agregado a outbox_emails");
 
     // --- 3️⃣ Respuesta OK ---
     return new Response(
       JSON.stringify({
         success: true,
-        message: `[confirm-purchase v6.1] OK para session_id: ${session_id}`,
+        message: `[confirm-purchase v6.2] OK para session_id: ${session_id}`,
       }),
       {
         status: 200,
@@ -107,11 +101,11 @@ Deno.serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("[confirm-purchase v6.1] ERROR FATAL:", err.message);
+    console.error("[confirm-purchase v6.2] 💥 ERROR FATAL:", err.message);
     return new Response(
       JSON.stringify({
         success: false,
-        message: `[confirm-purchase v6.1] ERROR: ${err.message}`,
+        message: `[confirm-purchase v6.2] ERROR: ${err.message}`,
       }),
       { status: 500, headers: { "Access-Control-Allow-Origin": "*" } }
     );
