@@ -1,0 +1,2 @@
+[functions]
+  included = ["supabase/functions/confirm-purchase/index.ts", "supabase/functions/confirm-purchase/deno.json"]
