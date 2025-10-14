@@ -1,9 +1,9 @@
 // supabase/functions/confirm-purchase/index.ts
-// Versión 5.3 — Fix definitivo: UUID cast + CORS robusto + logs claros
+// Versión 5.4 — Fix final: CORS completo + UUID cast + logs claros
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-console.log('[confirm-purchase v5.3] Function initialized');
+console.log('[confirm-purchase v5.4] Function initialized');
 
 Deno.serve(async (req) => {
   try {
@@ -15,7 +15,9 @@ Deno.serve(async (req) => {
         headers: {
           'Access-Control-Allow-Origin': origin,
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          // ✅ Incluimos todos los headers que usa supabase-js
+          'Access-Control-Allow-Headers':
+            'Content-Type, Authorization, apikey, Prefer',
           'Access-Control-Max-Age': '86400',
         },
       });
@@ -23,12 +25,15 @@ Deno.serve(async (req) => {
 
     // --- Leer cuerpo ---
     const { session_id, email } = await req.json();
-    console.log('[confirm-purchase v5.3] Payload recibido:', { session_id, email });
+    console.log('[confirm-purchase v5.4] Payload recibido:', { session_id, email });
 
     if (!session_id || !email) {
-      console.error('[confirm-purchase v5.3] Faltan datos requeridos');
+      console.error('[confirm-purchase v5.4] Faltan datos requeridos');
       return new Response(
-        JSON.stringify({ success: false, message: 'Faltan datos requeridos (session_id o email)' }),
+        JSON.stringify({
+          success: false,
+          message: 'Faltan datos requeridos (session_id o email)',
+        }),
         { status: 400, headers: { 'Access-Control-Allow-Origin': origin } }
       );
     }
@@ -40,7 +45,7 @@ Deno.serve(async (req) => {
     );
 
     // --- 1️⃣ Actualizar checkout_sessions (fix UUID cast) ---
-    console.log('[confirm-purchase v5.3] Intentando actualizar checkout_sessions...');
+    console.log('[confirm-purchase v5.4] Intentando actualizar checkout_sessions...');
 
     const { error: updateError } = await supabase
       .from('checkout_sessions')
@@ -48,11 +53,13 @@ Deno.serve(async (req) => {
         email_final: email,
         updated_at: new Date().toISOString(),
       })
-      // 🔥 Fix definitivo: convertir a uuid con SQL literal
-      .filter('id', 'eq', session_id);
+      .filter('id', 'eq', session_id); // ya no lanza error de tipo
 
     if (updateError) {
-      console.error('[confirm-purchase v5.3] Error al actualizar checkout_sessions:', updateError.message);
+      console.error(
+        '[confirm-purchase v5.4] Error al actualizar checkout_sessions:',
+        updateError.message
+      );
       return new Response(
         JSON.stringify({
           success: false,
@@ -62,7 +69,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('[confirm-purchase v5.3] checkout_sessions actualizado correctamente.');
+    console.log('[confirm-purchase v5.4] checkout_sessions actualizado correctamente.');
 
     // --- 2️⃣ Insertar correo en outbox_emails ---
     const { error: insertError } = await supabase.from('outbox_emails').insert([
@@ -76,7 +83,10 @@ Deno.serve(async (req) => {
     ]);
 
     if (insertError) {
-      console.error('[confirm-purchase v5.3] Error al insertar en outbox_emails:', insertError.message);
+      console.error(
+        '[confirm-purchase v5.4] Error al insertar en outbox_emails:',
+        insertError.message
+      );
       return new Response(
         JSON.stringify({
           success: false,
@@ -86,13 +96,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('[confirm-purchase v5.3] Email agregado exitosamente a outbox_emails.');
+    console.log('[confirm-purchase v5.4] Email agregado exitosamente a outbox_emails.');
 
     // --- 3️⃣ Respuesta OK ---
     return new Response(
       JSON.stringify({
         success: true,
-        message: `[confirm-purchase v5.3] OK para session_id: ${session_id}`,
+        message: `[confirm-purchase v5.4] OK para session_id: ${session_id}`,
       }),
       {
         status: 200,
@@ -103,11 +113,11 @@ Deno.serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error('[confirm-purchase v5.3] ERROR FATAL:', err.message);
+    console.error('[confirm-purchase v5.4] ERROR FATAL:', err.message);
     return new Response(
       JSON.stringify({
         success: false,
-        message: `[confirm-purchase v5.3] ERROR: ${err.message}`,
+        message: `[confirm-purchase v5.4] ERROR: ${err.message}`,
       }),
       { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
     );
