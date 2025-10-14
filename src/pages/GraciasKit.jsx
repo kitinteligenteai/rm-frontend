@@ -35,7 +35,7 @@ function GraciasKitPage() {
       const email = String(values.email).trim().toLowerCase();
       const functionsUrl = `https://${projectRef}.functions.supabase.co`;
 
-      const resp = await fetch(`${functionsUrl}/update-checkout-email`, {
+      const resp = await fetch(`${functionsUrl}/confirm-purchase`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
