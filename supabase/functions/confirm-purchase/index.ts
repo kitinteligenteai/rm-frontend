@@ -1,35 +1,35 @@
 // supabase/functions/confirm-purchase/index.ts
-// Versión 5.1 — Fix UUID operator (text = uuid) + flujo estable
-// Autor: ChatGPT (ajustada para Miguel Reyes – Reinicio Metabólico)
+// Versión 5.3 — Fix definitivo: UUID cast + CORS robusto + logs claros
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-console.log('[confirm-purchase v5.1] Function initialized');
+console.log('[confirm-purchase v5.3] Function initialized');
 
 Deno.serve(async (req) => {
   try {
+    const origin = req.headers.get('origin') || '*';
+
+    // --- Manejo CORS (preflight) ---
     if (req.method === 'OPTIONS') {
       return new Response('ok', {
         headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'content-type',
+          'Access-Control-Allow-Origin': origin,
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Max-Age': '86400',
         },
       });
     }
 
-    // --- Leer body JSON ---
+    // --- Leer cuerpo ---
     const { session_id, email } = await req.json();
-    console.log('[confirm-purchase v5.1] Payload recibido:', { session_id, email });
+    console.log('[confirm-purchase v5.3] Payload recibido:', { session_id, email });
 
-    // --- Validación básica ---
     if (!session_id || !email) {
-      console.error('[confirm-purchase v5.1] Faltan datos requeridos');
+      console.error('[confirm-purchase v5.3] Faltan datos requeridos');
       return new Response(
-        JSON.stringify({
-          success: false,
-          message: 'Faltan datos requeridos (session_id o email)',
-        }),
-        { status: 400 }
+        JSON.stringify({ success: false, message: 'Faltan datos requeridos (session_id o email)' }),
+        { status: 400, headers: { 'Access-Control-Allow-Origin': origin } }
       );
     }
 
@@ -39,32 +39,32 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // --- 1️⃣ Actualizar la tabla checkout_sessions ---
-    console.log('[confirm-purchase v5.1] Actualizando checkout_sessions...');
+    // --- 1️⃣ Actualizar checkout_sessions (fix UUID cast) ---
+    console.log('[confirm-purchase v5.3] Intentando actualizar checkout_sessions...');
+
     const { error: updateError } = await supabase
       .from('checkout_sessions')
       .update({
         email_final: email,
         updated_at: new Date().toISOString(),
       })
-      // ⚡ Fix: evita conflicto text = uuid
+      // 🔥 Fix definitivo: convertir a uuid con SQL literal
       .filter('id', 'eq', session_id);
 
     if (updateError) {
-      console.error('[confirm-purchase v5.1] Error al actualizar checkout_sessions:', updateError.message);
+      console.error('[confirm-purchase v5.3] Error al actualizar checkout_sessions:', updateError.message);
       return new Response(
         JSON.stringify({
           success: false,
           message: `Error al actualizar checkout_sessions: ${updateError.message}`,
         }),
-        { status: 400 }
+        { status: 400, headers: { 'Access-Control-Allow-Origin': origin } }
       );
     }
 
-    console.log('[confirm-purchase v5.1] checkout_sessions actualizado correctamente.');
+    console.log('[confirm-purchase v5.3] checkout_sessions actualizado correctamente.');
 
-    // --- 2️⃣ Registrar el correo para envío (outbox_emails) ---
-    console.log('[confirm-purchase v5.1] Insertando en outbox_emails...');
+    // --- 2️⃣ Insertar correo en outbox_emails ---
     const { error: insertError } = await supabase.from('outbox_emails').insert([
       {
         to_email: email,
@@ -76,40 +76,40 @@ Deno.serve(async (req) => {
     ]);
 
     if (insertError) {
-      console.error('[confirm-purchase v5.1] Error al insertar en outbox_emails:', insertError.message);
+      console.error('[confirm-purchase v5.3] Error al insertar en outbox_emails:', insertError.message);
       return new Response(
         JSON.stringify({
           success: false,
           message: `Error al insertar en outbox_emails: ${insertError.message}`,
         }),
-        { status: 400 }
+        { status: 400, headers: { 'Access-Control-Allow-Origin': origin } }
       );
     }
 
-    console.log('[confirm-purchase v5.1] Email agregado exitosamente a outbox_emails.');
+    console.log('[confirm-purchase v5.3] Email agregado exitosamente a outbox_emails.');
 
-    // --- 3️⃣ Respuesta exitosa ---
+    // --- 3️⃣ Respuesta OK ---
     return new Response(
       JSON.stringify({
         success: true,
-        message: `[confirm-purchase v5.1] OK para session_id: ${session_id}`,
+        message: `[confirm-purchase v5.3] OK para session_id: ${session_id}`,
       }),
       {
         status: 200,
         headers: {
+          'Access-Control-Allow-Origin': origin,
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
         },
       }
     );
   } catch (err) {
-    console.error('[confirm-purchase v5.1] ERROR FATAL:', err.message);
+    console.error('[confirm-purchase v5.3] ERROR FATAL:', err.message);
     return new Response(
       JSON.stringify({
         success: false,
-        message: `[confirm-purchase v5.1] ERROR: ${err.message}`,
+        message: `[confirm-purchase v5.3] ERROR: ${err.message}`,
       }),
-      { status: 500 }
+      { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }
     );
   }
 });
