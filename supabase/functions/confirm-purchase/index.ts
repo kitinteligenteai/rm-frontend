@@ -1,5 +1,10 @@
-// confirm-purchase v6.2 — FIX DEFINITIVO CORS HEADERS + LOGS
+// confirm-purchase v6.2 — FIX FINAL: UUID, RPC, EMAIL INSERT, DENO INLINE
 // Fecha: 2025-10-14
+// Equivalente a deno.json inline para evitar su eliminación por Supabase
+/// <reference lib="deno.window" />
+/// <reference lib="deno.ns" />
+/// <reference lib="dom" />
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 console.log("[confirm-purchase v6.2] Function initialized");
@@ -8,25 +13,24 @@ Deno.serve(async (req) => {
   try {
     const origin = req.headers.get("origin") || "*";
 
-    // --- Manejo CORS (preflight) ---
+    // --- CORS Preflight ---
     if (req.method === "OPTIONS") {
       return new Response("ok", {
         headers: {
           "Access-Control-Allow-Origin": origin,
           "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers":
-            "Content-Type, Authorization, apikey, x-client-info",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
           "Access-Control-Max-Age": "86400",
         },
       });
     }
 
-    // --- Leer cuerpo ---
+    // --- Leer cuerpo JSON ---
     const { session_id, email } = await req.json();
-    console.log("[confirm-purchase v6.2] Payload recibido:", { session_id, email });
+    console.log("[v6.2] Payload recibido:", { session_id, email });
 
     if (!session_id || !email) {
-      console.error("[confirm-purchase v6.2] ❌ Faltan datos requeridos");
+      console.error("[v6.2] ❌ Faltan datos requeridos");
       return new Response(
         JSON.stringify({
           success: false,
@@ -36,21 +40,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    // --- Crear cliente Supabase ---
+    // --- Inicializar Supabase ---
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // --- 1️⃣ Usar RPC para actualizar el email ---
-    console.log("[confirm-purchase v6.2] Ejecutando update_checkout_email...");
+    // --- 1️⃣ Actualizar checkout_sessions vía RPC ---
+    console.log("[v6.2] Intentando update_checkout_email via RPC...");
+
     const { error: rpcError } = await supabase.rpc("update_checkout_email", {
       p_session_id: session_id,
       p_email: email,
     });
 
     if (rpcError) {
-      console.error("[confirm-purchase v6.2] ❌ Error RPC:", rpcError.message);
+      console.error("[v6.2] ❌ Error en RPC update_checkout_email:", rpcError);
       return new Response(
         JSON.stringify({
           success: false,
@@ -60,21 +65,26 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("[confirm-purchase v6.2] ✅ Email actualizado vía RPC");
+    console.log("[v6.2] ✅ checkout_sessions actualizado correctamente.");
 
-    // --- 2️⃣ Insertar en outbox_emails ---
-    const { error: insertError } = await supabase.from("outbox_emails").insert([
-      {
-        to_email: email,
-        template: "welcome-kit",
-        payload: { session_id },
-        status: "queued",
-        created_at: new Date().toISOString(),
-      },
-    ]);
+    // --- 2️⃣ Insertar correo en outbox_emails ---
+    console.log("[v6.2] Insertando correo en outbox_emails...");
+
+    const { data: inserted, error: insertError } = await supabase
+      .from("outbox_emails")
+      .insert([
+        {
+          to_email: email,
+          template: "welcome-kit",
+          payload: { session_id },
+          status: "queued",
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select();
 
     if (insertError) {
-      console.error("[confirm-purchase v6.2] ❌ Error al insertar en outbox_emails:", insertError.message);
+      console.error("[v6.2] ❌ Error al insertar en outbox_emails:", insertError);
       return new Response(
         JSON.stringify({
           success: false,
@@ -84,9 +94,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("[confirm-purchase v6.2] ✅ Email agregado a outbox_emails");
+    console.log("[v6.2] ✅ Email agregado exitosamente:", inserted);
 
-    // --- 3️⃣ Respuesta OK ---
+    // --- 3️⃣ Respuesta final OK ---
     return new Response(
       JSON.stringify({
         success: true,
@@ -101,7 +111,7 @@ Deno.serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("[confirm-purchase v6.2] 💥 ERROR FATAL:", err.message);
+    console.error("[v6.2] 💥 ERROR FATAL:", err.message);
     return new Response(
       JSON.stringify({
         success: false,
