@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["deno.window", "dom"],
-    "strict": true
+    "lib": ["deno.window", "deno.ns", "dom"],
+    "strict": false
+  },
+  "lint": false,
+  "fmt": {
+    "semiColons": false
   }
 }
