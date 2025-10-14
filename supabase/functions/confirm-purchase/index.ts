@@ -1,111 +1,95 @@
-// ---------------------------------------------------------------------------
-// 🧠 CONFIRM-PURCHASE – BALA DE PLATA v2
-// Desarrollado para ReinicioMetabolico.net
-// ---------------------------------------------------------------------------
+// supabase/functions/confirm-purchase/index.ts
+// Versión v5.0 — "Bala de Plata sin RPC" (100% JS, sin dependencias SQL)
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// 🔧 Configuración CORS
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-}
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 // 🚀 Servidor principal
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { session_id, email } = await req.json()
+    const { session_id, email } = await req.json();
+    console.log('[confirm-purchase] Payload recibido:', { session_id, email });
 
     if (!session_id || !email) {
-      throw new Error('Faltan parámetros: session_id o email.')
+      throw new Error('Faltan session_id o email.');
     }
 
-    // Crear cliente Supabase con claves seguras
+    // Validar formato UUID
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(session_id)) {
+      throw new Error(`El session_id no tiene formato UUID válido: ${session_id}`);
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    );
 
-    // Normalizar email
-    const cleanEmail = String(email).toLowerCase().trim()
-
-    // ---------------------------------------------------------------------
-    // 1️⃣  Validar formato básico de UUID
-    // ---------------------------------------------------------------------
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(session_id)) {
-      console.warn('[BalaDePlata] Advertencia: session_id no parece UUID válido')
-    }
-
-    // ---------------------------------------------------------------------
-    // 2️⃣  Actualizar checkout_sessions con el email final
-    // ---------------------------------------------------------------------
-    const { error: updateError } = await supabase
+    // 1️⃣ Buscar la sesión de checkout
+    const { data: session, error: findErr } = await supabase
       .from('checkout_sessions')
-      .update({ email_final: cleanEmail })
-      .eq('id', session_id)
+      .select('*')
+      .eq('id', session_id.toString())
+      .single();
 
-    if (updateError) {
-      throw new Error(`Error al actualizar checkout_sessions: ${updateError.message}`)
+    if (findErr || !session) {
+      throw new Error('No se encontró la sesión de checkout con ese ID.');
     }
 
-    // ---------------------------------------------------------------------
-    // 3️⃣  Buscar la compra asociada (status = approved)
-    // ---------------------------------------------------------------------
-    const { data: purchase, error: purchaseError } = await supabase
-      .from('purchases')
-      .select('provider_payment_id')
-      .eq('session_id', session_id)
-      .eq('status', 'approved')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle() // evita error si no hay resultados
+    console.log('[confirm-purchase] Sesión encontrada:', session);
 
-    if (purchaseError && purchaseError.code !== 'PGRST116') {
-      throw new Error(`Error al buscar la compra: ${purchaseError.message}`)
+    // 2️⃣ Actualizar email_final en checkout_sessions
+    const { error: updateErr } = await supabase
+      .from('checkout_sessions')
+      .update({
+        email_final: email,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', session_id.toString());
+
+    if (updateErr) {
+      throw new Error(`Error al actualizar checkout_sessions: ${updateErr.message}`);
     }
 
-    // ---------------------------------------------------------------------
-    // 4️⃣  Encolar correo de bienvenida si hay compra
-    // ---------------------------------------------------------------------
-    if (purchase) {
-      const { error: emailError } = await supabase
-        .from('outbox_emails')
-        .insert({
-          to_email: cleanEmail,
-          template: 'welcome_kit_7_dias',
-          payload: {
-            purchase_id: purchase.provider_payment_id,
-            customer_email: cleanEmail
-          },
-          status: 'queued'
-        })
+    console.log('[confirm-purchase] Email actualizado correctamente en checkout_sessions.');
 
-      // Ignorar violación de unicidad
-      if (emailError && emailError.code !== '23505') {
-        throw new Error(`Error al encolar email: ${emailError.message}`)
-      }
+    // 3️⃣ Encolar email en outbox_emails
+    const { error: insertErr } = await supabase.from('outbox_emails').insert({
+      to_email: email,
+      status: 'queued',
+      template: 'kit-7-dias',
+      payload: { session_id },
+      created_at: new Date().toISOString(),
+    });
+
+    if (insertErr) {
+      throw new Error(`Error al insertar en outbox_emails: ${insertErr.message}`);
     }
 
-    // ---------------------------------------------------------------------
-    // ✅  Éxito
-    // ---------------------------------------------------------------------
-    const msg = `[confirm-purchase][BalaDePlata v2] OK para session_id: ${session_id}`
-    console.log(msg)
+    console.log('[confirm-purchase] Email encolado exitosamente.');
 
-    return new Response(JSON.stringify({ success: true, message: msg }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200
-    })
-  } catch (err) {
-    console.error('[confirm-purchase][BalaDePlata v2] FATAL:', err)
+    // 4️⃣ Respuesta final
     return new Response(
-      JSON.stringify({ error: err?.message || 'Error desconocido en BalaDePlata' }),
+      JSON.stringify({
+        success: true,
+        message: `[confirm-purchase][v5.0 sin RPC] OK para session_id: ${session_id}`,
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+    );
+  } catch (err) {
+    console.error('[confirm-purchase] ERROR:', err.message);
+    return new Response(
+      JSON.stringify({ error: err.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    );
   }
-})
+});
