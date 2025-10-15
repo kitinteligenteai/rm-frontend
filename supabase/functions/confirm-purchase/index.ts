@@ -122,4 +122,4 @@ Deno.serve(async (req) => {
       { status: 500, headers: { "Access-Control-Allow-Origin": "*" } }
     );
   }
-});
+}); 
