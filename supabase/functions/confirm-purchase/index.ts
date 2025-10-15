@@ -1,25 +1,25 @@
-// confirm-purchase v6.2 — FIX FINAL: UUID, RPC, EMAIL INSERT, DENO INLINE
+// confirm-purchase v6.3 — FIX CORS FINAL + UUID RPC + EMAIL INSERT
 // Fecha: 2025-10-14
-// Equivalente a deno.json inline para evitar su eliminación por Supabase
 /// <reference lib="deno.window" />
 /// <reference lib="deno.ns" />
 /// <reference lib="dom" />
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-console.log("[confirm-purchase v6.2] Function initialized");
+console.log("[confirm-purchase v6.3] Function initialized");
 
 Deno.serve(async (req) => {
   try {
     const origin = req.headers.get("origin") || "*";
 
-    // --- CORS Preflight ---
+    // --- CORS preflight ---
     if (req.method === "OPTIONS") {
       return new Response("ok", {
         headers: {
           "Access-Control-Allow-Origin": origin,
           "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Headers":
+            "apikey, authorization, x-client-info, content-type, Authorization, Content-Type, X-Requested-With",
           "Access-Control-Max-Age": "86400",
         },
       });
@@ -27,10 +27,10 @@ Deno.serve(async (req) => {
 
     // --- Leer cuerpo JSON ---
     const { session_id, email } = await req.json();
-    console.log("[v6.2] Payload recibido:", { session_id, email });
+    console.log("[v6.3] Payload recibido:", { session_id, email });
 
     if (!session_id || !email) {
-      console.error("[v6.2] ❌ Faltan datos requeridos");
+      console.error("[v6.3] ❌ Faltan datos requeridos");
       return new Response(
         JSON.stringify({
           success: false,
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     );
 
     // --- 1️⃣ Actualizar checkout_sessions vía RPC ---
-    console.log("[v6.2] Intentando update_checkout_email via RPC...");
+    console.log("[v6.3] Intentando update_checkout_email via RPC...");
 
     const { error: rpcError } = await supabase.rpc("update_checkout_email", {
       p_session_id: session_id,
@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     });
 
     if (rpcError) {
-      console.error("[v6.2] ❌ Error en RPC update_checkout_email:", rpcError);
+      console.error("[v6.3] ❌ Error en RPC update_checkout_email:", rpcError);
       return new Response(
         JSON.stringify({
           success: false,
@@ -65,10 +65,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("[v6.2] ✅ checkout_sessions actualizado correctamente.");
+    console.log("[v6.3] ✅ checkout_sessions actualizado correctamente.");
 
     // --- 2️⃣ Insertar correo en outbox_emails ---
-    console.log("[v6.2] Insertando correo en outbox_emails...");
+    console.log("[v6.3] Insertando correo en outbox_emails...");
 
     const { data: inserted, error: insertError } = await supabase
       .from("outbox_emails")
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
       .select();
 
     if (insertError) {
-      console.error("[v6.2] ❌ Error al insertar en outbox_emails:", insertError);
+      console.error("[v6.3] ❌ Error al insertar en outbox_emails:", insertError);
       return new Response(
         JSON.stringify({
           success: false,
@@ -94,28 +94,30 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("[v6.2] ✅ Email agregado exitosamente:", inserted);
+    console.log("[v6.3] ✅ Email agregado exitosamente:", inserted);
 
     // --- 3️⃣ Respuesta final OK ---
     return new Response(
       JSON.stringify({
         success: true,
-        message: `[confirm-purchase v6.2] OK para session_id: ${session_id}`,
+        message: `[confirm-purchase v6.3] OK para session_id: ${session_id}`,
       }),
       {
         status: 200,
         headers: {
           "Access-Control-Allow-Origin": origin,
+          "Access-Control-Allow-Headers":
+            "apikey, authorization, x-client-info, content-type, Authorization, Content-Type, X-Requested-With",
           "Content-Type": "application/json",
         },
       }
     );
   } catch (err) {
-    console.error("[v6.2] 💥 ERROR FATAL:", err.message);
+    console.error("[v6.3] 💥 ERROR FATAL:", err.message);
     return new Response(
       JSON.stringify({
         success: false,
-        message: `[confirm-purchase v6.2] ERROR: ${err.message}`,
+        message: `[confirm-purchase v6.3] ERROR: ${err.message}`,
       }),
       { status: 500, headers: { "Access-Control-Allow-Origin": "*" } }
     );
