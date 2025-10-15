@@ -4,7 +4,7 @@ import { Resend } from 'https://esm.sh/resend@3.2.0';
 
 const BUILD = 'email-worker-v2@2025-10-15-STABLE-NOTIFY-FIX';
 
-// --- Plantilla de correo (sin cambios) ---
+// ---  Plantilla de correo (sin cambios) ---
 const welcomeEmailTemplate = {
   subject: 'Tu acceso al Kit de 7 días – Reinicio Metabólico',
   html: `<!DOCTYPE html><html lang="es"><body style="font-family:Arial,sans-serif;line-height:1.5;color:#333;">
