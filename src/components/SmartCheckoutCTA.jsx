@@ -21,7 +21,7 @@ function guessDefaultCurrency() {
 }
 
 function toMXN(usd, mode = "auto-9") {
-  const rate = 18.5; // display-only
+  const rate = 18.5; // Solo display
   const raw = Math.round(usd * rate);
   if (mode === "auto-9") {
     const x = Math.max(99, raw);
@@ -59,56 +59,64 @@ export default function SmartCheckoutCTA({
     () => toMXN(basePriceUSD, mxnRounding),
     [basePriceUSD, mxnRounding]
   );
-  const isMXN = currency === "MXN";
 
+  const isMXN = currency === "MXN";
   const cardPad = dense ? "p-4" : "p-5";
   const card =
-    "rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur " +
-    cardPad;
+    "rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur " + cardPad;
 
-  const toggleBtn =
-    "flex-1 h-10 text-[13px] md:text-[14px] rounded-md border border-white/10 " +
-    "bg-slate-800/70 text-slate-200 hover:bg-slate-700 transition-colors";
-  const toggleBtnActive = "bg-slate-700 text-white border-slate-600";
+  // 🔧 Estilos del toggle mejorados (feedback visual claro)
+  const toggleBase =
+    "flex-1 h-10 text-[13px] md:text-[14px] rounded-md border transition-all duration-200 font-semibold";
+  const toggleInactive =
+    "bg-slate-800/70 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white";
+  const toggleActive =
+    "bg-teal-600 text-white border-teal-500 shadow-md scale-[1.03]";
 
   return (
     <div className={card}>
-      {/* Texto guía muy claro */}
+      {/* Texto guía */}
       <div className="mb-3 text-[12px] md:text-[13px] leading-relaxed text-slate-300">
         <span className="font-semibold text-slate-200">¿Cómo quieres pagar?</span>{" "}
         <span className="text-slate-400">
-          Si estás en <span className="font-medium text-slate-200">México</span>,
-          elige <span className="font-medium text-slate-200">Pesos (MXN)</span> y paga con{" "}
-          <span className="font-medium text-slate-200">Mercado Pago</span>.  
-          Si estás fuera de México, elige{" "}
+          Si estás en{" "}
+          <span className="font-medium text-slate-200">México</span>, elige{" "}
+          <span className="font-medium text-slate-200">Pesos (MXN)</span> y paga
+          con{" "}
+          <span className="font-medium text-slate-200">Mercado Pago</span>. Si
+          estás fuera de México, elige{" "}
           <span className="font-medium text-slate-200">USD</span> y paga con{" "}
           <span className="font-medium text-slate-200">Gumroad</span>.
         </span>
       </div>
 
-      {/* Toggle moneda */}
+      {/* Selector de moneda */}
       <div className="text-[12px] text-slate-400 mb-2">Elige tu moneda:</div>
       <div className="flex gap-2">
         <button
-          className={`${toggleBtn} ${!isMXN ? toggleBtnActive : ""}`}
-          onClick={() => setCurrency("USD")}
           type="button"
-          aria-pressed={!isMXN}
+          aria-pressed={currency === "USD"}
+          onClick={() => setCurrency("USD")}
+          className={`${toggleBase} ${
+            currency === "USD" ? toggleActive : toggleInactive
+          }`}
         >
-          us USD
+          🇺🇸 USD
         </button>
         <button
-          className={`${toggleBtn} ${isMXN ? toggleBtnActive : ""}`}
-          onClick={() => setCurrency("MXN")}
           type="button"
-          aria-pressed={isMXN}
+          aria-pressed={currency === "MXN"}
+          onClick={() => setCurrency("MXN")}
+          className={`${toggleBase} ${
+            currency === "MXN" ? toggleActive : toggleInactive
+          }`}
         >
-          mx MXN
+          🇲🇽 MXN
         </button>
       </div>
 
-      {/* Precio visible y claro */}
-      <div className="mt-3 text-center">
+      {/* Precio visible */}
+      <div className="mt-4 text-center">
         <div className="text-3xl font-extrabold tracking-tight text-teal-400">
           {isMXN ? `$${mxnPrice}` : `$${basePriceUSD}`}
         </div>
@@ -138,12 +146,9 @@ export default function SmartCheckoutCTA({
             href={gumroadLink}
             target="_blank"
             rel="noreferrer"
-            className={
-              "w-full inline-flex items-center justify-center rounded-xl h-12 " +
-              // Verde Gumroad aproximado
-              "bg-[#36c28b] hover:bg-[#2fb17e] active:bg-[#27a372] " +
-              "text-white font-semibold text-[15px] shadow-sm transition-colors"
-            }
+            className="w-full inline-flex items-center justify-center rounded-xl h-12 
+              bg-[#36c28b] hover:bg-[#2fb17e] active:bg-[#27a372]
+              text-white font-semibold text-[15px] shadow-sm transition-colors"
           >
             Comprar en Gumroad
           </a>

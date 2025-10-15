@@ -1,4 +1,4 @@
-// src/pages/GraciasKit.jsx — versión final (v6.4 compatible)
+// src/pages/GraciasKit.jsx — versión 15-oct-2025 (flujo validado + feedback visual)
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { CheckCircle, Loader2, Mail } from "lucide-react";
@@ -12,37 +12,46 @@ function GraciasKitPage() {
 
   const projectRef =
     import.meta.env.VITE_SUPABASE_PROJECT_REF || "mgjzlohapnepvrqlxmpo";
-  const anonKey =
-    import.meta.env.VITE_SUPABASE_ANON_KEY ||
-    "REEMPLAZA_SI_NO_TOMA_ENV";
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "REEMPLAZA_SI_NO_TOMA_ENV";
 
+  // 🧭 Captura session_id desde la URL
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
-    const sid =
-      p.get("session_id") || p.get("external_reference") || "";
+    const sid = p.get("session_id") || p.get("external_reference") || "";
     setSessionId(sid);
+
+    // Bloqueo de reenvío tras refresh
+    const confirmedKey = `rm.confirmed.${sid}`;
+    if (localStorage.getItem(confirmedKey) === "1") {
+      setAlreadyConfirmed(true);
+      setDone(true);
+      setFinalEmail(localStorage.getItem(`rm.email.${sid}`) || "");
+    }
   }, []);
 
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting, isValid },
-  } = useForm({ mode: "onBlur", reValidateMode: "onChange" });
+    formState: { errors, isSubmitting },
+  } = useForm({ mode: "onChange" });
 
-  const emailValue = watch("email", "");
-  const confirmValue = watch("confirmEmail", "");
+  const emailValue = watch("email", "").trim().toLowerCase();
+  const confirmValue = watch("confirmEmail", "").trim().toLowerCase();
+  const emailsMatch =
+    emailValue.length > 0 && confirmValue.length > 0 && emailValue === confirmValue;
+  const isValid = emailsMatch && !isSubmitting && !alreadyConfirmed;
 
+  // 🚀 Envío de confirmación
   const onSubmit = async (values) => {
     try {
       setErrorMsg("");
-
       if (!sessionId) {
         alert("No se encontró un ID de sesión válido.");
         return;
       }
 
-      const email = String(values.email).trim().toLowerCase();
+      const email = values.email.trim().toLowerCase();
       const functionsUrl = `https://${projectRef}.functions.supabase.co`;
 
       const resp = await fetch(`${functionsUrl}/confirm-purchase`, {
@@ -56,7 +65,6 @@ function GraciasKitPage() {
       });
 
       const data = await resp.json().catch(() => ({}));
-
       if (!resp.ok) {
         if (data?.message?.includes("ya fue confirmada")) {
           setAlreadyConfirmed(true);
@@ -66,17 +74,19 @@ function GraciasKitPage() {
         throw new Error(data?.message || "No se pudo confirmar tu email.");
       }
 
+      // Guardar estado local (bloquea reenvío tras refresh)
+      localStorage.setItem(`rm.confirmed.${sessionId}`, "1");
+      localStorage.setItem(`rm.email.${sessionId}`, email);
+
       setFinalEmail(email);
       setDone(true);
     } catch (err) {
       console.error("Confirm email error:", err);
-      setErrorMsg(
-        "Hubo un problema al confirmar tu correo. Intenta de nuevo."
-      );
+      setErrorMsg("Hubo un problema al confirmar tu correo. Intenta de nuevo.");
     }
   };
 
-  // ✅ Pantalla de éxito
+  // ✅ Pantalla final
   if (done) {
     return (
       <div className="min-h-screen grid place-items-center bg-gray-900 text-white p-6">
@@ -109,10 +119,7 @@ function GraciasKitPage() {
         <form className="mt-6 space-y-5" noValidate onSubmit={handleSubmit(onSubmit)}>
           {/* Email */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-400 mb-1"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">
               Correo electrónico
             </label>
             <div className="relative">
@@ -121,7 +128,7 @@ function GraciasKitPage() {
                 id="email"
                 type="email"
                 placeholder="nombre@correo.com"
-                className="w-full bg-transparent outline-none border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
+                className="w-full bg-transparent border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
                 autoComplete="email"
                 {...register("email", {
                   required: "El correo es obligatorio.",
@@ -132,19 +139,12 @@ function GraciasKitPage() {
                 })}
               />
             </div>
-            {errors.email && (
-              <p className="mt-2 text-sm text-yellow-400">
-                {errors.email.message}
-              </p>
-            )}
+            {errors.email && <p className="mt-2 text-sm text-yellow-400">{errors.email.message}</p>}
           </div>
 
           {/* Confirm Email */}
           <div>
-            <label
-              htmlFor="confirmEmail"
-              className="block text-sm font-medium text-gray-400 mb-1"
-            >
+            <label htmlFor="confirmEmail" className="block text-sm font-medium text-gray-400 mb-1">
               Confirma tu correo
             </label>
             <div className="relative">
@@ -153,34 +153,29 @@ function GraciasKitPage() {
                 id="confirmEmail"
                 type="email"
                 placeholder="Vuelve a escribir tu correo"
-                className="w-full bg-transparent outline-none border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
+                className="w-full bg-transparent border border-gray-700 focus:border-teal-500 transition rounded-lg pl-10 pr-3 py-3"
                 autoComplete="off"
                 {...register("confirmEmail", {
                   required: "Confirma tu correo.",
                   validate: (v) =>
-                    v?.trim().toLowerCase() ===
-                      emailValue?.trim().toLowerCase() ||
+                    v?.trim().toLowerCase() === emailValue ||
                     "Los correos no coinciden.",
                 })}
               />
             </div>
             {errors.confirmEmail && (
-              <p className="mt-2 text-sm text-yellow-400">
-                {errors.confirmEmail.message}
-              </p>
+              <p className="mt-2 text-sm text-yellow-400">{errors.confirmEmail.message}</p>
             )}
           </div>
 
-          {/* Submit */}
+          {/* Botón */}
           <button
             type="submit"
-            disabled={
-              isSubmitting || !isValid || alreadyConfirmed
-            }
-            className={`w-full flex items-center justify-center rounded-lg px-6 py-4 font-semibold transition ${
-              !isValid || alreadyConfirmed
-                ? "bg-gray-600 cursor-not-allowed opacity-70"
-                : "bg-teal-600 hover:bg-teal-500 cursor-pointer shadow-md"
+            disabled={!isValid}
+            className={`w-full flex items-center justify-center rounded-lg px-6 py-4 font-semibold transition-all duration-300 ${
+              isValid
+                ? "bg-teal-600 hover:bg-teal-500 text-white shadow-lg hover:shadow-teal-400/20 scale-[1.02]"
+                : "bg-gray-600 text-gray-300 cursor-not-allowed opacity-70"
             }`}
           >
             {isSubmitting ? (
@@ -188,18 +183,12 @@ function GraciasKitPage() {
                 <Loader2 className="h-5 w-5 animate-spin mr-3" />
                 Procesando…
               </>
-            ) : alreadyConfirmed ? (
-              "Ya confirmado"
             ) : (
               "Confirmar y Recibir mi Kit"
             )}
           </button>
 
-          {errorMsg && (
-            <p className="text-sm text-red-400 text-center mt-2">
-              {errorMsg}
-            </p>
-          )}
+          {errorMsg && <p className="text-sm text-red-400 text-center mt-2">{errorMsg}</p>}
 
           <p className="text-xs text-gray-400 text-center">
             Usaremos este correo sólo para enviarte tu acceso y soporte.
