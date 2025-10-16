@@ -1,4 +1,4 @@
-// v6.4 stable — confirm-purchase
+// v6.5 — confirm-purchase (versión estable con función v2)
 // Actualiza el correo del cliente y sincroniza con purchases.
 // Evita reenvíos múltiples y limpia logs de debug.
 
@@ -24,13 +24,13 @@ Deno.serve(async (req) => {
           success: false,
           message: "Faltan parámetros: session_id o email.",
         }),
-        { headers: corsHeaders, status: 400 }
+        { headers: corsHeaders, status: 400 },
       );
     }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     // ✅ 1. Verificar si la sesión ya fue confirmada
@@ -48,26 +48,26 @@ Deno.serve(async (req) => {
           success: false,
           message: "Esta sesión ya fue confirmada anteriormente.",
         }),
-        { headers: corsHeaders, status: 400 }
+        { headers: corsHeaders, status: 400 },
       );
     }
 
-    // ✅ 2. Ejecutar la función RPC para actualizar email y sincronizar con purchases
-    const { error: rpcError } = await supabase.rpc("update_checkout_email", {
+    // ✅ 2. Ejecutar la nueva función RPC update_checkout_email_v2
+    const { error: rpcError } = await supabase.rpc("update_checkout_email_v2", {
       p_session_id: session_id,
       p_email: email,
     });
 
     if (rpcError) {
-      throw new Error(`Error RPC update_checkout_email: ${rpcError.message}`);
+      throw new Error(`Error RPC update_checkout_email_v2: ${rpcError.message}`);
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `✅ Correo confirmado y sincronizado correctamente.`,
+        message: "✅ Correo confirmado y sincronizado correctamente.",
       }),
-      { headers: corsHeaders, status: 200 }
+      { headers: corsHeaders, status: 200 },
     );
   } catch (err) {
     return new Response(
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
         success: false,
         message: err.message ?? "Error interno al confirmar el correo.",
       }),
-      { headers: corsHeaders, status: 400 }
+      { headers: corsHeaders, status: 400 },
     );
   }
 });
