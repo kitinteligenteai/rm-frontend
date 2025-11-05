@@ -1,23 +1,23 @@
+// CÓDIGO FINAL — MercadoPagoButton.jsx (v2.0 universal)
+// Compatible con Kit y Programa, recibe props dinámicas
+
 import React, { useState, useRef } from "react";
 
-export default function MercadoPagoButton() {
+export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", items }) {
   const [loading, setLoading] = useState(false);
   const clickedRef = useRef(false);
   const API = "https://mgjzlohapnepvrqlxmpo.functions.supabase.co/mp-generate-preference-v2";
 
   const handleClick = async () => {
-    if (clickedRef.current) return; // evita doble click rápido
+    if (clickedRef.current) return;
     clickedRef.current = true;
     setLoading(true);
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000); // 10s timeout “duro”
+    const timer = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const payload = {
-        items: [{ title: "Kit de 7 Días - Reinicio Metabólico", quantity: 1, unit_price: 139, currency_id: "MXN" }],
-      };
-
+      const payload = { items };
       const resp = await fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -35,13 +35,11 @@ export default function MercadoPagoButton() {
           : null);
 
       if (!url) throw new Error("No llegó initPoint ni preferenceId.");
-
-      // Redirige en la MISMA pestaña (lo más compatible con bloqueadores)
       window.location.assign(url);
     } catch (err) {
       console.error("[MP Button] Error:", err);
       alert(`[MP Button] Error: ${err?.message || String(err)}`);
-      clickedRef.current = false; // permitir reintento
+      clickedRef.current = false;
     } finally {
       clearTimeout(timer);
       setLoading(false);
@@ -62,7 +60,7 @@ export default function MercadoPagoButton() {
           <path d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" strokeWidth="4" fill="none" />
         </svg>
       )}
-      {loading ? "Preparando pago..." : "Pagar con Mercado Pago"}
+      {loading ? "Preparando pago..." : label}
     </button>
   );
 }

@@ -1,19 +1,16 @@
 // RUTA: src/components/SmartCheckoutCTA.jsx
+// v7.5 — texto mejorado, misma lógica de pago
+
 import React, { useEffect, useMemo, useState } from "react";
 import MercadoPagoButton from "./common/MercadoPagoButton";
 
-// Heurística sencilla para preseleccionar MXN si parece México
 function guessDefaultCurrency() {
   try {
     const saved = localStorage.getItem("rm.currency");
     if (saved === "USD" || saved === "MXN") return saved;
-
     const lang = navigator.language?.toLowerCase() || "";
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-
-    if (lang.includes("es-mx")) return "MXN";
-    if (/mexico|mexico_city|america\/mexico_city/i.test(tz)) return "MXN";
-
+    if (lang.includes("es-mx") || /mexico/i.test(tz)) return "MXN";
     return "USD";
   } catch {
     return "USD";
@@ -21,7 +18,7 @@ function guessDefaultCurrency() {
 }
 
 function toMXN(usd, mode = "auto-9") {
-  const rate = 18.5; // Solo display
+  const rate = 18.5;
   const raw = Math.round(usd * rate);
   if (mode === "auto-9") {
     const x = Math.max(99, raw);
@@ -30,15 +27,6 @@ function toMXN(usd, mode = "auto-9") {
   return raw;
 }
 
-/**
- * Props:
- * - productName
- * - basePriceUSD
- * - gumroadLink
- * - mxnRounding: "auto-9" | null
- * - size: "compact" | "normal"
- * - dense: boolean
- */
 export default function SmartCheckoutCTA({
   productName = "Producto",
   basePriceUSD = 7,
@@ -48,7 +36,6 @@ export default function SmartCheckoutCTA({
   dense = true,
 }) {
   const [currency, setCurrency] = useState(guessDefaultCurrency);
-
   useEffect(() => {
     try {
       localStorage.setItem("rm.currency", currency);
@@ -65,7 +52,6 @@ export default function SmartCheckoutCTA({
   const card =
     "rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur " + cardPad;
 
-  // 🔧 Estilos del toggle mejorados (feedback visual claro)
   const toggleBase =
     "flex-1 h-10 text-[13px] md:text-[14px] rounded-md border transition-all duration-200 font-semibold";
   const toggleInactive =
@@ -75,9 +61,10 @@ export default function SmartCheckoutCTA({
 
   return (
     <div className={card}>
-      {/* Texto guía */}
       <div className="mb-3 text-[12px] md:text-[13px] leading-relaxed text-slate-300">
-        <span className="font-semibold text-slate-200">¿Cómo quieres pagar?</span>{" "}
+        <span className="font-semibold text-slate-200">
+          ¿Cómo deseas obtener tu acceso?
+        </span>{" "}
         <span className="text-slate-400">
           Si estás en{" "}
           <span className="font-medium text-slate-200">México</span>, elige{" "}
@@ -85,17 +72,15 @@ export default function SmartCheckoutCTA({
           con{" "}
           <span className="font-medium text-slate-200">Mercado Pago</span>. Si
           estás fuera de México, elige{" "}
-          <span className="font-medium text-slate-200">USD</span> y paga con{" "}
+          <span className="font-medium text-slate-200">USD</span> y compra con{" "}
           <span className="font-medium text-slate-200">Gumroad</span>.
         </span>
       </div>
 
-      {/* Selector de moneda */}
       <div className="text-[12px] text-slate-400 mb-2">Elige tu moneda:</div>
       <div className="flex gap-2">
         <button
           type="button"
-          aria-pressed={currency === "USD"}
           onClick={() => setCurrency("USD")}
           className={`${toggleBase} ${
             currency === "USD" ? toggleActive : toggleInactive
@@ -105,7 +90,6 @@ export default function SmartCheckoutCTA({
         </button>
         <button
           type="button"
-          aria-pressed={currency === "MXN"}
           onClick={() => setCurrency("MXN")}
           className={`${toggleBase} ${
             currency === "MXN" ? toggleActive : toggleInactive
@@ -115,17 +99,15 @@ export default function SmartCheckoutCTA({
         </button>
       </div>
 
-      {/* Precio visible */}
       <div className="mt-4 text-center">
         <div className="text-3xl font-extrabold tracking-tight text-teal-400">
           {isMXN ? `$${mxnPrice}` : `$${basePriceUSD}`}
         </div>
         <div className="text-[12px] text-slate-500 mt-1">
-          Un solo pago — acceso inmediato
+          Un solo pago — acceso anual inmediato
         </div>
       </div>
 
-      {/* Acción principal */}
       <div className="mt-3">
         {isMXN ? (
           <MercadoPagoButton
@@ -155,9 +137,8 @@ export default function SmartCheckoutCTA({
         )}
       </div>
 
-      {/* Sello de confianza */}
       <p className="mt-3 text-center text-[12px] text-slate-400">
-        Compra 100% segura • Confirmación inmediata
+        Compra 100 % segura • Confirmación automática
       </p>
     </div>
   );
