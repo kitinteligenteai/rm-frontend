@@ -1,6 +1,4 @@
-// mp-webhook-v3 — versión final consolidada (2025-11-03)
-// Idempotente, con NTFY + sincronización de correo
-
+// mp-webhook-v3 — versión estable con NTFY antidébil duplicado (2025-11-13)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -8,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BUILD = "mp-webhook-v3@2025-11-03-STABLE";
+const BUILD = "mp-webhook-v3@2025-11-13-NTFY-IDEMPOTENT";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -105,19 +103,39 @@ Deno.serve(async (req) => {
     if (upsertErr)
       console.error(`[${BUILD}] Upsert error`, upsertErr.message);
 
-    // Si se aprueba, lanzar notificación NTFY
+    // 🟢 NTFY IDEMPOTENTE (corrección sin riesgo)
     if (status === "approved") {
       const topic = Deno.env.get("NTFY_TOPIC");
+
       if (topic) {
-        await fetch(`https://ntfy.sh/${topic}`, {
-          method: "POST",
-          body: `✅ Nueva venta aprobada\nMonto: ${payment.transaction_amount} ${payment.currency_id}\nEmail: ${safeEmail}`,
-          headers: {
-            Title: "¡Venta confirmada!",
-            Priority: "high",
-            Tags: "moneybag,tada",
-          },
-        });
+        // Guardar en tabla de logs y verificar si ya fue enviado
+        const payload = {
+          payment_id: paymentId,
+          email: safeEmail,
+          amount: payment.transaction_amount,
+        };
+
+        const { data: rpc, error: rpcErr } = await supabase.rpc(
+          "log_notification_if_not_exists",
+          {
+            p_event_type: "sale",
+            p_reference_id: String(paymentId),
+            p_message: JSON.stringify(payload),
+          }
+        );
+
+        if (!rpcErr && rpc?.inserted === true) {
+          // Solo enviar NTFY si inserted === true
+          await fetch(`https://ntfy.sh/${topic}`, {
+            method: "POST",
+            body: `💰 🎉 Venta confirmada!\nMonto: ${payment.transaction_amount} ${payment.currency_id}\nEmail: ${safeEmail}`,
+            headers: {
+              Title: "¡Venta confirmada!",
+              Priority: "high",
+              Tags: "moneybag,tada",
+            },
+          });
+        }
       }
     }
 
@@ -125,6 +143,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true, build: BUILD }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (e) {
     console.error(`[${BUILD}] FATAL`, e);
     return new Response(
