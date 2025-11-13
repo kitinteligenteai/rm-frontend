@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
       const topic = Deno.env.get("NTFY_TOPIC");
 
       if (topic) {
-        // Guardar en tabla de logs y verificar si ya fue enviado
+        //  Guardar en tabla de logs y verificar si ya fue enviado
         const payload = {
           payment_id: paymentId,
           email: safeEmail,
