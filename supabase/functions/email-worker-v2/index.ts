@@ -1,28 +1,30 @@
 // supabase/functions/email-worker-v2/index.ts
-// BUILD: 2025-10-15 — v7.2-STABLE-NOTIFY-FIX
-// Propósito: enviar correos de bienvenida y notificaciones NTFY de manera idempotente.
+// BUILD: 2025-11-13 — v7.3-STABLE-KIT-PDF-FIX
+// Propósito: enviar correos del Kit y evitar duplicados.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Resend } from 'https://esm.sh/resend@3.2.0';
 
-const BUILD = 'email-worker-v2@2025-10-15-v7.2-STABLE-NOTIFY-FIX';
+const BUILD = 'email-worker-v2@2025-11-13-v7.3-STABLE-KIT-PDF-FIX';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
 };
 
-// --- Plantilla de correo ACTUALIZADA DEL KIT ---
+// -------------------------------------------------------
+// PLANTILLA ACTUALIZADA CON EL PDF CORRECTO
+// -------------------------------------------------------
 const welcomeEmailTemplate = {
   subject: 'Tu acceso al Kit de 7 días – Reinicio Metabólico',
   html: `<!DOCTYPE html><html lang="es"><body style="font-family:Arial,sans-serif;line-height:1.5;color:#333;">
     <h2>¡Bienvenido a Reinicio Metabólico!</h2>
-    <p>Gracias por tu compra. Aquí tienes tu acceso al Kit de 7 días.</p>
+    <p>Gracias por tu compra. Aquí tienes tu acceso completo al <strong>Kit de 7 días</strong>.</p>
 
     <p>
       <a href="https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/productos-digitales/Tu_Plan_de_7_Dias_Reinicio_Metabolico.pdf"
-        style="background:#28a745;color:#fff;padding:10px 15px;text-decoration:none;border-radius:4px;">
-        Acceder al Kit
+         style="background:#28a745;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;font-size:16px;">
+         📥 Descargar Kit de 7 días
       </a>
     </p>
 
@@ -33,9 +35,9 @@ const welcomeEmailTemplate = {
     <p>Saludos,<br>El equipo de Reinicio Metabólico</p>
   </body></html>`,
 
-  text: `¡Bienvenido a Reinicio Metabólico!
+  text: `Tu Kit de 7 días de Reinicio Metabólico está listo.
 
-Gracias por tu compra. Aquí tienes tu acceso al Kit de 7 días:
+Descárgalo aquí:
 https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/productos-digitales/Tu_Plan_de_7_Dias_Reinicio_Metabolico.pdf
 
 Dudas: soporte@reiniciometabolico.net
@@ -45,7 +47,9 @@ El equipo de Reinicio Metabólico`
 };
 
 
-// --- WORKER PRINCIPAL ---
+// -------------------------------------------------------
+// WORKER PRINCIPAL
+// -------------------------------------------------------
 Deno.serve(async () => {
   try {
     const supabase = createClient(
@@ -54,12 +58,12 @@ Deno.serve(async () => {
     );
 
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    if (!resendApiKey) throw new Error('Falta RESEND_API_KEY en Secrets.');
+    if (!resendApiKey) throw new Error('Falta RESEND_API_KEY');
 
     const resend = new Resend(resendApiKey);
     const topic = Deno.env.get('NTFY_TOPIC') || 'reiniciometabolico';
 
-    // --- Buscar correos pendientes ---
+    // Obtener correos pendientes
     const { data: queuedEmails, error: qErr } = await supabase
       .from('outbox_emails')
       .select('id, to_email, template, payload, attempts, status')
@@ -68,108 +72,87 @@ Deno.serve(async () => {
       .limit(10);
 
     if (qErr) throw qErr;
-
     if (!queuedEmails?.length) {
       console.log(`[${BUILD}] No hay correos pendientes.`);
-      return new Response(
-        JSON.stringify({ message: 'Sin correos por enviar.' }),
-        { headers: corsHeaders, status: 200 }
-      );
+      return new Response(JSON.stringify({ message: 'Sin correos por enviar.' }), {
+        headers: corsHeaders,
+        status: 200
+      });
     }
 
-    console.log(`[${BUILD}] Se encontraron ${queuedEmails.length} correos en cola.`);
+    console.log(`[${BUILD}] Procesando ${queuedEmails.length} correos...`);
 
     for (const job of queuedEmails) {
       try {
         let to = (job.to_email || '').trim().toLowerCase();
-        const isTestUser = to.endsWith('@testuser.com');
+        const isTest = to.endsWith('@testuser.com');
 
-        // 🚫 Idempotencia: evitar duplicados
-        if (job.status === 'sent') {
-          console.log(`[${BUILD}] Job ${job.id}: ya enviado, se omite.`);
-          continue;
-        }
+        // Idempotencia
+        if (job.status === 'sent') continue;
 
-        // 1️⃣ Resolver email si falta
-        if (!to || isTestUser) {
-          console.log(`[${BUILD}] Job ${job.id}: resolviendo email...`);
-
+        // Resolver email si falta
+        if (!to || isTest) {
           const payload = job.payload || {};
           let resolvedEmail = null;
 
           if (payload.session_id) {
-            const { data: session } = await supabase
+            const { data: s } = await supabase
               .from('checkout_sessions')
               .select('email_final')
               .eq('id', payload.session_id)
               .single();
 
-            resolvedEmail = session?.email_final?.trim().toLowerCase() || null;
+            resolvedEmail = s?.email_final?.trim().toLowerCase() || null;
           }
 
           if (resolvedEmail && !resolvedEmail.endsWith('@testuser.com')) {
-            await supabase
-              .from('outbox_emails')
+            await supabase.from('outbox_emails')
               .update({ to_email: resolvedEmail })
               .eq('id', job.id);
 
             to = resolvedEmail;
           } else {
-            await supabase
-              .from('outbox_emails')
-              .update({
-                status: 'queued',
-                attempts: (job.attempts || 0) + 1,
-                last_error: 'esperando email_final válido',
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', job.id);
+            await supabase.from('outbox_emails').update({
+              status: 'queued',
+              attempts: (job.attempts || 0) + 1,
+              last_error: 'esperando email_final válido',
+              updated_at: new Date().toISOString()
+            }).eq('id', job.id);
 
             continue;
           }
         }
 
-        // 2️⃣ Enviar correo
-        console.log(`[${BUILD}] Enviando correo a ${to} ...`);
-
-        const { data: sent, error: sendErr } = await resend.emails.send({
+        // -------------------------------------------------------
+        // ENVÍO DEL CORREO (Con plantilla actualizada)
+        // -------------------------------------------------------
+        const { data: sentEmail, error: sendErr } = await resend.emails.send({
           from: 'Reinicio Metabólico <acceso@reiniciometabolico.net>',
           to,
           subject: welcomeEmailTemplate.subject,
           html: welcomeEmailTemplate.html,
-          text: welcomeEmailTemplate.text,
-          reply_to: 'soporte@reiniciometabolico.net'
+          text: welcomeEmailTemplate.text
         });
 
         if (sendErr) throw sendErr;
 
-        // 3️⃣ Actualizar estado
-        await supabase
-          .from('outbox_emails')
-          .update({
-            status: 'sent',
-            provider_message_id: sent?.id ?? null,
-            last_error: null,
-            attempts: (job.attempts || 0) + 1,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', job.id);
+        // Actualizar estado
+        await supabase.from('outbox_emails').update({
+          status: 'sent',
+          provider_message_id: sentEmail?.id ?? null,
+          last_error: null,
+          attempts: (job.attempts || 0) + 1,
+          updated_at: new Date().toISOString()
+        }).eq('id', job.id);
 
-        // 4️⃣ NTFY de confirmación
-        try {
-          await fetch(`https://ntfy.sh/${topic}`, {
-            method: 'POST',
-            body: `✅ Correo enviado correctamente a ${to}`,
-            headers: {
-              Title: 'Correo enviado – Reinicio Metabólico',
-              Tags: 'mailbox,white_check_mark'
-            }
-          });
-        } catch (_) {}
+        // Notificación NTFY
+        await fetch(`https://ntfy.sh/${topic}`, {
+          method: 'POST',
+          body: `📩 Correo enviado a ${to}`,
+          headers: { Title: 'Correo enviado', Tags: 'email' }
+        });
 
       } catch (err) {
-        console.error(`[${BUILD}] Error en job ${job.id}:`, err.message);
-
         const attempts = (job.attempts || 0) + 1;
 
         await supabase.from('outbox_emails').update({
@@ -181,17 +164,15 @@ Deno.serve(async () => {
       }
     }
 
-    return new Response(
-      JSON.stringify({ message: `Procesados ${queuedEmails.length} correos.` }),
-      { headers: corsHeaders, status: 200 }
-    );
+    return new Response(JSON.stringify({ message: 'ok' }), {
+      headers: corsHeaders,
+      status: 200
+    });
 
   } catch (e) {
-    console.error(`[${BUILD}] FATAL:`, e?.message || e);
-
-    return new Response(
-      JSON.stringify({ error: e?.message || String(e) }),
-      { headers: corsHeaders, status: 500 }
-    );
+    return new Response(JSON.stringify({ error: e.message }), {
+      headers: corsHeaders,
+      status: 500
+    });
   }
 });
