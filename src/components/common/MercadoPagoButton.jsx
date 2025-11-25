@@ -1,11 +1,18 @@
-// CÓDIGO FINAL — MercadoPagoButton.jsx (v2.0 universal)
-// Compatible con Kit y Programa, recibe props dinámicas
+// src/components/common/MercadoPagoButton.jsx (v3.0 Blindado)
+// Ya no envía precios. Solo envía productId.
 
 import React, { useState, useRef } from "react";
 
-export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", items }) {
+/**
+ * Props esperadas:
+ * - label: Texto del botón
+ * - productId: ID del producto ("kit-7-dias" o "programa-completo")
+ */
+export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", productId = "kit-7-dias" }) {
   const [loading, setLoading] = useState(false);
   const clickedRef = useRef(false);
+  
+  // ⚠️ Asegúrate de que este projectRef sea el tuyo (mgjzlohapnepvrqlxmpo)
   const API = "https://mgjzlohapnepvrqlxmpo.functions.supabase.co/mp-generate-preference-v2";
 
   const handleClick = async () => {
@@ -14,10 +21,12 @@ export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", it
     setLoading(true);
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10000);
+    const timer = setTimeout(() => controller.abort(), 15000); // 15 seg timeout
 
     try {
-      const payload = { items };
+      // 🔒 PAYLOAD SEGURO: Solo enviamos QUÉ queremos comprar, no cuánto cuesta.
+      const payload = { productId };
+      
       const resp = await fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -26,19 +35,23 @@ export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", it
       });
 
       const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) throw new Error(data?.error || `HTTP ${resp.status}`);
+      if (!resp.ok) throw new Error(data?.error || `Error del servidor (${resp.status})`);
 
+      // Lógica de redirección a Mercado Pago
       const url =
         data.initPoint ||
         (data.preferenceId
           ? `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${data.preferenceId}`
           : null);
 
-      if (!url) throw new Error("No llegó initPoint ni preferenceId.");
+      if (!url) throw new Error("No se recibió link de pago. Intenta de nuevo.");
+      
+      // Redirigir al usuario
       window.location.assign(url);
+
     } catch (err) {
       console.error("[MP Button] Error:", err);
-      alert(`[MP Button] Error: ${err?.message || String(err)}`);
+      alert(`No se pudo iniciar el pago: ${err.message}`);
       clickedRef.current = false;
     } finally {
       clearTimeout(timer);
@@ -51,16 +64,23 @@ export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", it
       type="button"
       onClick={handleClick}
       disabled={loading}
-      className="w-full bg-[#FFEA00] text-black font-bold py-3 px-4 rounded-lg shadow-lg hover:brightness-95 disabled:opacity-60 flex items-center justify-center gap-2"
+      className="w-full bg-[#009EE3] hover:bg-[#0081B9] text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       aria-busy={loading ? "true" : "false"}
     >
-      {loading && (
-        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25" />
-          <path d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" strokeWidth="4" fill="none" />
-        </svg>
+      {loading ? (
+        <>
+          <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.3" />
+            <path d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" strokeWidth="4" fill="none" />
+          </svg>
+          <span>Procesando...</span>
+        </>
+      ) : (
+        <>
+          {/* Logo simple de MP opcional o solo texto */}
+          <span>{label}</span>
+        </>
       )}
-      {loading ? "Preparando pago..." : label}
     </button>
   );
 }
