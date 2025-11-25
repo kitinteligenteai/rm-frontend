@@ -1,14 +1,13 @@
-// src/components/ui/SmartCheckoutCTA.jsx (v7.6 Blindado)
-// Visualmente igual, pero internamente usa el nuevo protocolo de seguridad
+// src/components/ui/SmartCheckoutCTA.jsx (v8.0 Blindado & Dinámico)
+// Maneja visualización de precios y pasa el ID correcto al botón de pago.
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import MercadoPagoButton from "../common/MercadoPagoButton";
 
 function guessDefaultCurrency() {
   try {
     const saved = localStorage.getItem("rm.currency");
     if (saved === "USD" || saved === "MXN") return saved;
-    // Detección simple por zona horaria
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
     if (/mexico/i.test(tz)) return "MXN";
     return "USD";
@@ -17,16 +16,9 @@ function guessDefaultCurrency() {
   }
 }
 
-// Precios fijos para visualización (La verdad final está en el servidor)
-const PRECIOS = {
-    USD: 7,
-    MXN: 129
-};
-
 export default function SmartCheckoutCTA({
-  productName = "Kit de 7 Días",
   gumroadLink,
-  size = "compact",
+  productId = "kit-7-dias", // Recibe qué producto vender
   dense = true,
 }) {
   const [currency, setCurrency] = useState(guessDefaultCurrency);
@@ -36,6 +28,14 @@ export default function SmartCheckoutCTA({
       localStorage.setItem("rm.currency", currency);
     } catch {}
   }, [currency]);
+
+  // LÓGICA INTELIGENTE: Detecta si es el Programa o el Kit
+  const isPrograma = productId === "programa-completo";
+  
+  // Define los precios visuales según el producto
+  const PRECIOS = isPrograma
+    ? { USD: 75, MXN: 1299, NAME: "Programa Completo" } // Upsell
+    : { USD: 7, MXN: 129, NAME: "Kit de 7 Días" };      // Kit Base
 
   const isMXN = currency === "MXN";
   const displayPrice = isMXN ? PRECIOS.MXN : PRECIOS.USD;
@@ -49,20 +49,18 @@ export default function SmartCheckoutCTA({
 
   return (
     <div className={card}>
-      {/* Encabezado explicativo */}
+      {/* Texto explicativo */}
       <div className="mb-3 text-[12px] md:text-[13px] leading-relaxed text-slate-300">
         <span className="font-semibold text-slate-200">
-          ¿Cómo deseas obtener tu acceso?
+          Pago seguro:
         </span>{" "}
         <span className="text-slate-400">
-          Si estás en <span className="font-medium text-slate-200">México</span>, elige{" "}
-          <span className="font-medium text-slate-200">MXN</span> (Mercado Pago). 
-          Para el resto del mundo, usa <span className="font-medium text-slate-200">USD</span> (Gumroad).
+          Usa <span className="font-medium text-slate-200">MXN</span> para Mercado Pago (México) o <span className="font-medium text-slate-200">USD</span> para el resto del mundo.
         </span>
       </div>
 
       {/* Selector de Moneda */}
-      <div className="text-[12px] text-slate-400 mb-2">Elige tu moneda:</div>
+      <div className="text-[12px] text-slate-400 mb-2">Moneda de pago:</div>
       <div className="flex gap-2">
         <button
           type="button"
@@ -86,18 +84,17 @@ export default function SmartCheckoutCTA({
           ${displayPrice} {isMXN ? "MXN" : "USD"}
         </div>
         <div className="text-[12px] text-slate-500 mt-1">
-          Un solo pago — acceso anual inmediato
+          Un solo pago • Acceso de por vida
         </div>
       </div>
 
       {/* Botones de Acción */}
       <div className="mt-4">
         {isMXN ? (
-          // 🔒 AQUÍ ESTÁ EL CAMBIO: Ya no pasamos 'items' con precio.
-          // Solo pasamos el ID del producto que queremos.
+          // 🔒 BLINDAJE: Aquí pasamos el productId dinámico al botón
           <MercadoPagoButton
-            label="Pagar con Mercado Pago"
-            productId="kit-7-dias" 
+            label={`Pagar ${PRECIOS.NAME}`}
+            productId={productId} 
           />
         ) : (
           <a
@@ -114,7 +111,7 @@ export default function SmartCheckoutCTA({
       </div>
 
       <p className="mt-3 text-center text-[11px] text-slate-500">
-        🔒 Pago 100% seguro y encriptado SSL
+        🔒 Transacción 100% segura y encriptada
       </p>
     </div>
   );

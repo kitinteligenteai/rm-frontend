@@ -1,175 +1,153 @@
 // RUTA: src/pages/Programa.jsx
-// Reinicio Metabólico — Programa Completo (v7.6)
-// Un solo acceso premium con dos modos de uso
+// Versión Final v8.0 - Conectada a pagos seguros (Upsell)
 
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
-import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
+import SmartCheckoutCTA from "../components/ui/SmartCheckoutCTA";
 
 export default function Programa() {
-  const priceUSD = Number(import.meta.env.VITE_PROG_PRICE_USD) || 75;
-  const gumroadUrl = import.meta.env.VITE_GUMROAD_PROG_URL;
+  // Configuración de links externos (Gumroad para pagos en USD)
+  const gumroadUrl = import.meta.env.VITE_GUMROAD_PROG_URL || "https://reinicio.gumroad.com/l/programa-completo";
+  
+  // Detectar si el usuario viene del flujo del Kit
   const fromKit =
     typeof window !== "undefined" &&
     new URLSearchParams(window.location.search).get("from") === "kit";
 
   useEffect(() => {
     document.title = "Programa Completo - Reinicio Metabólico";
+    window.scrollTo(0, 0);
   }, []);
 
+  // Textos y beneficios
   const featuresGeneral = [
     "Acceso anual completo sin suscripciones.",
     "Actualizaciones automáticas y mejoras de contenido.",
-    "Gimnasio digital con rutinas guiadas (principiante, intermedio, avanzado).",
+    "Gimnasio digital con rutinas guiadas.",
     "Biblioteca base con 10 artículos esenciales.",
-    "Bitácora visual para seguir tu progreso semanal.",
+    "Bitácora visual para seguir tu progreso.",
   ];
 
   const featuresEssential = [
-    "Plantillas semanales listas con combinaciones prácticas.",
-    "Listas del súper instantáneas sin exceso de compras.",
-    "Opciones rápidas sin horno: sartén o microondas.",
-    "Incluye insumos base y condimentos para toda la semana.",
+    "Plantillas semanales listas para usar.",
+    "Listas del súper instantáneas.",
+    "Opciones rápidas sin horno.",
+    "Insumos base para toda la semana.",
   ];
 
   const featuresPlanner = [
-    "Selecciona recetas desde la bóveda completa.",
-    "Organiza tus menús por día y horario (drag & drop).",
-    "Genera automáticamente la lista del súper con cantidades exactas.",
-    "Guarda tus combinaciones favoritas para reusar cada semana.",
+    "Bóveda de recetas completa (+100 opciones).",
+    "Organizador de menús Drag & Drop.",
+    "Generador automático de compras.",
+    "Guardado de combinaciones favoritas.",
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans">
       {/* Header */}
       <header className="w-full border-b border-white/10 backdrop-blur-md bg-white/5 sticky top-0 z-20">
-        <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3">
+        <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 flex justify-between items-center">
           <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">
             Reinicio Metabólico
           </h1>
+          <span className="text-[10px] uppercase font-bold bg-teal-500/10 text-teal-400 px-2 py-1 rounded border border-teal-500/20">
+            Nivel Premium
+          </span>
         </div>
       </header>
 
-      {/* Banner post-compra */}
+      {/* Banner Upsell (Si viene del Kit) */}
       {fromKit && (
-        <div className="bg-emerald-600/20 border-b border-emerald-500/30">
-          <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-2 text-sm flex items-center gap-2 text-emerald-200">
-            <Sparkles className="h-4 w-4" />
+        <div className="bg-emerald-600/20 border-b border-emerald-500/30 animate-in fade-in slide-in-from-top-4 duration-700">
+          <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 text-sm flex items-center justify-center md:justify-start gap-2 text-emerald-100 font-medium">
+            <Sparkles className="h-4 w-4 text-emerald-300" />
             <span>
-              ¡Excelente avance! Da el siguiente paso y desbloquea el sistema completo.
+              ¡Excelente decisión! Estás a un paso de desbloquear el sistema completo.
             </span>
           </div>
         </div>
       )}
 
-      {/* CONTENIDO PRINCIPAL */}
       <main className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-12">
         {/* HERO */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-center max-w-2xl mx-auto"
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-3xl mx-auto"
         >
-          <p className="text-[11px] uppercase tracking-[0.18em] text-teal-300/80 font-semibold">
-            Acceso Premium
+          <p className="text-[11px] md:text-xs uppercase tracking-[0.2em] text-teal-300/90 font-bold mb-3">
+            Oferta Especial
           </p>
-          <h2 className="mt-2 text-4xl md:text-5xl font-extrabold leading-tight text-white">
-            Convierte tus{" "}
-            <span className="text-teal-400">7 días</span> en un año de resultados reales
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-white mb-6">
+            Convierte tus <span className="text-teal-400">7 días</span> en<br className="hidden md:block" /> un año de resultados.
           </h2>
-          <p className="mt-4 text-slate-300 text-lg">
-            El Programa Completo te da acceso a todas las herramientas para mantener tu
-            progreso a largo plazo. Un solo pago. Sin suscripciones. Tú decides el ritmo.
+          <p className="text-slate-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
+            Accede a todas las herramientas avanzadas, rutinas y la bóveda de recetas para mantener tu progreso a largo plazo.
           </p>
         </motion.section>
 
-        {/* MODOS DE USO */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10"
-        >
-          {/* Guía Esencial */}
-          <div className="border border-white/10 bg-slate-800/40 rounded-2xl p-6 backdrop-blur-xl shadow-2xl">
-            <h3 className="text-2xl font-bold text-white mb-2">Guía Esencial</h3>
-            <p className="text-slate-400 mb-4">
-              Ideal para semanas con poco tiempo. Usa plantillas listas y obtén tu lista
-              del súper al instante para comer bien sin pensar demasiado.
-            </p>
-            <ul className="space-y-2">
+        {/* CONTENIDO DUAL (Modos de uso) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="border border-white/10 bg-slate-800/40 rounded-2xl p-6 backdrop-blur-xl">
+            <h3 className="text-xl font-bold text-white mb-4">Modo Rápido</h3>
+            <ul className="space-y-3">
               {featuresEssential.map((txt) => (
-                <li key={txt} className="flex items-start gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-teal-400 mt-0.5" />
-                  <span className="text-slate-200">{txt}</span>
+                <li key={txt} className="flex gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="h-5 w-5 text-indigo-400 shrink-0" /> {txt}
                 </li>
               ))}
             </ul>
           </div>
-
-          {/* Planeador Inteligente */}
-          <div className="border border-white/10 bg-slate-800/40 rounded-2xl p-6 backdrop-blur-xl shadow-2xl">
-            <h3 className="text-2xl font-bold text-white mb-2">Planeador Inteligente</h3>
-            <p className="text-slate-400 mb-4">
-              Perfecto cuando tienes más tiempo o motivación. Crea tu menú semanal
-              personalizado y deja que el sistema genere tu lista de compras exacta.
-            </p>
-            <ul className="space-y-2">
+          <div className="border border-white/10 bg-slate-800/40 rounded-2xl p-6 backdrop-blur-xl">
+            <h3 className="text-xl font-bold text-white mb-4">Modo Experto</h3>
+            <ul className="space-y-3">
               {featuresPlanner.map((txt) => (
-                <li key={txt} className="flex items-start gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-teal-400 mt-0.5" />
-                  <span className="text-slate-200">{txt}</span>
+                <li key={txt} className="flex gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="h-5 w-5 text-teal-400 shrink-0" /> {txt}
                 </li>
               ))}
             </ul>
           </div>
-        </motion.section>
+        </div>
 
-        {/* BLOQUE GENERAL DE BENEFICIOS */}
+        {/* CHECKOUT CARD (Sección de Pago) */}
         <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="border border-white/10 bg-white/5 rounded-2xl p-8 backdrop-blur-xl shadow-2xl"
+          className="relative border border-teal-500/30 bg-gradient-to-b from-slate-900 to-black rounded-3xl p-8 md:p-12 shadow-2xl flex flex-col items-center"
         >
-          <h3 className="text-2xl font-bold text-white mb-4 text-center">
-            Todo lo que incluye tu acceso premium
-          </h3>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-200">
+          <h3 className="text-2xl font-bold text-white mb-8 text-center">Tu acceso total incluye:</h3>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-200 w-full max-w-3xl mb-10">
             {featuresGeneral.map((txt) => (
-              <li key={txt} className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-teal-400 mt-0.5" />
-                <span>{txt}</span>
+              <li key={txt} className="flex gap-3 items-center bg-white/5 p-3 rounded-lg">
+                <CheckCircle2 className="h-4 w-4 text-teal-400" /> <span className="text-sm">{txt}</span>
               </li>
             ))}
           </ul>
 
-          <div className="mt-8 flex justify-center">
+          <div className="w-full max-w-md">
+            {/* 🔒 AQUÍ OCURRE LA MAGIA: productId="programa-completo" 
+                El componente SmartCheckoutCTA se encargará de mostrar el precio correcto ($1299 MXN)
+                y configurar el botón de pago de forma segura.
+            */}
             <SmartCheckoutCTA
-              productName="Programa Completo – Acceso anual"
-              basePriceUSD={priceUSD}
+              productId="programa-completo"
               gumroadLink={gumroadUrl}
-              mxnRounding="auto-9"
             />
           </div>
 
-          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-400">
-            <ShieldCheck className="h-5 w-5 text-teal-400" />
-            <span>Compra 100 % segura • Acceso inmediato tras el pago</span>
+          <div className="mt-8 flex gap-2 text-xs text-slate-500 items-center bg-white/5 px-4 py-2 rounded-full">
+            <ShieldCheck className="h-4 w-4 text-teal-500" />
+            <span>Garantía de satisfacción • Acceso inmediato</span>
           </div>
         </motion.section>
-
-        {/* Mensaje final */}
-        <div className="text-center mt-10 text-slate-400 text-sm">
-          Precio único: $75 USD (≈ $1 299 MXN) • Acceso anual a todas las herramientas
-        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8 py-10 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} Reinicio Metabólico. Todos los derechos reservados.
+      <footer className="w-full border-t border-white/5 bg-black/40 py-8 text-center text-xs text-slate-600">
+        © {new Date().getFullYear()} Reinicio Metabólico.
       </footer>
     </div>
   );
