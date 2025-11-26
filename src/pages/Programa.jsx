@@ -1,13 +1,14 @@
 // RUTA: src/pages/Programa.jsx
-// Versión Final v8.3 - Gumroad Link Corregido
+// Versión v8.4 - FIX DE RUTA (Build Repair)
 
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
-import SmartCheckoutCTA from "../components/ui/SmartCheckoutCTA";
+// ✅ CORRECCIÓN CRÍTICA: Importamos directo de components (Opción A)
+import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
 
 export default function Programa() {
-  // ✅ ENLACE CORREGIDO SEGÚN TU CAPTURA
+  // Enlace real de Gumroad configurado
   const gumroadUrl = "https://inteligentekit.gumroad.com/l/snxlh";
   
   const fromKit =
@@ -122,9 +123,6 @@ export default function Programa() {
           </ul>
 
           <div className="w-full max-w-md">
-            {/* 
-               AQUÍ ENVIAMOS EL LINK CORRECTO Y EL ID DE PRODUCTO
-            */}
             <SmartCheckoutCTA
               productId="programa-completo"
               gumroadLink={gumroadUrl}
