@@ -1,6 +1,4 @@
-// src/components/ui/SmartCheckoutCTA.jsx (v8.0 Blindado & Dinámico)
-// Maneja visualización de precios y pasa el ID correcto al botón de pago.
-
+// src/components/ui/SmartCheckoutCTA.jsx (v8.2 FINAL - Link Gumroad Fixed)
 import React, { useEffect, useState } from "react";
 import MercadoPagoButton from "../common/MercadoPagoButton";
 
@@ -18,7 +16,7 @@ function guessDefaultCurrency() {
 
 export default function SmartCheckoutCTA({
   gumroadLink,
-  productId = "kit-7-dias", // Recibe qué producto vender
+  productId = "kit-7-dias", 
   dense = true,
 }) {
   const [currency, setCurrency] = useState(guessDefaultCurrency);
@@ -29,18 +27,21 @@ export default function SmartCheckoutCTA({
     } catch {}
   }, [currency]);
 
-  // LÓGICA INTELIGENTE: Detecta si es el Programa o el Kit
+  // Lógica de Precios
   const isPrograma = productId === "programa-completo";
   
-  // Define los precios visuales según el producto
   const PRECIOS = isPrograma
-    ? { USD: 75, MXN: 1299, NAME: "Programa Completo" } // Upsell
-    : { USD: 7, MXN: 129, NAME: "Kit de 7 Días" };      // Kit Base
+    ? { USD: 75, MXN: 1299, NAME: "Programa Completo" } 
+    : { USD: 7, MXN: 129, NAME: "Kit de 7 Días" };
 
   const isMXN = currency === "MXN";
   const displayPrice = isMXN ? PRECIOS.MXN : PRECIOS.USD;
 
-  // Estilos
+  // Link de respaldo por si no se pasa como prop
+  const finalGumroadLink = gumroadLink || (isPrograma 
+    ? "https://inteligentekit.gumroad.com/l/snxlh"  // Tu enlace REAL del Programa
+    : "https://inteligentekit.gumroad.com/l/sxwrn"); // Tu enlace REAL del Kit
+
   const cardPad = dense ? "p-4" : "p-5";
   const card = "rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur " + cardPad;
   const toggleBase = "flex-1 h-10 text-[13px] md:text-[14px] rounded-md border transition-all duration-200 font-semibold";
@@ -49,70 +50,36 @@ export default function SmartCheckoutCTA({
 
   return (
     <div className={card}>
-      {/* Texto explicativo */}
       <div className="mb-3 text-[12px] md:text-[13px] leading-relaxed text-slate-300">
-        <span className="font-semibold text-slate-200">
-          Pago seguro:
-        </span>{" "}
+        <span className="font-semibold text-slate-200">Pago seguro:</span>{" "}
         <span className="text-slate-400">
           Usa <span className="font-medium text-slate-200">MXN</span> para Mercado Pago (México) o <span className="font-medium text-slate-200">USD</span> para el resto del mundo.
         </span>
       </div>
 
-      {/* Selector de Moneda */}
-      <div className="text-[12px] text-slate-400 mb-2">Moneda de pago:</div>
+      <div className="text-[12px] text-slate-400 mb-2">Moneda:</div>
       <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setCurrency("USD")}
-          className={`${toggleBase} ${!isMXN ? toggleActive : toggleInactive}`}
-        >
-          🇺🇸 USD
-        </button>
-        <button
-          type="button"
-          onClick={() => setCurrency("MXN")}
-          className={`${toggleBase} ${isMXN ? toggleActive : toggleInactive}`}
-        >
-          🇲🇽 MXN
-        </button>
+        <button type="button" onClick={() => setCurrency("USD")} className={`${toggleBase} ${!isMXN ? toggleActive : toggleInactive}`}>🇺🇸 USD</button>
+        <button type="button" onClick={() => setCurrency("MXN")} className={`${toggleBase} ${isMXN ? toggleActive : toggleInactive}`}>🇲🇽 MXN</button>
       </div>
 
-      {/* Precio Grande */}
       <div className="mt-4 text-center">
         <div className="text-3xl font-extrabold tracking-tight text-teal-400">
           ${displayPrice} {isMXN ? "MXN" : "USD"}
         </div>
-        <div className="text-[12px] text-slate-500 mt-1">
-          Un solo pago • Acceso de por vida
-        </div>
+        <div className="text-[12px] text-slate-500 mt-1">Un solo pago • Acceso de por vida</div>
       </div>
 
-      {/* Botones de Acción */}
       <div className="mt-4">
         {isMXN ? (
-          // 🔒 BLINDAJE: Aquí pasamos el productId dinámico al botón
-          <MercadoPagoButton
-            label={`Pagar ${PRECIOS.NAME}`}
-            productId={productId} 
-          />
+          <MercadoPagoButton label={`Pagar ${PRECIOS.NAME}`} productId={productId} />
         ) : (
-          <a
-            href={gumroadLink}
-            target="_blank"
-            rel="noreferrer"
-            className="w-full inline-flex items-center justify-center rounded-lg h-[48px] 
-              bg-[#36c28b] hover:bg-[#2fb17e] active:bg-[#27a372]
-              text-white font-bold text-[15px] shadow-sm transition-colors"
-          >
+          <a href={finalGumroadLink} target="_blank" rel="noreferrer" className="w-full inline-flex items-center justify-center rounded-lg h-[48px] bg-[#36c28b] hover:bg-[#2fb17e] text-white font-bold text-[15px]">
             Pagar con Tarjeta / PayPal
           </a>
         )}
       </div>
-
-      <p className="mt-3 text-center text-[11px] text-slate-500">
-        🔒 Transacción 100% segura y encriptada
-      </p>
+      <p className="mt-3 text-center text-[11px] text-slate-500">🔒 Transacción 100% segura</p>
     </div>
   );
 }

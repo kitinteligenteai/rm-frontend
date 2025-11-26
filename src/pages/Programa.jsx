@@ -1,5 +1,5 @@
 // RUTA: src/pages/Programa.jsx
-// Versión Final v8.0 - Conectada a pagos seguros (Upsell)
+// Versión Final v8.3 - Gumroad Link Corregido
 
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
@@ -7,10 +7,9 @@ import { CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
 import SmartCheckoutCTA from "../components/ui/SmartCheckoutCTA";
 
 export default function Programa() {
-  // Configuración de links externos (Gumroad para pagos en USD)
-  const gumroadUrl = import.meta.env.VITE_GUMROAD_PROG_URL || "https://reinicio.gumroad.com/l/programa-completo";
+  // ✅ ENLACE CORREGIDO SEGÚN TU CAPTURA
+  const gumroadUrl = "https://inteligentekit.gumroad.com/l/snxlh";
   
-  // Detectar si el usuario viene del flujo del Kit
   const fromKit =
     typeof window !== "undefined" &&
     new URLSearchParams(window.location.search).get("from") === "kit";
@@ -20,7 +19,6 @@ export default function Programa() {
     window.scrollTo(0, 0);
   }, []);
 
-  // Textos y beneficios
   const featuresGeneral = [
     "Acceso anual completo sin suscripciones.",
     "Actualizaciones automáticas y mejoras de contenido.",
@@ -45,7 +43,6 @@ export default function Programa() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans">
-      {/* Header */}
       <header className="w-full border-b border-white/10 backdrop-blur-md bg-white/5 sticky top-0 z-20">
         <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 flex justify-between items-center">
           <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">
@@ -57,7 +54,6 @@ export default function Programa() {
         </div>
       </header>
 
-      {/* Banner Upsell (Si viene del Kit) */}
       {fromKit && (
         <div className="bg-emerald-600/20 border-b border-emerald-500/30 animate-in fade-in slide-in-from-top-4 duration-700">
           <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 text-sm flex items-center justify-center md:justify-start gap-2 text-emerald-100 font-medium">
@@ -70,7 +66,6 @@ export default function Programa() {
       )}
 
       <main className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-12">
-        {/* HERO */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -88,7 +83,6 @@ export default function Programa() {
           </p>
         </motion.section>
 
-        {/* CONTENIDO DUAL (Modos de uso) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="border border-white/10 bg-slate-800/40 rounded-2xl p-6 backdrop-blur-xl">
             <h3 className="text-xl font-bold text-white mb-4">Modo Rápido</h3>
@@ -112,7 +106,6 @@ export default function Programa() {
           </div>
         </div>
 
-        {/* CHECKOUT CARD (Sección de Pago) */}
         <motion.section
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -129,9 +122,8 @@ export default function Programa() {
           </ul>
 
           <div className="w-full max-w-md">
-            {/* 🔒 AQUÍ OCURRE LA MAGIA: productId="programa-completo" 
-                El componente SmartCheckoutCTA se encargará de mostrar el precio correcto ($1299 MXN)
-                y configurar el botón de pago de forma segura.
+            {/* 
+               AQUÍ ENVIAMOS EL LINK CORRECTO Y EL ID DE PRODUCTO
             */}
             <SmartCheckoutCTA
               productId="programa-completo"
