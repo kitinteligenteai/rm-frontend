@@ -1,6 +1,9 @@
-// src/components/ui/SmartCheckoutCTA.jsx (v8.2 FINAL - Link Gumroad Fixed)
+// src/components/SmartCheckoutCTA.jsx (v8.5 - FIX RUTA BOTÓN)
 import React, { useEffect, useState } from "react";
-import MercadoPagoButton from "../common/MercadoPagoButton";
+
+// ✅ CORRECCIÓN CRÍTICA:
+// Usamos "./" en lugar de "../" porque ambos están dentro de 'components'
+import MercadoPagoButton from "./common/MercadoPagoButton";
 
 function guessDefaultCurrency() {
   try {
@@ -37,10 +40,10 @@ export default function SmartCheckoutCTA({
   const isMXN = currency === "MXN";
   const displayPrice = isMXN ? PRECIOS.MXN : PRECIOS.USD;
 
-  // Link de respaldo por si no se pasa como prop
+  // Link de respaldo
   const finalGumroadLink = gumroadLink || (isPrograma 
-    ? "https://inteligentekit.gumroad.com/l/snxlh"  // Tu enlace REAL del Programa
-    : "https://inteligentekit.gumroad.com/l/sxwrn"); // Tu enlace REAL del Kit
+    ? "https://inteligentekit.gumroad.com/l/snxlh"
+    : "https://inteligentekit.gumroad.com/l/sxwrn");
 
   const cardPad = dense ? "p-4" : "p-5";
   const card = "rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur " + cardPad;
