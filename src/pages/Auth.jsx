@@ -1,26 +1,26 @@
 // RUTA: src/pages/Auth.jsx
-// Autenticación "Pinnacle" - Corrección de Import Únicamente
+// Versión v2.2 - High Contrast Inputs
 
 import React, { useState, useEffect } from 'react';
-// ✅ CORRECCIÓN: Apuntando a la carpeta context que me mostraste
 import { useUser } from '../context/UserContext.jsx'; 
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, ArrowLeft, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-// ... (El resto del código sigue EXACTAMENTE igual a tu versión original)
-
-// Componente de Input encapsulado
+// ✅ MEJORA: Input con fondo blanco absoluto y texto negro sólido
 const AuthInput = ({ id, type, value, onChange, placeholder, icon: Icon, disabled }) => (
   <div className="relative">
     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-      <Icon className="w-5 h-5 text-gray-400" />
+      <Icon className="w-5 h-5 text-gray-500" />
     </div>
     <input
-      id={id} type={type} required
-      className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all duration-300"
-      value={value} onChange={onChange}
+      id={id} 
+      type={type} 
+      required
+      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-black placeholder-gray-500 font-medium focus:outline-none focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 transition-all duration-200 disabled:opacity-60 disabled:bg-gray-200"
+      value={value} 
+      onChange={onChange}
       placeholder={placeholder}
       disabled={disabled}
     />
@@ -65,7 +65,7 @@ const AuthPage = () => {
         'User already registered': 'Este email ya está registrado.',
         'Email not confirmed': 'Tu email aún no ha sido verificado.'
       };
-      const message = errorMessages[err.message] || 'Ha ocurrido un error inesperado.';
+      const message = errorMessages[err.message] || 'Ha ocurrido un error inesperado. Inténtalo de nuevo.';
       setFeedback({ type: 'error', message });
     } finally {
       setLoading(false);
@@ -110,7 +110,7 @@ const AuthPage = () => {
           <p className="mt-2 text-sm text-gray-400">
             {mode === 'login' && 'Inicia sesión para continuar.'}
             {mode === 'signup' && 'Unos pocos datos y estarás dentro.'}
-            {mode === 'reset' && 'Ingresa tu email.'}
+            {mode === 'reset' && 'Ingresa tu email para recibir el enlace.'}
           </p>
         </div>
         
