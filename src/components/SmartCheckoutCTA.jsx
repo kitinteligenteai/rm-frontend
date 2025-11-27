@@ -1,8 +1,6 @@
-// src/components/SmartCheckoutCTA.jsx (v8.5 - FIX RUTA BOTÓN)
+// src/components/SmartCheckoutCTA.jsx (v8.7 - VISUAL $139 + FIX RUTA INCLUIDO)
 import React, { useEffect, useState } from "react";
-
-// ✅ CORRECCIÓN CRÍTICA:
-// Usamos "./" en lugar de "../" porque ambos están dentro de 'components'
+// ✅ Mantenemos la ruta correcta que ya funcionó en el Build
 import MercadoPagoButton from "./common/MercadoPagoButton";
 
 function guessDefaultCurrency() {
@@ -35,7 +33,7 @@ export default function SmartCheckoutCTA({
   
   const PRECIOS = isPrograma
     ? { USD: 75, MXN: 1299, NAME: "Programa Completo" } 
-    : { USD: 7, MXN: 129, NAME: "Kit de 7 Días" };
+    : { USD: 7, MXN: 139, NAME: "Kit de 7 Días" }; // ✅ AQUI ESTÁ EL CAMBIO A 139
 
   const isMXN = currency === "MXN";
   const displayPrice = isMXN ? PRECIOS.MXN : PRECIOS.USD;
