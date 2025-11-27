@@ -33,7 +33,7 @@ export default function App() {
           {/* ✅ 4. Agregamos la ruta perdida */}
           <Route path="/auth" element={<AuthPage />} />
           
-          <Route path="/plataforma" element={<Plataforma />} />
+          <Route path="/plataforma/*" element={<Plataforma />} />
         </Routes>
       </BrowserRouter>
     </UserProvider>

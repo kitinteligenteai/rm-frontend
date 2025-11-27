@@ -1,31 +1,46 @@
 // RUTA: src/pages/Auth.jsx
-// Versión v2.2 - High Contrast Inputs
+// Versión v2.3 - Con Botón Ver Contraseña (Toggle Visibility)
 
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext.jsx'; 
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, ArrowLeft, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Mail, Lock, ArrowLeft, Loader2, CheckCircle, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-// ✅ MEJORA: Input con fondo blanco absoluto y texto negro sólido
-const AuthInput = ({ id, type, value, onChange, placeholder, icon: Icon, disabled }) => (
-  <div className="relative">
-    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-      <Icon className="w-5 h-5 text-gray-500" />
+// Componente Input Mejorado con Toggle Password
+const AuthInput = ({ id, type, value, onChange, placeholder, icon: Icon, disabled }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === 'password';
+  const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
+
+  return (
+    <div className="relative">
+      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <Icon className="w-5 h-5 text-gray-500" />
+      </div>
+      <input
+        id={id} 
+        type={inputType} 
+        required
+        className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-xl bg-white text-black placeholder-gray-500 font-medium focus:outline-none focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 transition-all duration-200 disabled:opacity-60 disabled:bg-gray-200"
+        value={value} 
+        onChange={onChange}
+        placeholder={placeholder}
+        disabled={disabled}
+      />
+      {isPassword && (
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-teal-600 transition-colors focus:outline-none"
+        >
+          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+        </button>
+      )}
     </div>
-    <input
-      id={id} 
-      type={type} 
-      required
-      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-black placeholder-gray-500 font-medium focus:outline-none focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 transition-all duration-200 disabled:opacity-60 disabled:bg-gray-200"
-      value={value} 
-      onChange={onChange}
-      placeholder={placeholder}
-      disabled={disabled}
-    />
-  </div>
-);
+  );
+};
 
 const AuthPage = () => {
   const { signIn, signUp, user } = useUser();
@@ -65,7 +80,7 @@ const AuthPage = () => {
         'User already registered': 'Este email ya está registrado.',
         'Email not confirmed': 'Tu email aún no ha sido verificado.'
       };
-      const message = errorMessages[err.message] || 'Ha ocurrido un error inesperado. Inténtalo de nuevo.';
+      const message = errorMessages[err.message] || 'Ha ocurrido un error inesperado.';
       setFeedback({ type: 'error', message });
     } finally {
       setLoading(false);
@@ -131,7 +146,7 @@ const AuthPage = () => {
 
         <motion.form variants={formVariants} initial="hidden" animate="visible" onSubmit={handleAuth} className="space-y-5">
           <motion.div variants={formVariants}><AuthInput id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Correo electrónico" icon={Mail} disabled={isFormDisabled} /></motion.div>
-          {mode !== 'reset' && <motion.div variants={formVariants}><AuthInput id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña" icon={Lock} disabled={isFormDisabled} /></motion.div>}
+          <motion.div variants={formVariants}><AuthInput id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña" icon={Lock} disabled={isFormDisabled} /></motion.div>
 
           <motion.div variants={formVariants}>
             <button type="submit" disabled={isFormDisabled} className="w-full py-3 font-semibold text-white bg-teal-600 rounded-xl shadow-lg hover:bg-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/50 disabled:bg-gray-500 disabled:cursor-not-allowed transition-all duration-300 ease-in-out">
