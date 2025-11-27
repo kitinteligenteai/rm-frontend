@@ -1,6 +1,6 @@
-// Contenido FINAL Y UNIFICADO para: src/context/UserContext.jsx
+// src/context/UserContext.jsx (v2.0 - FIX PANTALLA NEGRA)
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '../lib/supabaseClient'; // Asegúrate que la ruta a tu cliente Supabase sea correcta
+import { supabase } from '../lib/supabaseClient';
 
 const UserContext = createContext();
 
@@ -9,36 +9,54 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Sesión inicial
-    const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
-    };
+    let mounted = true;
 
-    // Escuchar cambios de sesión (login, logout, refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    // 1. Verificar sesión inicial
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error Auth Init:", error);
+        if (mounted) setLoading(false);
+      }
+    };
 
     initAuth();
 
-    // Limpieza al desmontar el componente
+    // 2. Escuchar cambios en tiempo real
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    });
+
     return () => {
+      mounted = false;
       subscription?.unsubscribe();
     };
   }, []);
 
-  // API de autenticación centralizada que se provee a la aplicación
   const value = {
     user,
     loading,
-    signIn: (credentials) => supabase.auth.signInWithPassword(credentials),
-    signUp: (credentials) => supabase.auth.signUp(credentials),
+    signIn: (data) => supabase.auth.signInWithPassword(data),
+    signUp: (data) => supabase.auth.signUp(data),
     signOut: () => supabase.auth.signOut(),
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
-export const useUser = () => useContext(UserContext);
+// ✅ ESTA ES LA PROTECCIÓN CLAVE:
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error('useUser debe usarse dentro de un UserProvider. Revisa tu main.jsx/App.jsx');
+  }
+  return context;
+};

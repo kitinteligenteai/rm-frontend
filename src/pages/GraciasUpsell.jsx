@@ -1,4 +1,4 @@
-// src/pages/GraciasUpsell.jsx (v3.0 - Validación Suave y UX Premium)
+// src/pages/GraciasUpsell.jsx (v3.1 - MENSAJES CLAROS)
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CheckCircle2, AlertCircle, Loader2, Sparkles, Mail } from "lucide-react";
@@ -13,21 +13,17 @@ export default function GraciasUpsell() {
   const [status, setStatus] = useState("idle"); 
   const [message, setMessage] = useState("");
 
-  // Estados "Touched" para validación suave (onBlur)
   const [emailTouched, setEmailTouched] = useState(false);
   const [confirmTouched, setConfirmTouched] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isEmailValid = emailRegex.test(email);
   const doEmailsMatch = email.trim().toLowerCase() === confirmEmail.trim().toLowerCase();
-  
-  // Botón habilitado solo si todo OK
   const canSubmit = isEmailValid && doEmailsMatch && email.length > 0;
 
   const handleConfirm = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
-    
     setLoading(true);
     setStatus("idle");
 
@@ -42,7 +38,7 @@ export default function GraciasUpsell() {
       if (!response.ok) throw new Error(data.message || "Error al confirmar");
 
       setStatus("success");
-      setMessage("¡Cuenta Premium Activada! Revisa tu correo.");
+      setMessage(email);
     } catch (err) {
       setStatus("error");
       setMessage(err.message);
@@ -55,7 +51,6 @@ export default function GraciasUpsell() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 flex items-center justify-center p-4 font-sans text-slate-100">
       <div className="max-w-md w-full bg-slate-800/60 border border-teal-500/20 rounded-2xl p-8 shadow-2xl backdrop-blur-md relative overflow-hidden">
         
-        {/* Adorno visual */}
         <div className="absolute top-0 right-0 -mr-10 -mt-10 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl"></div>
 
         {status === "success" ? (
@@ -63,10 +58,26 @@ export default function GraciasUpsell() {
             <div className="mx-auto w-20 h-20 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-teal-500/30">
               <Sparkles className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">¡Bienvenido Fundador!</h2>
-            <p className="text-slate-300 mb-8 text-lg">{message}</p>
-            <a href="https://outlook.live.com/mail/0/" target="_blank" rel="noreferrer" className="block w-full bg-teal-600 hover:bg-teal-500 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg transform hover:scale-[1.02]">
-              Acceder al Programa
+            
+            <h2 className="text-3xl font-bold text-white mb-4">¡Revisa tu Correo!</h2>
+            
+            <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+              <p className="text-slate-300 text-sm mb-2">Las instrucciones de acceso fueron enviadas a:</p>
+              <p className="text-teal-400 font-mono text-lg font-medium">{message}</p>
+            </div>
+
+            <p className="text-slate-400 text-sm mb-8">
+              Si no lo ves en tu bandeja de entrada, revisa <strong>Spam o Promociones</strong>.
+            </p>
+
+            <a 
+              href="https://mail.google.com" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="block w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl transition-all flex items-center justify-center gap-2"
+            >
+              <Mail className="w-5 h-5" />
+              Ir a mi bandeja de entrada
             </a>
           </div>
         ) : (
@@ -75,8 +86,8 @@ export default function GraciasUpsell() {
                <span className="bg-teal-500/10 text-teal-400 text-xs font-bold px-3 py-1 rounded-full border border-teal-500/20 uppercase tracking-widest">Pago Confirmado</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 text-center">Activa tu Acceso</h1>
-            <p className="text-slate-400 text-center mb-8 text-sm">
-              Confirma el correo donde recibirás tus credenciales Premium.
+            <p className="text-slate-400 text-center mb-8">
+              Para proteger tu cuenta Premium, confirma el correo donde recibirás las credenciales.
             </p>
 
             <form onSubmit={handleConfirm} className="space-y-6">
@@ -88,7 +99,7 @@ export default function GraciasUpsell() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    onBlur={() => setEmailTouched(true)} // Validar al salir
+                    onBlur={() => setEmailTouched(true)}
                     placeholder="tucorreo@ejemplo.com"
                     className={`w-full bg-black/40 border ${emailTouched && !isEmailValid ? "border-red-500/50" : "border-white/10 focus:border-teal-500/50"} rounded-xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all`}
                   />
@@ -106,7 +117,7 @@ export default function GraciasUpsell() {
                     type="email"
                     value={confirmEmail}
                     onChange={(e) => setConfirmEmail(e.target.value)}
-                    onBlur={() => setConfirmTouched(true)} // Validar al salir
+                    onBlur={() => setConfirmTouched(true)}
                     placeholder="Repite tu correo"
                     onPaste={(e) => e.preventDefault()}
                     className={`w-full bg-black/40 border ${confirmTouched && !doEmailsMatch ? "border-red-500/50" : "border-white/10 focus:border-teal-500/50"} rounded-xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all`}
