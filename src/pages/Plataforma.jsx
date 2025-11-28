@@ -1,11 +1,18 @@
-// src/pages/Plataforma.jsx (v2.0 - Propuesta Dashboard Arquitecto)
+// src/pages/Plataforma.jsx (v3.0 - Integración Total de Módulos)
 import React from 'react';
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext'; 
 import { 
-  LayoutDashboard, BookOpen, Dumbbell, LogOut, User, 
-  ChevronRight, PlayCircle, Utensils, Calendar
+  LayoutDashboard, BookOpen, Dumbbell, LogOut, 
+  Utensils, Calendar, BookHeart, PlayCircle 
 } from 'lucide-react';
+
+/* --- IMPORTACIÓN DE MÓDULOS REALES --- */
+import Planeador from './Planeador';
+import BovedaRecetas from './BovedaRecetas'; // Asegúrate que el nombre del archivo coincida
+import Gimnasio from './Gimnasio';
+import Bitacora from './Bitacora';
+import Biblioteca from './Biblioteca';
 
 /* --- COMPONENTES VISUALES INTERNOS --- */
 
@@ -47,7 +54,7 @@ const DashboardHome = ({ user }) => (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <StatCard title="Progreso" value="0%" subtext="Completado del plan" />
       <StatCard title="Estado" value="Activo" subtext="Suscripción Premium" color="emerald" />
-      <StatCard title="Recetas" value="120+" subtext="Disponibles hoy" color="indigo" />
+      <StatCard title="Recetas" value="60+" subtext="Disponibles hoy" color="indigo" />
       <StatCard title="Rutina" value="Descanso" subtext="Toca mañana" color="slate" />
     </div>
 
@@ -56,10 +63,10 @@ const DashboardHome = ({ user }) => (
       <h3 className="text-lg font-semibold text-white mb-4">¿Qué quieres hacer hoy?</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <QuickAction 
-          to="/plataforma/recetas" 
-          icon={Utensils} 
+          to="/plataforma/planeador" 
+          icon={Calendar} 
           title="Planificar Menú" 
-          desc="Elige tus comidas de la semana y genera la lista del súper."
+          desc="Genera tu menú semanal automático o personalízalo."
         />
         <QuickAction 
           to="/plataforma/entrenamientos" 
@@ -69,7 +76,7 @@ const DashboardHome = ({ user }) => (
         />
         <QuickAction 
           to="/plataforma/bitacora" 
-          icon={Calendar} 
+          icon={BookHeart} 
           title="Mi Bitácora" 
           desc="Registra tu peso, medidas y sensaciones diarias."
         />
@@ -83,22 +90,15 @@ const DashboardHome = ({ user }) => (
         <p className="text-indigo-200 mb-6">
           Antes de empezar, lee la "Guía de Inicio Rápido" para entender los 3 pilares del sistema.
         </p>
-        <button className="bg-white text-indigo-900 font-bold py-2 px-5 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-2">
-          <PlayCircle className="w-5 h-5" /> Ver Introducción
-        </button>
+        <Link 
+          to="/plataforma/biblioteca" 
+          className="bg-white text-indigo-900 font-bold py-2 px-5 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 w-fit"
+        >
+          <BookOpen className="w-5 h-5" /> Leer Guía de Inicio
+        </Link>
       </div>
       <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-indigo-500/20 to-transparent pointer-events-none"></div>
     </div>
-  </div>
-);
-
-const PlaceholderPage = ({ title, icon: Icon }) => (
-  <div className="p-10 flex flex-col items-center justify-center h-full text-center animate-in fade-in zoom-in duration-300">
-    <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6">
-      <Icon className="w-10 h-10 text-slate-500" />
-    </div>
-    <h2 className="text-3xl font-bold text-white mb-2">{title}</h2>
-    <p className="text-slate-400 max-w-md">Estamos preparando este módulo. Pronto podrás acceder a todo el contenido premium aquí.</p>
   </div>
 );
 
@@ -145,8 +145,10 @@ export default function Plataforma() {
             <div className="pt-4 pb-2">
               <p className="px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Herramientas</p>
             </div>
+            <NavItem to="/plataforma/planeador" icon={Calendar} label="Planeador Semanal" />
             <NavItem to="/plataforma/recetas" icon={Utensils} label="Bóveda de Recetas" />
             <NavItem to="/plataforma/entrenamientos" icon={Dumbbell} label="Gimnasio Digital" />
+            <NavItem to="/plataforma/bitacora" icon={BookHeart} label="Bitácora" />
             <NavItem to="/plataforma/biblioteca" icon={BookOpen} label="Biblioteca" />
           </nav>
         </div>
@@ -183,9 +185,14 @@ export default function Plataforma() {
         {/* Rutas Internas del Dashboard */}
         <Routes>
           <Route path="panel-de-control" element={<DashboardHome user={user} />} />
-          <Route path="recetas" element={<PlaceholderPage title="Bóveda de Recetas" icon={Utensils} />} />
-          <Route path="entrenamientos" element={<PlaceholderPage title="Gimnasio Digital" icon={Dumbbell} />} />
-          <Route path="biblioteca" element={<PlaceholderPage title="Biblioteca" icon={BookOpen} />} />
+          
+          {/* ✅ MÓDULOS ACTIVOS */}
+          <Route path="planeador" element={<Planeador />} />
+          <Route path="recetas" element={<BovedaRecetas />} />
+          <Route path="entrenamientos" element={<Gimnasio />} />
+          <Route path="bitacora" element={<Bitacora />} />
+          <Route path="biblioteca" element={<Biblioteca />} />
+          
           {/* Default */}
           <Route path="*" element={<Navigate to="panel-de-control" replace />} />
         </Routes>

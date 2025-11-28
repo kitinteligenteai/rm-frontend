@@ -1,75 +1,117 @@
-// Contenido COMPLETO, CORREGIDO Y REDISEÑADO para: src/pages/Biblioteca.jsx
-
+// src/pages/Biblioteca.jsx (v2.0 - Híbrida: Filosofía + Ciencia + Herramientas)
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Disclosure } from '@headlessui/react';
-import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import { ChevronUp, BookOpen, Zap, Brain } from 'lucide-react';
 
-// 1. CORRECCIÓN: Importamos 'principles' que es el nombre correcto de la variable exportada.
-import { principles } from '../data/principlesData.js'; 
-import ProteinCalculator from '../components/Library/ProteinCalculator';
+// 1. Importamos AMBAS fuentes de datos (Filosofía y Ciencia)
+import { philosophyContent } from '../data/educationalContent';
+import { principles } from '../data/principlesData';
+
+// 2. Importamos la Herramienta Premium
+import AsesorProteico from '../components/tools/AsesorProteico'; // Asegúrate que la ruta coincida con donde tienes el nuevo asesor
 
 const Biblioteca = () => {
   return (
-    <div className="container mx-auto p-4 md:p-8">
-      <h1 className="text-4xl font-serif text-gray-800 mb-2">Biblioteca del Conocimiento</h1>
-      <p className="text-lg text-gray-600 mb-10">
-        Explora los pilares fundamentales del reinicio metabólico y utiliza nuestras herramientas para potenciar tu viaje.
-      </p>
+    <div className="p-6 md:p-10 animate-in fade-in duration-500 pb-24">
+      
+      {/* HEADER */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+          Centro de Conocimiento
+        </h1>
+        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+          No solo te decimos qué comer. Te enseñamos cómo funciona tu cuerpo para que nunca más necesites otra dieta.
+        </p>
+      </div>
 
-      <div className="flex flex-col md:flex-row gap-12">
-
-        {/* --- COLUMNA PRINCIPAL (Contenido) --- */}
-        <div className="w-full md:w-2/3">
-          <h2 className="text-3xl font-serif text-gray-700 mb-6">Los 10 Principios Fundamentales</h2>
-          <div className="w-full space-y-3">
-            {principles.map((principio) => (
-              <Disclosure as="div" key={principio.id}>
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className="flex w-full justify-between rounded-lg bg-white shadow-sm border border-gray-200 px-5 py-4 text-left text-lg font-medium text-gray-900 hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-teal-500 focus-visible:ring-opacity-75 transition-all">
-                      <span className="flex-1">{principio.title}</span>
-                      <ChevronUpIcon
-                        className={`${
-                          open ? 'rotate-180 transform' : ''
-                        } h-6 w-6 text-teal-600 transition-transform ml-4`}
-                      />
-                    </Disclosure.Button>
-                    <Disclosure.Panel className="px-5 pt-4 pb-5 text-base text-gray-700 bg-white rounded-b-lg -mt-1 border-x border-b border-gray-200">
-                      <p className="mb-4 italic text-gray-500">{principio.subtitle}</p>
-                      {/* 2. CORRECCIÓN: Usamos dangerouslySetInnerHTML para renderizar el HTML del contenido. */}
-                      <div 
-                        className="prose max-w-none" 
-                        dangerouslySetInnerHTML={{ __html: principio.content }} 
-                      />
-                      {/* El Link a la página de detalle se puede reactivar en el futuro */}
-                      {/* 
-                      <Link 
-                        to={`/plataforma/principios/${principio.id}`} 
-                        className="font-semibold text-teal-600 hover:text-teal-800 transition-colors mt-4 inline-block"
-                      >
-                        Ver en página completa →
-                      </Link>
-                      */}
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
-            ))}
-          </div>
-        </div>
-
-        {/* --- COLUMNA LATERAL (Herramientas) --- */}
-        <div className="w-full md:w-1/3">
-          <div className="sticky top-8">
-            <h2 className="text-3xl font-serif text-gray-700 mb-6">Herramientas</h2>
-            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-              <h3 className="text-xl font-serif text-gray-800 mb-4">Asesor Proteico Personalizado</h3>
-              <ProteinCalculator />
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-col lg:flex-row gap-8">
         
+        {/* --- COLUMNA IZQUIERDA: CONTENIDO (2/3) --- */}
+        <div className="w-full lg:w-2/3 space-y-12">
+          
+          {/* SECCIÓN 1: NUESTRA FILOSOFÍA (Lectura Rápida) */}
+          <section>
+            <div className="flex items-center gap-2 mb-6">
+              <Zap className="w-6 h-6 text-teal-400" />
+              <h2 className="text-2xl font-bold text-white">Filosofía del Reinicio</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {philosophyContent.map((item) => (
+                <div key={item.id} className="bg-slate-800/50 border border-slate-700 p-5 rounded-xl hover:border-teal-500/30 transition-colors">
+                  <div className="text-2xl mb-2">{item.icon}</div>
+                  <h3 className="text-lg font-bold text-slate-200 mb-2">{item.title}</h3>
+                  <p className="text-sm text-slate-400 line-clamp-4 leading-relaxed">
+                    {item.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* SECCIÓN 2: PRINCIPIOS CIENTÍFICOS (Lectura Profunda) */}
+          <section>
+            <div className="flex items-center gap-2 mb-6">
+              <Brain className="w-6 h-6 text-indigo-400" />
+              <h2 className="text-2xl font-bold text-white">Los 10 Pilares Científicos</h2>
+            </div>
+            <div className="space-y-3">
+              {principles.map((principio) => (
+                <Disclosure as="div" key={principio.id} className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+                  {({ open }) => (
+                    <>
+                      <Disclosure.Button className="flex w-full justify-between items-center px-6 py-4 text-left hover:bg-slate-700/50 transition-colors focus:outline-none">
+                        <div>
+                          <span className="text-xs font-bold text-teal-500 uppercase tracking-wider">Principio #{principio.id}</span>
+                          <h3 className="text-lg font-medium text-slate-200 mt-1">{principio.title}</h3>
+                        </div>
+                        <ChevronUp className={`${open ? 'rotate-180' : ''} h-5 w-5 text-slate-400 transition-transform`} />
+                      </Disclosure.Button>
+                      
+                      <Disclosure.Panel className="px-6 pb-6 pt-2 bg-slate-800/80 border-t border-slate-700/50">
+                        <p className="text-indigo-300 font-medium mb-4 italic text-sm">{principio.subtitle}</p>
+                        <div 
+                          className="prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed" 
+                          dangerouslySetInnerHTML={{ __html: principio.content }} 
+                        />
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+              ))}
+            </div>
+          </section>
+
+        </div>
+
+        {/* --- COLUMNA DERECHA: HERRAMIENTAS (1/3) --- */}
+        <div className="w-full lg:w-1/3">
+          <div className="sticky top-6 space-y-6">
+            
+            {/* Widget: Calculadora de Proteína */}
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-1 overflow-hidden shadow-xl">
+              <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-4 rounded-t-xl">
+                <h3 className="text-white font-bold flex items-center gap-2">
+                  <div className="p-1 bg-white/20 rounded-lg"><BookOpen className="w-4 h-4" /></div>
+                  Herramienta Exclusiva
+                </h3>
+              </div>
+              {/* Aquí renderizamos el componente AsesorProteico que ya tienes */}
+              <div className="bg-white rounded-b-xl">
+                 <AsesorProteico />
+              </div>
+            </div>
+
+            {/* Widget: Guía Rápida (Texto estático para rellenar) */}
+            <div className="bg-indigo-900/20 border border-indigo-500/30 p-6 rounded-2xl">
+              <h4 className="text-indigo-300 font-bold mb-2">💡 Tip de Estudio</h4>
+              <p className="text-slate-400 text-sm">
+                No intentes leer todo en un día. Lee un principio cada mañana y trata de aplicarlo durante el día. La educación es la base del cambio sostenible.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
   );
