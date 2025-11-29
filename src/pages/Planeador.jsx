@@ -1,13 +1,11 @@
-// src/pages/Planeador.jsx
-// Interfaz Gráfica del Planeador Inteligente
-
+// src/pages/Planeador.jsx (v2.1 - Código Completo y Verificado)
 import React, { useState } from 'react';
 import { useSmartPlanner } from '../hooks/useSmartPlanner';
 import { recipes } from '../data/recipes';
 import ShoppingList from '../components/ShoppingList';
 import { 
   RefreshCw, ShoppingCart, Utensils, 
-  Coffee, Moon, Sun, Dumbbell, CheckCircle2
+  Coffee, Moon, Sun, Dumbbell
 } from 'lucide-react';
 
 const SlotIcons = {
@@ -39,7 +37,9 @@ export default function Planeador() {
         <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl max-h-[80vh] rounded-2xl flex flex-col shadow-2xl">
           <div className="p-6 border-b border-slate-800 flex justify-between items-center">
             <div>
-              <h3 className="text-xl font-bold text-white">Cambiar {targetSlotConfig.label}</h3>
+              <h3 className="text-xl font-bold text-white">
+                Cambiar {targetSlotConfig.label}
+              </h3>
               <p className="text-sm text-slate-400">{selectedDaySlot.day}</p>
             </div>
             <button onClick={() => setSelectedDaySlot(null)} className="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
@@ -165,9 +165,8 @@ export default function Planeador() {
               
               // Lógica del Semáforo
               let proteinColor = "bg-red-500";
-              let proteinText = "Bajo";
-              if (dailyProtein > 60) { proteinColor = "bg-yellow-500"; proteinText = "Medio"; }
-              if (dailyProtein > 90) { proteinColor = "bg-emerald-500"; proteinText = "Óptimo"; }
+              if (dailyProtein > 60) proteinColor = "bg-yellow-500";
+              if (dailyProtein > 90) proteinColor = "bg-emerald-500";
 
               return (
                 <div key={day} className="bg-slate-800/40 border border-slate-700 rounded-xl overflow-hidden flex flex-col hover:border-slate-600 transition-colors">
@@ -178,4 +177,72 @@ export default function Planeador() {
                       <span className="text-[10px] text-slate-400 font-mono">{dailyProtein}g</span>
                     </div>
                     {/* Barra de Progreso */}
-                    <
+                    <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden relative group">
+                      <div 
+                        className={`h-full ${proteinColor} transition-all duration-500`} 
+                        style={{ width: `${Math.min((dailyProtein / 120) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Slots */}
+                  <div className="p-2 space-y-2 flex-1">
+                    {slots.map((slot) => {
+                      const recipe = weekPlan[day]?.[slot.id];
+                      const Icon = SlotIcons[slot.id];
+
+                      return (
+                        <div 
+                          key={slot.id} 
+                          onClick={() => setSelectedDaySlot({ day, slotId: slot.id })}
+                          className={`p-2 rounded-lg border transition-all cursor-pointer group relative min-h-[60px] flex flex-col justify-center
+                            ${recipe 
+                              ? 'bg-slate-700/40 border-slate-600 hover:border-teal-500/50 hover:bg-slate-700' 
+                              : 'bg-slate-800/30 border-dashed border-slate-700 hover:border-slate-500'}`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <Icon className="w-3 h-3 text-slate-500 group-hover:text-teal-400 transition-colors" />
+                            <span className="text-[9px] uppercase font-bold text-slate-500 tracking-wider group-hover:text-teal-400 transition-colors">
+                              {slot.label.split(' ')[0]}
+                            </span>
+                          </div>
+                          
+                          {recipe ? (
+                            <p className="text-xs font-medium text-slate-200 line-clamp-2 leading-tight">
+                              {recipe.name}
+                            </p>
+                          ) : (
+                            <div className="text-center text-slate-600 text-xs group-hover:text-teal-500">+</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex justify-center pt-4">
+             <button 
+                onClick={() => setShowShoppingList(!showShoppingList)}
+                className="bg-white text-slate-900 font-bold py-3 px-8 rounded-full shadow-xl hover:bg-slate-100 transition-all flex items-center gap-2 hover:scale-105 transform"
+              >
+                <ShoppingCart className="w-5 h-5 text-teal-600" />
+                {showShoppingList ? 'Ocultar Lista de Compras' : 'Generar Lista de Compras'}
+              </button>
+          </div>
+        </div>
+      )}
+
+      {/* --- LISTA DE COMPRAS (Abajo) --- */}
+      {showShoppingList && (
+        <div className="mt-12 animate-in slide-in-from-bottom-10 fade-in duration-500">
+          <div className="bg-white rounded-3xl p-1 shadow-2xl border-t-4 border-teal-500">
+             <ShoppingList mealPlan={weekPlan} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
