@@ -1,4 +1,6 @@
-// Este archivo fue generado automáticamente por update-recipes.js
+// src/data/recipes.js
+// Base de Datos Maestra v3.0 (Contenido Completo + Proteína Corregida)
+
 export const recipes = [
   {
     "id": "principal_picadillo_res",
@@ -6,46 +8,14 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un guiso clásico, denso en nutrientes y vegetales. Cumple la regla 50/25/25, asegurando proteína, grasa y fibra para una saciedad prolongada.",
     "ingredients": [
-      {
-        "name": "Carne molida de res (80/20)",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Pimiento morrón verde",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Calabacita",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla blanca",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jitomate saladet",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: manteca, aceite de aguacate o coco",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Sal y pimienta",
-        "quantity": "Al gusto",
-        "category": "Especias"
-      }
+      { "name": "Carne molida de res (80/20)", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Pimiento morrón verde", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Calabacita", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla blanca", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Diente de ajo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Jitomate saladet", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: manteca, aceite de aguacate o coco", "quantity": "1 cda", "category": "Aceites y Grasas" },
+      { "name": "Sal y pimienta", "quantity": "Al gusto", "category": "Especias" }
     ],
     "instructions": [
       "Pica finamente la cebolla, ajo, pimiento y calabacita en cubos pequeños.",
@@ -61,13 +31,9 @@ export const recipes = [
       "familiar": "Puedes añadir 1/4 de taza de chícharos congelados junto con la calabacita. Sírvelo con hojas de lechuga para hacer tacos divertidos.",
       "general": "Un toque de comino en polvo realza el sabor. Sirve con aguacate en rebanadas para añadir más grasas saludables."
     },
-    "tags": [
-      "carne",
-      "guiso",
-      "familiar",
-      "clásico mexicano"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_picadillo_res.png"
+    "tags": ["carne", "guiso", "familiar", "clásico mexicano"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_picadillo_res.png",
+    "proteina_aprox_g": 52.0
   },
   {
     "id": "principal_pollo_salsa_verde",
@@ -75,46 +41,14 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Platillo reconfortante y lleno de sabor. Los nopales y la salsa a base de tomatillo aportan fibra y potasio, mientras el pollo garantiza la proteína.",
     "ingredients": [
-      {
-        "name": "Pechuga de pollo en cubos",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Tomate verde (tomatillo)",
-        "quantity": "5 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Nopales, en cubos y cocidos",
-        "quantity": "1 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla blanca",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano",
-        "quantity": "1 (o al gusto)",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco",
-        "quantity": "Unas ramitas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: manteca o aceite de aguacate",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Pechuga de pollo en cubos", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Tomate verde (tomatillo)", "quantity": "5 piezas", "category": "Frutas y Verduras" },
+      { "name": "Nopales, en cubos y cocidos", "quantity": "1 taza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla blanca", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Diente de ajo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano", "quantity": "1 (o al gusto)", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco", "quantity": "Unas ramitas", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: manteca o aceite de aguacate", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Hierve los tomates, cebolla, ajo y chile hasta que los tomates cambien de color.",
@@ -129,13 +63,9 @@ export const recipes = [
       "familiar": "Si no comen picante, prepara la salsa sin el chile serrano. Puedes servirlo con una cucharada de crema ácida de buena calidad.",
       "general": "Añadir una hoja de epazote a la salsa mientras hierve le da un sabor más auténtico y profundo."
     },
-    "tags": [
-      "pollo",
-      "salsa verde",
-      "guiso",
-      "nopales"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pollo_salsa_verde.png"
+    "tags": ["pollo", "salsa verde", "guiso", "nopales"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pollo_salsa_verde.png",
+    "proteina_aprox_g": 44.0
   },
   {
     "id": "principal_pescado_veracruzana",
@@ -143,46 +73,14 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una versión saludable del clásico del golfo. Un platillo lleno de sabor, vegetales y grasas saludables del aceite de oliva y las aceitunas.",
     "ingredients": [
-      {
-        "name": "Filete de pescado blanco (huachinango, robalo)",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Jitomate saladet",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla blanca",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Pimiento morrón verde",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Aceitunas verdes sin hueso",
-        "quantity": "1/4 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "2",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Aceite de oliva extra virgen",
-        "quantity": "2 cdas",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Orégano seco",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      }
+      { "name": "Filete de pescado blanco (huachinango, robalo)", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Jitomate saladet", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla blanca", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Pimiento morrón verde", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Aceitunas verdes sin hueso", "quantity": "1/4 taza", "category": "Frutas y Verduras" },
+      { "name": "Diente de ajo", "quantity": "2", "category": "Frutas y Verduras" },
+      { "name": "Aceite de oliva extra virgen", "quantity": "2 cdas", "category": "Aceites y Grasas" },
+      { "name": "Orégano seco", "quantity": "1 cdita", "category": "Especias" }
     ],
     "instructions": [
       "Pica el jitomate, la cebolla y el pimiento en cubos. Filetea los ajos.",
@@ -199,13 +97,9 @@ export const recipes = [
       "familiar": "Puedes usar chile güero o pimiento de otro color para hacerlo más vistoso y sin picante.",
       "general": "Unas alcaparras (con moderación) le dan el toque clásico y un sabor salino delicioso."
     },
-    "tags": [
-      "pescado",
-      "veracruzana",
-      "aceitunas",
-      "salsa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pescado_veracruzana.png"
+    "tags": ["pescado", "veracruzana", "aceitunas", "salsa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pescado_veracruzana.png",
+    "proteina_aprox_g": 38.0
   },
   {
     "id": "principal_tinga_pollo",
@@ -213,36 +107,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "La tinga es un platillo lleno de sabor ahumado gracias al chipotle. Sírvela sobre hojas de lechuga, aguacate o queso para una comida completa.",
     "ingredients": [
-      {
-        "name": "Pechuga de pollo cocida y deshebrada",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Cebolla blanca fileteada",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jitomate saladet",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile chipotle adobado",
-        "quantity": "1-2 piezas (al gusto)",
-        "category": "Chiles"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: manteca o aceite de aguacate",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Pechuga de pollo cocida y deshebrada", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Cebolla blanca fileteada", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Jitomate saladet", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Chile chipotle adobado", "quantity": "1-2 piezas (al gusto)", "category": "Chiles" },
+      { "name": "Diente de ajo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: manteca o aceite de aguacate", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Licúa los jitomates con el ajo, los chiles chipotles y un poco del caldo de cocción del pollo. Sazona con sal.",
@@ -256,14 +126,9 @@ export const recipes = [
       "familiar": "Modera el chipotle para los niños. Puedes servirla con tostadas horneadas (no fritas) de maíz de buena calidad si tu plan es más flexible.",
       "general": "Añadir una pizca de orégano a la salsa le da un toque aromático delicioso."
     },
-    "tags": [
-      "pollo",
-      "tinga",
-      "chipotle",
-      "guiso",
-      "clásico mexicano"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_tinga_pollo.png"
+    "tags": ["pollo", "tinga", "chipotle", "guiso", "clásico mexicano"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_tinga_pollo.png",
+    "proteina_aprox_g": 64.0
   },
   {
     "id": "principal_albondigas_chipotle",
@@ -271,41 +136,13 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una comida casera y reconfortante. Estas albóndigas jugosas se cocinan en una salsa de jitomate con un toque picante y ahumado.",
     "ingredients": [
-      {
-        "name": "Carne molida de res",
-        "quantity": "250g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "1",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Ajo en polvo y comino",
-        "quantity": "1/2 cdita de c/u",
-        "category": "Especias"
-      },
-      {
-        "name": "Jitomate saladet",
-        "quantity": "3 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile chipotle adobado",
-        "quantity": "1 pieza",
-        "category": "Chiles"
-      },
-      {
-        "name": "Cebolla y ajo",
-        "quantity": "1/4 pieza y 1 diente",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Calabacita o chayote en cubos",
-        "quantity": "1 taza",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Carne molida de res", "quantity": "250g", "category": "Carnes y Pescados" },
+      { "name": "Huevo", "quantity": "1", "category": "Carnes y Pescados" },
+      { "name": "Ajo en polvo y comino", "quantity": "1/2 cdita de c/u", "category": "Especias" },
+      { "name": "Jitomate saladet", "quantity": "3 piezas", "category": "Frutas y Verduras" },
+      { "name": "Chile chipotle adobado", "quantity": "1 pieza", "category": "Chiles" },
+      { "name": "Cebolla y ajo", "quantity": "1/4 pieza y 1 diente", "category": "Frutas y Verduras" },
+      { "name": "Calabacita o chayote en cubos", "quantity": "1 taza", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "Mezcla la carne molida con el huevo, ajo en polvo, comino, sal y pimienta. Forma bolitas (albóndigas).",
@@ -321,14 +158,9 @@ export const recipes = [
       "familiar": "Si no quieres que pique, usa solo el caldillo del chipotle en lugar del chile entero. A los niños les encanta este platillo.",
       "general": "Añadir una ramita de hierbabuena a la mezcla de la carne le da un sabor fresco y tradicional."
     },
-    "tags": [
-      "carne",
-      "albóndigas",
-      "chipotle",
-      "sopa",
-      "guiso"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_albondigas_chipotle.png"
+    "tags": ["carne", "albóndigas", "chipotle", "sopa", "guiso"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_albondigas_chipotle.png",
+    "proteina_aprox_g": 55.0
   },
   {
     "id": "principal_bistec_encebollado",
@@ -336,31 +168,11 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un platillo rápido, sencillo y lleno de sabor umami. La cebolla caramelizada y los champiñones son el acompañamiento perfecto para un buen bistec.",
     "ingredients": [
-      {
-        "name": "Bistec de res (diezmillo, bola)",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Cebolla blanca fileteada",
-        "quantity": "1 pieza grande",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Champiñones rebanados",
-        "quantity": "1 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Diente de ajo picado",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: mantequilla, ghee o manteca",
-        "quantity": "2 cdas",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Bistec de res (diezmillo, bola)", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Cebolla blanca fileteada", "quantity": "1 pieza grande", "category": "Frutas y Verduras" },
+      { "name": "Champiñones rebanados", "quantity": "1 taza", "category": "Frutas y Verduras" },
+      { "name": "Diente de ajo picado", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: mantequilla, ghee o manteca", "quantity": "2 cdas", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Sazona los bistecs con sal y pimienta.",
@@ -375,14 +187,9 @@ export const recipes = [
       "familiar": "Asegúrate de que la cebolla esté muy suave y dulce para que les guste a los niños. Puedes cortar el bistec en tiras para que sea más fácil de comer.",
       "general": "Un chorrito de jugo de limón o vinagre balsámico al final de la cocción de la cebolla realza su dulzor y corta la grasa."
     },
-    "tags": [
-      "res",
-      "bistec",
-      "rápido",
-      "champiñones",
-      "sartén"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_bistec_encebollado.png"
+    "tags": ["res", "bistec", "rápido", "champiñones", "sartén"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_bistec_encebollado.png",
+    "proteina_aprox_g": 44.0
   },
   {
     "id": "principal_cerdo_salsa_morita",
@@ -390,36 +197,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "El lomo de cerdo es una carne magra y deliciosa. Bañado en una salsa de chile morita, adquiere un sabor ahumado, ligeramente dulce y picante.",
     "ingredients": [
-      {
-        "name": "Lomo de cerdo en medallones",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Chile morita, sin semillas",
-        "quantity": "2-3 piezas",
-        "category": "Chiles"
-      },
-      {
-        "name": "Jitomate",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: manteca de cerdo",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Lomo de cerdo en medallones", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Chile morita, sin semillas", "quantity": "2-3 piezas", "category": "Chiles" },
+      { "name": "Jitomate", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Diente de ajo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Cebolla", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: manteca de cerdo", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Asa los chiles morita, los jitomates, el ajo y la cebolla en un comal hasta que estén tatemados.",
@@ -435,13 +218,9 @@ export const recipes = [
       "familiar": "El chile morita es menos picante que el chipotle, pero aún así puede ser fuerte para los niños. Usa solo un chile para dar sabor sin tanto picor.",
       "general": "Añadir una pizca de comino o clavo a la salsa le da una complejidad de sabor muy interesante."
     },
-    "tags": [
-      "cerdo",
-      "salsa",
-      "chile morita",
-      "guiso"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_cerdo_salsa_morita.png"
+    "tags": ["cerdo", "salsa", "chile morita", "guiso"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_cerdo_salsa_morita.png",
+    "proteina_aprox_g": 42.0
   },
   {
     "id": "principal_salmon_costra_limon",
@@ -449,36 +228,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una forma elegante y rápida de preparar salmón. La costra de hierbas y almendras le da una textura crujiente y un sabor increíble.",
     "ingredients": [
-      {
-        "name": "Filete de salmón",
-        "quantity": "180g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Harina de almendras",
-        "quantity": "2 cdas",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Ralladura de 1 limón amarillo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Perejil fresco picado",
-        "quantity": "1 cda",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Mantequilla o ghee derretido",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Ajo en polvo",
-        "quantity": "1/4 cdita",
-        "category": "Especias"
-      }
+      { "name": "Filete de salmón", "quantity": "180g", "category": "Carnes y Pescados" },
+      { "name": "Harina de almendras", "quantity": "2 cdas", "category": "Harinas y Semillas" },
+      { "name": "Ralladura de 1 limón amarillo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Perejil fresco picado", "quantity": "1 cda", "category": "Frutas y Verduras" },
+      { "name": "Mantequilla o ghee derretido", "quantity": "1 cda", "category": "Aceites y Grasas" },
+      { "name": "Ajo en polvo", "quantity": "1/4 cdita", "category": "Especias" }
     ],
     "instructions": [
       "Precalienta el horno a 200°C o prepara una freidora de aire.",
@@ -493,14 +248,9 @@ export const recipes = [
       "familiar": "A los niños les encanta la textura crujiente. Es una excelente manera de introducir pescado en su dieta.",
       "general": "Puedes añadir otras hierbas a la costra, como eneldo o tomillo, para variar el perfil de sabor."
     },
-    "tags": [
-      "salmón",
-      "pescado",
-      "horno",
-      "rápido",
-      "elegante"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_salmon_costra_limon.png"
+    "tags": ["salmón", "pescado", "horno", "rápido", "elegante"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_salmon_costra_limon.png",
+    "proteina_aprox_g": 40.0
   },
   {
     "id": "principal_caldo_res_verduras",
@@ -508,36 +258,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "El clásico ‘cocido’ o ‘puchero’, una comida completa en un solo plato. Nutritivo, reconfortante y lleno de colágeno si usas carne con hueso.",
     "ingredients": [
-      {
-        "name": "Chamorro o costilla de res",
-        "quantity": "250g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Calabacita",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chayote",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Ejotes",
-        "quantity": "1/2 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla y ajo",
-        "quantity": "1/4 pieza y 2 dientes",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro",
-        "quantity": "Unas ramitas",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Chamorro o costilla de res", "quantity": "250g", "category": "Carnes y Pescados" },
+      { "name": "Calabacita", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Chayote", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Ejotes", "quantity": "1/2 taza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla y ajo", "quantity": "1/4 pieza y 2 dientes", "category": "Frutas y Verduras" },
+      { "name": "Cilantro", "quantity": "Unas ramitas", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "En una olla de presión u olla grande, coloca la carne, la cebolla, los ajos y sal. Cubre con agua y cocina hasta que la carne esté muy suave (aprox. 45 min en olla de presión).",
@@ -552,14 +278,9 @@ export const recipes = [
       "familiar": "Es un platillo familiar por excelencia. Cada quien puede añadir los acompañamientos que más le gusten.",
       "general": "Hacerlo en olla de presión ahorra mucho tiempo y deja la carne increíblemente suave."
     },
-    "tags": [
-      "res",
-      "sopa",
-      "caldo",
-      "verduras",
-      "comida completa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_caldo_res_verduras.png"
+    "tags": ["res", "sopa", "caldo", "verduras", "comida completa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_caldo_res_verduras.png",
+    "proteina_aprox_g": 35.0
   },
   {
     "id": "principal_higado_encebollado",
@@ -567,26 +288,10 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "El hígado es uno de los alimentos más densos en nutrientes del planeta, rico en hierro y vitamina A. Preparado con cebolla, su sabor fuerte se suaviza.",
     "ingredients": [
-      {
-        "name": "Hígado de res en bistecs",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Cebolla blanca fileteada",
-        "quantity": "1 pieza grande",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: manteca o mantequilla",
-        "quantity": "2 cdas",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Sal y pimienta",
-        "quantity": "Al gusto",
-        "category": "Especias"
-      }
+      { "name": "Hígado de res en bistecs", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Cebolla blanca fileteada", "quantity": "1 pieza grande", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: manteca o mantequilla", "quantity": "2 cdas", "category": "Aceites y Grasas" },
+      { "name": "Sal y pimienta", "quantity": "Al gusto", "category": "Especias" }
     ],
     "instructions": [
       "Sazona los bistecs de hígado con sal y pimienta.",
@@ -601,42 +306,20 @@ export const recipes = [
       "familiar": "Para suavizar el sabor para los niños, puedes remojar el hígado en leche por 30 minutos antes de cocinarlo. Enjuágalo y sécalo bien.",
       "general": "Unas gotas de vinagre de manzana o jugo de limón al final equilibran la riqueza del hígado."
     },
-    "tags": [
-      "res",
-      "hígado",
-      "superalimento",
-      "rápido",
-      "sartén"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_higado_encebollado.png"
+    "tags": ["res", "hígado", "superalimento", "rápido", "sartén"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_higado_encebollado.png",
+    "proteina_aprox_g": 40.0
   },
-  null,
   {
     "id": "principal_chiles_rellenos",
     "name": "Chiles Rellenos de Queso",
     "type": "Platillo Principal",
     "description": "Un pilar de la cocina mexicana, adaptado para ser bajo en carbohidratos. El chile poblano relleno de queso y capeado en huevo es una delicia.",
     "ingredients": [
-      {
-        "name": "Chile poblano",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Queso que derrita (Oaxaca, manchego)",
-        "quantity": "150g",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Huevo, separado en claras y yemas",
-        "quantity": "2 piezas",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Tu grasa preferida para freír: manteca o aceite de aguacate",
-        "quantity": "Suficiente para freír",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Chile poblano", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Queso que derrita (Oaxaca, manchego)", "quantity": "150g", "category": "Lácteos y Huevos" },
+      { "name": "Huevo, separado en claras y yemas", "quantity": "2 piezas", "category": "Lácteos y Huevos" },
+      { "name": "Tu grasa preferida para freír: manteca o aceite de aguacate", "quantity": "Suficiente para freír", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Asa los chiles poblanos directamente sobre el fuego hasta que la piel esté negra. Ponlos en una bolsa a 'sudar' y luego pélalos.",
@@ -652,14 +335,9 @@ export const recipes = [
       "familiar": "Este es un platillo que une a la familia. Puedes rellenarlos también con picadillo de res.",
       "general": "El secreto de un buen capeado es que las claras estén muy firmes antes de añadir las yemas."
     },
-    "tags": [
-      "chile poblano",
-      "queso",
-      "capeado",
-      "clásico mexicano",
-      "vegetariano"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_chiles_rellenos.png"
+    "tags": ["chile poblano", "queso", "capeado", "clásico mexicano", "vegetariano"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_chiles_rellenos.png",
+    "proteina_aprox_g": 52.0
   },
   {
     "id": "principal_cochinita_pibil_adaptada",
@@ -667,36 +345,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "El sabor de Yucatán sin complicaciones. Esta versión rápida usa lomo de cerdo y una marinada de achiote para un resultado jugoso y lleno de sabor.",
     "ingredients": [
-      {
-        "name": "Lomo de cerdo en trozos",
-        "quantity": "250g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Pasta de achiote",
-        "quantity": "2 cdas",
-        "category": "Especias"
-      },
-      {
-        "name": "Jugo de naranja agria (o 1/2 naranja y 1/2 limón)",
-        "quantity": "1/2 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Vinagre de manzana",
-        "quantity": "1 cda",
-        "category": "Especias"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Hoja de plátano (opcional)",
-        "quantity": "1 pieza",
-        "category": "Otros"
-      }
+      { "name": "Lomo de cerdo en trozos", "quantity": "250g", "category": "Carnes y Pescados" },
+      { "name": "Pasta de achiote", "quantity": "2 cdas", "category": "Especias" },
+      { "name": "Jugo de naranja agria (o 1/2 naranja y 1/2 limón)", "quantity": "1/2 taza", "category": "Frutas y Verduras" },
+      { "name": "Vinagre de manzana", "quantity": "1 cda", "category": "Especias" },
+      { "name": "Diente de ajo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Hoja de plátano (opcional)", "quantity": "1 pieza", "category": "Otros" }
     ],
     "instructions": [
       "Licúa la pasta de achiote, el jugo de naranja, el vinagre y el ajo para crear la marinada.",
@@ -711,14 +365,9 @@ export const recipes = [
       "familiar": "Es un platillo perfecto para hacer tacos. La cebolla encurtida es clave para el sabor auténtico.",
       "general": "Marinar la carne por unas horas (o toda la noche) antes de cocinarla intensificará aún más el sabor."
     },
-    "tags": [
-      "cerdo",
-      "cochinita pibil",
-      "yucatán",
-      "guiso",
-      "achiote"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_cochinita_pibil_adaptada.png"
+    "tags": ["cerdo", "cochinita pibil", "yucatán", "guiso", "achiote"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_cochinita_pibil_adaptada.png",
+    "proteina_aprox_g": 55.0
   },
   {
     "id": "principal_mole_de_olla",
@@ -726,46 +375,14 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un caldo sustancioso y lleno de sabor, con carne suave y muchas verduras. Una comida completa y reconfortante.",
     "ingredients": [
-      {
-        "name": "Chambarete o costilla de res",
-        "quantity": "250g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Chile guajillo, sin semillas",
-        "quantity": "2 piezas",
-        "category": "Chiles"
-      },
-      {
-        "name": "Chile ancho, sin semillas",
-        "quantity": "1 pieza",
-        "category": "Chiles"
-      },
-      {
-        "name": "Jitomate",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla y ajo",
-        "quantity": "1/4 pieza y 1 diente",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Calabacita en trozos grandes",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chayote en trozos grandes",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Ejotes",
-        "quantity": "1/2 taza",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Chambarete o costilla de res", "quantity": "250g", "category": "Carnes y Pescados" },
+      { "name": "Chile guajillo, sin semillas", "quantity": "2 piezas", "category": "Chiles" },
+      { "name": "Chile ancho, sin semillas", "quantity": "1 pieza", "category": "Chiles" },
+      { "name": "Jitomate", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla y ajo", "quantity": "1/4 pieza y 1 diente", "category": "Frutas y Verduras" },
+      { "name": "Calabacita en trozos grandes", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Chayote en trozos grandes", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Ejotes", "quantity": "1/2 taza", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "Cocina la carne en una olla de presión con cebolla, ajo y sal hasta que esté suave.",
@@ -780,14 +397,9 @@ export const recipes = [
       "familiar": "Es una sopa muy completa que suele gustar a todos. Puedes moderar la cantidad de chile si es necesario.",
       "general": "Una rama de epazote en el caldo durante los últimos 10 minutos de cocción le da un sabor inigualable."
     },
-    "tags": [
-      "res",
-      "sopa",
-      "mole de olla",
-      "caldo",
-      "comida completa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_mole_de_olla.png"
+    "tags": ["res", "sopa", "mole de olla", "caldo", "comida completa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_mole_de_olla.png",
+    "proteina_aprox_g": 45.0
   },
   {
     "id": "principal_salpicon_res",
@@ -795,51 +407,15 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un platillo fresco, ligero y lleno de sabor. Ideal para días calurosos o cuando no quieres encender la estufa.",
     "ingredients": [
-      {
-        "name": "Falda de res cocida y deshebrada",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Lechuga romana picada",
-        "quantity": "2 tazas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla morada fileteada",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jitomate en cubos",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Aguacate en cubos",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco picado",
-        "quantity": "2 cdas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Aceite de oliva extra virgen",
-        "quantity": "2 cdas",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Jugo de limón",
-        "quantity": "1 cda",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Orégano seco",
-        "quantity": "1/2 cdita",
-        "category": "Especias"
-      }
+      { "name": "Falda de res cocida y deshebrada", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Lechuga romana picada", "quantity": "2 tazas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla morada fileteada", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Jitomate en cubos", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Aguacate en cubos", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco picado", "quantity": "2 cdas", "category": "Frutas y Verduras" },
+      { "name": "Aceite de oliva extra virgen", "quantity": "2 cdas", "category": "Aceites y Grasas" },
+      { "name": "Jugo de limón", "quantity": "1 cda", "category": "Frutas y Verduras" },
+      { "name": "Orégano seco", "quantity": "1/2 cdita", "category": "Especias" }
     ],
     "instructions": [
       "En un tazón grande, mezcla la carne deshebrada, la lechuga, la cebolla, el jitomate y el cilantro.",
@@ -853,14 +429,9 @@ export const recipes = [
       "familiar": "Puedes servirlo sobre tostadas horneadas para una versión más tradicional y crujiente.",
       "general": "Unas rajas de chile jalapeño en vinagre le dan un toque picante y ácido que combina a la perfección."
     },
-    "tags": [
-      "res",
-      "ensalada",
-      "salpicón",
-      "fresco",
-      "rápido"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_salpicon_res.png"
+    "tags": ["res", "ensalada", "salpicón", "fresco", "rápido"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_salpicon_res.png",
+    "proteina_aprox_g": 48.0
   },
   {
     "id": "principal_fajitas_pollo",
@@ -868,31 +439,11 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un platillo colorido, rápido y lleno de sabor. Los pimientos y la cebolla salteados son la combinación perfecta para el pollo.",
     "ingredients": [
-      {
-        "name": "Pechuga de pollo en tiras",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Pimiento morrón (rojo, verde, amarillo) en tiras",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla blanca en tiras",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Comino, chile en polvo y paprika",
-        "quantity": "1/2 cdita de c/u",
-        "category": "Especias"
-      },
-      {
-        "name": "Tu grasa preferida: aceite de aguacate o manteca",
-        "quantity": "2 cdas",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Pechuga de pollo en tiras", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Pimiento morrón (rojo, verde, amarillo) en tiras", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla blanca en tiras", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Comino, chile en polvo y paprika", "quantity": "1/2 cdita de c/u", "category": "Especias" },
+      { "name": "Tu grasa preferida: aceite de aguacate o manteca", "quantity": "2 cdas", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "En un tazón, mezcla las tiras de pollo con el comino, chile en polvo, paprika, sal y pimienta.",
@@ -906,14 +457,9 @@ export const recipes = [
       "familiar": "A los niños les encantan los colores. Es un platillo ideal para que armen sus propios tacos con tortillas de maíz (si el plan lo permite).",
       "general": "Un chorrito de jugo de limón al final de la cocción ilumina todos los sabores."
     },
-    "tags": [
-      "pollo",
-      "fajitas",
-      "pimientos",
-      "rápido",
-      "sartén"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_fajitas_pollo.png"
+    "tags": ["pollo", "fajitas", "pimientos", "rápido", "sartén"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_fajitas_pollo.png",
+    "proteina_aprox_g": 44.0
   },
   {
     "id": "principal_camarones_al_mojo_de_ajo",
@@ -921,36 +467,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un clásico de las costas mexicanas. Camarones jugosos en una salsa intensamente aromática de ajo, mantequilla y un toque de chile.",
     "ingredients": [
-      {
-        "name": "Camarones grandes, pelados y desvenados",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Dientes de ajo, finamente picados o fileteados",
-        "quantity": "4-5",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Mantequilla sin sal o ghee",
-        "quantity": "3 cdas",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Chile de árbol seco, sin semillas",
-        "quantity": "1-2 piezas",
-        "category": "Chiles"
-      },
-      {
-        "name": "Perejil o cilantro fresco picado",
-        "quantity": "2 cdas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jugo de limón",
-        "quantity": "1 cda",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Camarones grandes, pelados y desvenados", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Dientes de ajo, finamente picados o fileteados", "quantity": "4-5", "category": "Frutas y Verduras" },
+      { "name": "Mantequilla sin sal o ghee", "quantity": "3 cdas", "category": "Aceites y Grasas" },
+      { "name": "Chile de árbol seco, sin semillas", "quantity": "1-2 piezas", "category": "Chiles" },
+      { "name": "Perejil o cilantro fresco picado", "quantity": "2 cdas", "category": "Frutas y Verduras" },
+      { "name": "Jugo de limón", "quantity": "1 cda", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "Seca muy bien los camarones y sazónalos con sal y pimienta.",
@@ -964,14 +486,9 @@ export const recipes = [
       "familiar": "Modera el chile de árbol o elimínalo. A los niños les encantan los camarones y este sabor es muy accesible.",
       "general": "No sobre cocines los camarones o se volverán duros. En cuanto se pongan rosados, están listos."
     },
-    "tags": [
-      "camarones",
-      "mariscos",
-      "ajo",
-      "rápido",
-      "sartén"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_camarones_al_mojo_de_ajo.png"
+    "tags": ["camarones", "mariscos", "ajo", "rápido", "sartén"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_camarones_al_mojo_de_ajo.png",
+    "proteina_aprox_g": 40.0
   },
   {
     "id": "principal_chayotes_rellenos",
@@ -979,36 +496,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una forma creativa y deliciosa de comer chayotes. Se convierten en un recipiente perfecto para un relleno sabroso de carne y queso gratinado.",
     "ingredients": [
-      {
-        "name": "Chayote",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Carne molida de res",
-        "quantity": "150g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Cebolla y ajo picados",
-        "quantity": "1/4 pieza y 1 diente",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jitomate picado",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Queso manchego o chihuahua rallado",
-        "quantity": "1/2 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Tu grasa preferida",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Chayote", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Carne molida de res", "quantity": "150g", "category": "Carnes y Pescados" },
+      { "name": "Cebolla y ajo picados", "quantity": "1/4 pieza y 1 diente", "category": "Frutas y Verduras" },
+      { "name": "Jitomate picado", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Queso manchego o chihuahua rallado", "quantity": "1/2 taza", "category": "Lácteos y Huevos" },
+      { "name": "Tu grasa preferida", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Corta los chayotes por la mitad a lo largo y cuécelos en agua con sal hasta que estén suaves pero firmes.",
@@ -1023,14 +516,9 @@ export const recipes = [
       "familiar": "Es un platillo muy completo y visualmente atractivo que suele gustar mucho a los niños.",
       "general": "Puedes añadir otras verduras al relleno, como pimientos o champiñones, para hacerlo aún más nutritivo."
     },
-    "tags": [
-      "chayote",
-      "relleno",
-      "carne",
-      "gratinado",
-      "verdura"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_chayotes_rellenos.png"
+    "tags": ["chayote", "relleno", "carne", "gratinado", "verdura"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_chayotes_rellenos.png",
+    "proteina_aprox_g": 35.0
   },
   {
     "id": "principal_sopa_de_tortilla_adaptada",
@@ -1038,36 +526,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Todo el sabor reconfortante de la sopa de tortilla, sin los carbohidratos de las tortillas fritas. Usamos chicharrón para dar esa textura crujiente.",
     "ingredients": [
-      {
-        "name": "Caldo de pollo casero",
-        "quantity": "2 tazas",
-        "category": "Caldos y Sopas"
-      },
-      {
-        "name": "Jitomate",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile pasilla y ancho, sin semillas",
-        "quantity": "1 de c/u",
-        "category": "Chiles"
-      },
-      {
-        "name": "Cebolla y ajo",
-        "quantity": "1/4 pieza y 1 diente",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Pechuga de pollo cocida y deshebrada",
-        "quantity": "150g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Para servir: Aguacate, chicharrón de cerdo, queso fresco, crema ácida, cilantro",
-        "quantity": "Al gusto",
-        "category": "Otros"
-      }
+      { "name": "Caldo de pollo casero", "quantity": "2 tazas", "category": "Caldos y Sopas" },
+      { "name": "Jitomate", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Chile pasilla y ancho, sin semillas", "quantity": "1 de c/u", "category": "Chiles" },
+      { "name": "Cebolla y ajo", "quantity": "1/4 pieza y 1 diente", "category": "Frutas y Verduras" },
+      { "name": "Pechuga de pollo cocida y deshebrada", "quantity": "150g", "category": "Carnes y Pescados" },
+      { "name": "Para servir: Aguacate, chicharrón de cerdo, queso fresco, crema ácida, cilantro", "quantity": "Al gusto", "category": "Otros" }
     ],
     "instructions": [
       "Asa los jitomates, los chiles, la cebolla y el ajo en un comal.",
@@ -1082,14 +546,9 @@ export const recipes = [
       "familiar": "Sirve todos los acompañamientos por separado para que cada miembro de la familia arme su sopa a su gusto.",
       "general": "Tostar los chiles secos en el comal antes de remojarlos libera sus aceites y profundiza el sabor del caldo."
     },
-    "tags": [
-      "sopa",
-      "tortilla",
-      "aguacate",
-      "chicharrón",
-      "comida completa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_sopa_de_tortilla_adaptada.png"
+    "tags": ["sopa", "tortilla", "aguacate", "chicharrón", "comida completa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_sopa_de_tortilla_adaptada.png",
+    "proteina_aprox_g": 45.0
   },
   {
     "id": "principal_pescado_al_pastor",
@@ -1097,36 +556,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una versión ligera y saludable del clásico taco al pastor. El adobo de chiles y achiote combina maravillosamente con un pescado blanco firme.",
     "ingredients": [
-      {
-        "name": "Filete de pescado blanco firme (mahi-mahi, tilapia), en cubos",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Chile guajillo, sin semillas",
-        "quantity": "2 piezas",
-        "category": "Chiles"
-      },
-      {
-        "name": "Vinagre de manzana",
-        "quantity": "2 cdas",
-        "category": "Especias"
-      },
-      {
-        "name": "Pasta de achiote",
-        "quantity": "1 cda",
-        "category": "Especias"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jugo de piña natural (opcional)",
-        "quantity": "1 cda",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Filete de pescado blanco firme (mahi-mahi, tilapia), en cubos", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Chile guajillo, sin semillas", "quantity": "2 piezas", "category": "Chiles" },
+      { "name": "Vinagre de manzana", "quantity": "2 cdas", "category": "Especias" },
+      { "name": "Pasta de achiote", "quantity": "1 cda", "category": "Especias" },
+      { "name": "Diente de ajo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Jugo de piña natural (opcional)", "quantity": "1 cda", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "Remoja el chile guajillo en agua caliente hasta que esté suave.",
@@ -1140,14 +575,9 @@ export const recipes = [
       "familiar": "Es una forma muy atractiva de que los niños coman pescado. No suele ser muy picante.",
       "general": "Puedes asar el pescado en brochetas en lugar de saltearlo para una presentación diferente."
     },
-    "tags": [
-      "pescado",
-      "pastor",
-      "adobo",
-      "rápido",
-      "sartén"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pescado_al_pastor.png"
+    "tags": ["pescado", "pastor", "adobo", "rápido", "sartén"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pescado_al_pastor.png",
+    "proteina_aprox_g": 40.0
   },
   {
     "id": "principal_pollo_con_rajas_y_crema",
@@ -1155,36 +585,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un platillo cremoso, reconfortante y lleno de sabor mexicano. Las rajas de chile poblano le dan un toque ahumado inigualable.",
     "ingredients": [
-      {
-        "name": "Pechuga de pollo en tiras",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Chile poblano",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla blanca fileteada",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Crema ácida (de buena calidad, alta en grasa)",
-        "quantity": "1/2 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Queso manchego o asadero rallado",
-        "quantity": "1/4 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Tu grasa preferida: mantequilla o ghee",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Pechuga de pollo en tiras", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Chile poblano", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla blanca fileteada", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Crema ácida (de buena calidad, alta en grasa)", "quantity": "1/2 taza", "category": "Lácteos y Huevos" },
+      { "name": "Queso manchego o asadero rallado", "quantity": "1/4 taza", "category": "Lácteos y Huevos" },
+      { "name": "Tu grasa preferida: mantequilla o ghee", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Asa los chiles poblanos, pélalos, desvénalos y córtalos en rajas.",
@@ -1200,52 +606,22 @@ export const recipes = [
       "familiar": "Este platillo es un éxito garantizado con toda la familia por su sabor cremoso y suave.",
       "general": "Unos granos de elote (con moderación) le dan el toque clásico, aunque aumentan los carbohidratos."
     },
-    "tags": [
-      "pollo",
-      "rajas",
-      "cremoso",
-      "poblano",
-      "guiso"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pollo_con_rajas_y_crema.png"
+    "tags": ["pollo", "rajas", "cremoso", "poblano", "guiso"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pollo_con_rajas_y_crema.png",
+    "proteina_aprox_g": 48.0
   },
-  null,
   {
     "id": "principal_calabacitas_con_puerco",
     "name": "Calabacitas con Carne de Puerco",
     "type": "Platillo Principal",
     "description": "Un guiso casero por excelencia, económico, nutritivo y muy fácil de preparar. La combinación de la carne de puerco con las calabacitas es un clásico.",
     "ingredients": [
-      {
-        "name": "Carne de puerco en trozos (pierna o lomo)",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Calabacita en cubos",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jitomate",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla y ajo",
-        "quantity": "1/4 pieza y 1 diente",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano (opcional)",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: manteca de cerdo",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Carne de puerco en trozos (pierna o lomo)", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Calabacita en cubos", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Jitomate", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla y ajo", "quantity": "1/4 pieza y 1 diente", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano (opcional)", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: manteca de cerdo", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Sazona la carne de puerco con sal y pimienta.",
@@ -1260,14 +636,9 @@ export const recipes = [
       "familiar": "Si omites el chile, es un guiso muy suave y nutritivo que les encanta a los niños.",
       "general": "Unos granos de elote son un añadido clásico, pero recuerda que aumentan los carbohidratos. Una rama de epazote le da un gran sabor."
     },
-    "tags": [
-      "puerco",
-      "calabacitas",
-      "guiso",
-      "casero",
-      "económico"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_calabacitas_con_puerco.png"
+    "tags": ["puerco", "calabacitas", "guiso", "casero", "económico"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_calabacitas_con_puerco.png",
+    "proteina_aprox_g": 44.0
   },
   {
     "id": "principal_atun_a_la_mexicana",
@@ -1275,41 +646,13 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una solución rápida, económica y deliciosa para una comida completa. Lleno de vegetales y proteína.",
     "ingredients": [
-      {
-        "name": "Atún en lata (en agua o aceite de oliva)",
-        "quantity": "2 latas, drenado",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Jitomate en cubos pequeños",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla picada finamente",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano o jalapeño, picado finamente",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco picado",
-        "quantity": "1/4 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Aguacate en cubos",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jugo de limón",
-        "quantity": "El jugo de 1 limón",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Atún en lata (en agua o aceite de oliva)", "quantity": "2 latas, drenado", "category": "Carnes y Pescados" },
+      { "name": "Jitomate en cubos pequeños", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla picada finamente", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano o jalapeño, picado finamente", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco picado", "quantity": "1/4 taza", "category": "Frutas y Verduras" },
+      { "name": "Aguacate en cubos", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Jugo de limón", "quantity": "El jugo de 1 limón", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "En un tazón, desmenuza el atún drenado.",
@@ -1323,14 +666,9 @@ export const recipes = [
       "familiar": "Omite el chile para los niños. Es una ensalada muy fresca y una forma fácil de que coman pescado.",
       "general": "Puedes añadir un chorrito de aceite de oliva extra virgen para enriquecer el sabor y la textura."
     },
-    "tags": [
-      "atún",
-      "ensalada",
-      "rápido",
-      "económico",
-      "fresco"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_atun_a_la_mexicana.png"
+    "tags": ["atún", "ensalada", "rápido", "económico", "fresco"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_atun_a_la_mexicana.png",
+    "proteina_aprox_g": 50.0
   },
   {
     "id": "principal_costillas_de_cerdo_en_salsa_verde",
@@ -1338,31 +676,11 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Las costillas de cerdo cocinadas lentamente en una salsa verde se vuelven increíblemente suaves y jugosas. Un platillo robusto y lleno de sabor.",
     "ingredients": [
-      {
-        "name": "Costilla de cerdo carnosa",
-        "quantity": "300g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Tomate verde (tomatillo)",
-        "quantity": "6-8 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla y ajo",
-        "quantity": "1/4 pieza y 2 dientes",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano",
-        "quantity": "2 (o al gusto)",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco",
-        "quantity": "Unas ramitas",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Costilla de cerdo carnosa", "quantity": "300g", "category": "Carnes y Pescados" },
+      { "name": "Tomate verde (tomatillo)", "quantity": "6-8 piezas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla y ajo", "quantity": "1/4 pieza y 2 dientes", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano", "quantity": "2 (o al gusto)", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco", "quantity": "Unas ramitas", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "En una olla, sella las costillas de cerdo previamente sazonadas con sal y pimienta. Retíralas.",
@@ -1377,14 +695,9 @@ export const recipes = [
       "familiar": "Modera el picante. La carne suave es muy fácil de comer para los niños.",
       "general": "Añadir unos trozos de verdolagas a la salsa durante los últimos 15 minutos de cocción es un toque tradicional y delicioso."
     },
-    "tags": [
-      "cerdo",
-      "costillas",
-      "salsa verde",
-      "guiso",
-      "cocción lenta"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_costillas_de_cerdo_en_salsa_verde.png"
+    "tags": ["cerdo", "costillas", "salsa verde", "guiso", "cocción lenta"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_costillas_de_cerdo_en_salsa_verde.png",
+    "proteina_aprox_g": 50.0
   },
   {
     "id": "principal_ensalada_de_pollo_y_aguacate",
@@ -1392,36 +705,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una ensalada de pollo diferente, sin mayonesa. El aguacate le da toda la cremosidad, junto con un toque de limón y cilantro.",
     "ingredients": [
-      {
-        "name": "Pechuga de pollo cocida y en cubos",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Aguacate maduro",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla morada picada finamente",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco picado",
-        "quantity": "2 cdas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Jugo de limón",
-        "quantity": "El jugo de 1/2 limón",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Aceite de oliva (opcional)",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Pechuga de pollo cocida y en cubos", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Aguacate maduro", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla morada picada finamente", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco picado", "quantity": "2 cdas", "category": "Frutas y Verduras" },
+      { "name": "Jugo de limón", "quantity": "El jugo de 1/2 limón", "category": "Frutas y Verduras" },
+      { "name": "Aceite de oliva (opcional)", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "En un tazón, machaca la mitad del aguacate con un tenedor. Añade el jugo de limón, sal, pimienta y el aceite de oliva si lo usas. Mezcla hasta formar un aderezo cremoso.",
@@ -1435,14 +724,9 @@ export const recipes = [
       "familiar": "Es una ensalada muy suave y cremosa que puede gustar a los niños. Puedes servirla en un pan keto para hacer un sándwich.",
       "general": "Un poco de apio picado finamente le añade una textura crujiente muy agradable."
     },
-    "tags": [
-      "pollo",
-      "ensalada",
-      "aguacate",
-      "cremoso",
-      "sin mayonesa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_ensalada_de_pollo_y_aguacate.png"
+    "tags": ["pollo", "ensalada", "aguacate", "cremoso", "sin mayonesa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_ensalada_de_pollo_y_aguacate.png",
+    "proteina_aprox_g": 64.0
   },
   {
     "id": "principal_caldo_tlalpeno_adaptado",
@@ -1450,36 +734,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un caldo de pollo sustancioso con un toque ahumado de chipotle y la frescura del aguacate y el queso. Una comida completa y reconfortante.",
     "ingredients": [
-      {
-        "name": "Caldo de pollo casero",
-        "quantity": "2 tazas",
-        "category": "Caldos y Sopas"
-      },
-      {
-        "name": "Pechuga de pollo cocida y deshebrada",
-        "quantity": "150g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Calabacita en cubos",
-        "quantity": "1/2 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile chipotle adobado",
-        "quantity": "1 (o al gusto)",
-        "category": "Chiles"
-      },
-      {
-        "name": "Rama de epazote",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Para servir: Aguacate en cubos, queso panela en cubos, cilantro, limón",
-        "quantity": "Al gusto",
-        "category": "Otros"
-      }
+      { "name": "Caldo de pollo casero", "quantity": "2 tazas", "category": "Caldos y Sopas" },
+      { "name": "Pechuga de pollo cocida y deshebrada", "quantity": "150g", "category": "Carnes y Pescados" },
+      { "name": "Calabacita en cubos", "quantity": "1/2 taza", "category": "Frutas y Verduras" },
+      { "name": "Chile chipotle adobado", "quantity": "1 (o al gusto)", "category": "Chiles" },
+      { "name": "Rama de epazote", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Para servir: Aguacate en cubos, queso panela en cubos, cilantro, limón", "quantity": "Al gusto", "category": "Otros" }
     ],
     "instructions": [
       "En una olla, calienta el caldo de pollo.",
@@ -1495,14 +755,9 @@ export const recipes = [
       "familiar": "Modera el chipotle. Es una sopa muy completa y una excelente forma de que los niños coman pollo y verduras.",
       "general": "Puedes añadir otras verduras como ejotes o champiñones para hacerlo aún más nutritivo."
     },
-    "tags": [
-      "pollo",
-      "sopa",
-      "caldo",
-      "tlalpeño",
-      "chipotle"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_caldo_tlalpeno_adaptado.png"
+    "tags": ["pollo", "sopa", "caldo", "tlalpeño", "chipotle"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_caldo_tlalpeno_adaptado.png",
+    "proteina_aprox_g": 48.0
   },
   {
     "id": "principal_bistec_a_la_mexicana",
@@ -1510,36 +765,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un platillo clásico, rápido y lleno de los colores de la bandera mexicana. Una forma sencilla y sabrosa de preparar bistec de res.",
     "ingredients": [
-      {
-        "name": "Bistec de res en tiras",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Jitomate en cubos",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla en julianas",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano o jalapeño en rajas",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Diente de ajo picado",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Bistec de res en tiras", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Jitomate en cubos", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla en julianas", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano o jalapeño en rajas", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Diente de ajo picado", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Sazona las tiras de bistec con sal y pimienta.",
@@ -1555,14 +786,9 @@ export const recipes = [
       "familiar": "Omite el chile o usa uno que no pique (como pimiento) para hacerlo apto para todos.",
       "general": "Unas ramitas de cilantro picado al final le aportan mucha frescura."
     },
-    "tags": [
-      "res",
-      "bistec",
-      "a la mexicana",
-      "rápido",
-      "sartén"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_bistec_a_la_mexicana.png"
+    "tags": ["res", "bistec", "a la mexicana", "rápido", "sartén"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_bistec_a_la_mexicana.png",
+    "proteina_aprox_g": 44.0
   },
   {
     "id": "principal_pollo_en_cacahuate",
@@ -1570,31 +796,11 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una salsa cremosa y con un sabor profundo a cacahuate tostado, con un ligero toque picante. Una alternativa deliciosa al mole.",
     "ingredients": [
-      {
-        "name": "Pechuga de pollo en piezas",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Cacahuate natural tostado, sin sal",
-        "quantity": "1/2 taza",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Chile de árbol o chipotle",
-        "quantity": "1-2 (al gusto)",
-        "category": "Chiles"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Caldo de pollo",
-        "quantity": "1 taza",
-        "category": "Caldos y Sopas"
-      }
+      { "name": "Pechuga de pollo en piezas", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Cacahuate natural tostado, sin sal", "quantity": "1/2 taza", "category": "Harinas y Semillas" },
+      { "name": "Chile de árbol o chipotle", "quantity": "1-2 (al gusto)", "category": "Chiles" },
+      { "name": "Diente de ajo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Caldo de pollo", "quantity": "1 taza", "category": "Caldos y Sopas" }
     ],
     "instructions": [
       "Cocina las piezas de pollo en agua con sal, cebolla y ajo hasta que estén suaves. Reserva el caldo.",
@@ -1609,14 +815,9 @@ export const recipes = [
       "familiar": "Es una salsa muy sabrosa que suele gustar a los niños si se controla el picante.",
       "general": "Puedes usar crema de cacahuate natural sin azúcar en lugar de los cacahuates para una versión aún más rápida."
     },
-    "tags": [
-      "pollo",
-      "salsa",
-      "cacahuate",
-      "cremoso",
-      "guiso"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pollo_en_cacahuate.png"
+    "tags": ["pollo", "salsa", "cacahuate", "cremoso", "guiso"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pollo_en_cacahuate.png",
+    "proteina_aprox_g": 50.0
   },
   {
     "id": "principal_pescado_empapelado",
@@ -1624,41 +825,13 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Un método de cocción infalible que produce un pescado jugoso y lleno de sabor, cocido al vapor en su propio jugo junto con los vegetales.",
     "ingredients": [
-      {
-        "name": "Filete de pescado blanco (tilapia, mero)",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Calabacita en rodajas finas",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Pimiento morrón en tiras",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla morada en rodajas finas",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Ramita de epazote o perejil",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Aceite de oliva",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Jugo de limón",
-        "quantity": "1 cda",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Filete de pescado blanco (tilapia, mero)", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Calabacita en rodajas finas", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Pimiento morrón en tiras", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla morada en rodajas finas", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Ramita de epazote o perejil", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Aceite de oliva", "quantity": "1 cda", "category": "Aceites y Grasas" },
+      { "name": "Jugo de limón", "quantity": "1 cda", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "Precalienta el horno a 200°C.",
@@ -1676,14 +849,9 @@ export const recipes = [
       "familiar": "A los niños les encanta la sorpresa de abrir su propio ‘regalo’. Puedes usar filetes más pequeños para ellos.",
       "general": "Añadir una ramita de hierbas frescas como eneldo o tomillo dentro del paquete antes de cerrarlo le dará un aroma y sabor espectacular al pescado."
     },
-    "tags": [
-      "pescado",
-      "empapelado",
-      "horno",
-      "saludable",
-      "rápido"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pescado_empapelado.png"
+    "tags": ["pescado", "empapelado", "horno", "saludable", "rápido"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pescado_empapelado.png",
+    "proteina_aprox_g": 40.0
   },
   {
     "id": "principal_carne_en_su_jugo_adaptada",
@@ -1691,36 +859,12 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Una versión adaptada del clásico de Jalisco. Carne suave cocida en un caldo de tomatillo y tocino, lleno de sabor y nutrientes.",
     "ingredients": [
-      {
-        "name": "Bistec de res picado finamente",
-        "quantity": "200g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Tocino de cerdo sin azúcar, picado",
-        "quantity": "50g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Tomate verde (tomatillo)",
-        "quantity": "4 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Caldo de res o de huesos",
-        "quantity": "1.5 tazas",
-        "category": "Caldos y Sopas"
-      },
-      {
-        "name": "Cebolla y ajo",
-        "quantity": "1/4 pieza y 1 diente",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco",
-        "quantity": "Unas ramitas",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Bistec de res picado finamente", "quantity": "200g", "category": "Carnes y Pescados" },
+      { "name": "Tocino de cerdo sin azúcar, picado", "quantity": "50g", "category": "Carnes y Pescados" },
+      { "name": "Tomate verde (tomatillo)", "quantity": "4 piezas", "category": "Frutas y Verduras" },
+      { "name": "Caldo de res o de huesos", "quantity": "1.5 tazas", "category": "Caldos y Sopas" },
+      { "name": "Cebolla y ajo", "quantity": "1/4 pieza y 1 diente", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco", "quantity": "Unas ramitas", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "En una olla, dora el tocino hasta que esté crujiente. Retíralo y reserva la grasa.",
@@ -1735,14 +879,9 @@ export const recipes = [
       "familiar": "Es un platillo muy sabroso. Puedes licuar la salsa con menos cilantro si a los niños no les gusta el sabor intenso.",
       "general": "Tradicionalmente lleva frijoles, pero nuestra versión se enfoca en la carne y el caldo para mantenerla baja en carbohidratos."
     },
-    "tags": [
-      "res",
-      "bistec",
-      "caldo",
-      "tocino",
-      "jalisco"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_carne_en_su_jugo_adaptada.png"
+    "tags": ["res", "bistec", "caldo", "tocino", "jalisco"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_carne_en_su_jugo_adaptada.png",
+    "proteina_aprox_g": 50.0
   },
   {
     "id": "principal_pollo_al_ajillo",
@@ -1750,31 +889,11 @@ export const recipes = [
     "type": "Platillo Principal",
     "description": "Piezas de pollo doradas y cocinadas en una salsa abundante de ajo y chile guajillo, que le da color y un sabor profundo sin ser demasiado picante.",
     "ingredients": [
-      {
-        "name": "Pierna y muslo de pollo sin piel",
-        "quantity": "2 piezas",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Dientes de ajo, fileteados",
-        "quantity": "6-8",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile guajillo, sin semillas y en aros",
-        "quantity": "3 piezas",
-        "category": "Chiles"
-      },
-      {
-        "name": "Tu grasa preferida: aceite de aguacate o manteca",
-        "quantity": "2 cdas",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Caldo de pollo",
-        "quantity": "1/2 taza",
-        "category": "Caldos y Sopas"
-      }
+      { "name": "Pierna y muslo de pollo sin piel", "quantity": "2 piezas", "category": "Carnes y Pescados" },
+      { "name": "Dientes de ajo, fileteados", "quantity": "6-8", "category": "Frutas y Verduras" },
+      { "name": "Chile guajillo, sin semillas y en aros", "quantity": "3 piezas", "category": "Chiles" },
+      { "name": "Tu grasa preferida: aceite de aguacate o manteca", "quantity": "2 cdas", "category": "Aceites y Grasas" },
+      { "name": "Caldo de pollo", "quantity": "1/2 taza", "category": "Caldos y Sopas" }
     ],
     "instructions": [
       "Sazona las piezas de pollo con sal y pimienta.",
@@ -1789,52 +908,24 @@ export const recipes = [
       "familiar": "A los niños les gusta el pollo dorado. Puedes retirar los aros de chile al servir sus porciones.",
       "general": "Un chorrito de vino blanco seco (si lo usas) junto con el caldo de pollo le da una capa extra de sabor a la salsa."
     },
-    "tags": [
-      "pollo",
-      "ajillo",
-      "guajillo",
-      "guiso",
-      "sartén"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pollo_al_ajillo.png"
+    "tags": ["pollo", "ajillo", "guajillo", "guiso", "sartén"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/principal_pollo_al_ajillo.png",
+    "proteina_aprox_g": 44.0
   },
-  null,
+
+  // --- PLATILLOS LIGEROS ---
   {
     "id": "ligero_huevos_rancheros_adaptados",
     "name": "Huevos Rancheros Adaptados",
     "type": "Platillo Ligero",
     "description": "La versión saludable del desayuno campeón. Una comida rápida y completa, con proteína del huevo, grasa del aguacate y vegetales de la salsa.",
     "ingredients": [
-      {
-        "name": "Huevo",
-        "quantity": "2-3 piezas",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Jitomate",
-        "quantity": "2 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: manteca o ghee",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Aguacate",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Huevo", "quantity": "2-3 piezas", "category": "Carnes y Pescados" },
+      { "name": "Jitomate", "quantity": "2 piezas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: manteca o ghee", "quantity": "1 cda", "category": "Aceites y Grasas" },
+      { "name": "Aguacate", "quantity": "1/2 pieza", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "Para la salsa, pica finamente el jitomate, la cebolla y el chile. Sofríelos en un poco de grasa hasta que el jitomate se deshaga. Sazona con sal.",
@@ -1847,14 +938,9 @@ export const recipes = [
       "familiar": "Es un clásico que a todos gusta. Puedes servirlo sobre una tostada horneada para los miembros de la familia con un plan más flexible.",
       "general": "Asar los vegetales de la salsa en un comal antes de picarlos le da un delicioso sabor ahumado."
     },
-    "tags": [
-      "huevo",
-      "rancheros",
-      "salsa",
-      "rápido",
-      "clásico mexicano"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_huevos_rancheros_adaptados.png"
+    "tags": ["huevo", "rancheros", "salsa", "rápido", "clásico mexicano"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_huevos_rancheros_adaptados.png",
+    "proteina_aprox_g": 21.0
   },
   {
     "id": "ligero_omelette_espinacas_queso",
@@ -1862,31 +948,11 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Un omelette elegante y lleno de nutrientes. La combinación de espinacas con el sabor particular del queso de cabra es simplemente deliciosa.",
     "ingredients": [
-      {
-        "name": "Huevo",
-        "quantity": "3 piezas",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Espinaca fresca",
-        "quantity": "1 taza grande",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Queso de cabra desmoronado",
-        "quantity": "30g",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Mantequilla o ghee",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Sal y pimienta",
-        "quantity": "Al gusto",
-        "category": "Especias"
-      }
+      { "name": "Huevo", "quantity": "3 piezas", "category": "Carnes y Pescados" },
+      { "name": "Espinaca fresca", "quantity": "1 taza grande", "category": "Frutas y Verduras" },
+      { "name": "Queso de cabra desmoronado", "quantity": "30g", "category": "Lácteos y Huevos" },
+      { "name": "Mantequilla o ghee", "quantity": "1 cda", "category": "Aceites y Grasas" },
+      { "name": "Sal y pimienta", "quantity": "Al gusto", "category": "Especias" }
     ],
     "instructions": [
       "Bate los huevos en un tazón con sal y pimienta.",
@@ -1901,14 +967,9 @@ export const recipes = [
       "familiar": "Si el sabor del queso de cabra es muy fuerte para los niños, puedes usar queso manchego o de hebra.",
       "general": "Unos champiñones salteados o unos trocitos de tocino son una adición espectacular a este omelette."
     },
-    "tags": [
-      "huevo",
-      "omelette",
-      "espinacas",
-      "queso de cabra",
-      "rápido"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_omelette_espinacas_queso.png"
+    "tags": ["huevo", "omelette", "espinacas", "queso de cabra", "rápido"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_omelette_espinacas_queso.png",
+    "proteina_aprox_g": 28.0
   },
   {
     "id": "ligero_chicharron_salsa_verde",
@@ -1916,36 +977,12 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Un clásico irresistible y muy versátil. El chicharrón de cerdo es una excelente fuente de proteína y grasa, perfecto para este estilo de vida.",
     "ingredients": [
-      {
-        "name": "Chicharrón de cerdo (trozo, para guisar)",
-        "quantity": "100g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Tomate verde (tomatillo)",
-        "quantity": "4 piezas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla blanca",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Diente de ajo",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco",
-        "quantity": "Unas ramitas",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Chicharrón de cerdo (trozo, para guisar)", "quantity": "100g", "category": "Carnes y Pescados" },
+      { "name": "Tomate verde (tomatillo)", "quantity": "4 piezas", "category": "Frutas y Verduras" },
+      { "name": "Cebolla blanca", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Diente de ajo", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco", "quantity": "Unas ramitas", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "Hierve los tomates, el trozo de cebolla, el ajo y el chile en agua hasta que los tomates cambien de color.",
@@ -1960,14 +997,9 @@ export const recipes = [
       "familiar": "Sírvelo con queso fresco o panela desmoronado por encima para un toque extra de sabor y textura que les encantará.",
       "general": "Para un plato más completo, sírvelo sobre una cama de nopales guisados o acompáñalo con huevos estrellados."
     },
-    "tags": [
-      "cerdo",
-      "chicharrón",
-      "guiso",
-      "salsa verde",
-      "rápido"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_chicharron_salsa_verde.png"
+    "tags": ["cerdo", "chicharrón", "guiso", "salsa verde", "rápido"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_chicharron_salsa_verde.png",
+    "proteina_aprox_g": 50.0
   },
   {
     "id": "ligero_machaca_huevo",
@@ -1975,36 +1007,12 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Un desayuno o cena potente y tradicional del norte de México. Lleno de proteína y vegetales para darte energía duradera.",
     "ingredients": [
-      {
-        "name": "Carne seca (machaca)",
-        "quantity": "50g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "2 piezas",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Jitomate",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu grasa preferida: manteca o aceite de aguacate",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Carne seca (machaca)", "quantity": "50g", "category": "Carnes y Pescados" },
+      { "name": "Huevo", "quantity": "2 piezas", "category": "Carnes y Pescados" },
+      { "name": "Jitomate", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Tu grasa preferida: manteca o aceite de aguacate", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Pica finamente el jitomate, la cebolla y el chile.",
@@ -2018,14 +1026,9 @@ export const recipes = [
       "familiar": "Si la machaca es muy dura para los niños, puedes hidratarla unos minutos en agua caliente antes de guisarla. Omite el chile.",
       "general": "Unas gotas de salsa de soya o aminos de coco al final le dan un toque de sabor umami muy interesante."
     },
-    "tags": [
-      "huevo",
-      "machaca",
-      "res",
-      "norteño",
-      "rápido"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_machaca_huevo.png"
+    "tags": ["huevo", "machaca", "res", "norteño", "rápido"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_machaca_huevo.png",
+    "proteina_aprox_g": 42.0
   },
   {
     "id": "ligero_nopales_con_chorizo",
@@ -2033,26 +1036,10 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Una combinación clásica, sabrosa y muy nutritiva. Los nopales son una excelente fuente de fibra.",
     "ingredients": [
-      {
-        "name": "Nopales en cubos y cocidos",
-        "quantity": "1.5 tazas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chorizo de cerdo o res",
-        "quantity": "100g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Cebolla picada",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco picado",
-        "quantity": "2 cdas",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Nopales en cubos y cocidos", "quantity": "1.5 tazas", "category": "Frutas y Verduras" },
+      { "name": "Chorizo de cerdo o res", "quantity": "100g", "category": "Carnes y Pescados" },
+      { "name": "Cebolla picada", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco picado", "quantity": "2 cdas", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "En un sartén, cocina el chorizo a fuego medio hasta que esté dorado y haya soltado su grasa.",
@@ -2066,14 +1053,9 @@ export const recipes = [
       "familiar": "Es un platillo muy sabroso. Si el chorizo es muy picante, puedes usar longaniza que suele ser más suave.",
       "general": "Unos huevos revueltos o estrellados encima lo convierten en un desayuno o cena increíblemente completo."
     },
-    "tags": [
-      "nopales",
-      "chorizo",
-      "rápido",
-      "económico",
-      "clásico mexicano"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_nopales_con_chorizo.png"
+    "tags": ["nopales", "chorizo", "rápido", "económico", "clásico mexicano"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_nopales_con_chorizo.png",
+    "proteina_aprox_g": 24.0
   },
   {
     "id": "ligero_ensalada_caprese_con_aguacate",
@@ -2081,36 +1063,12 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Una versión mejorada de la clásica ensalada italiana. El aguacate añade cremosidad, grasas saludables y fibra.",
     "ingredients": [
-      {
-        "name": "Jitomate bola o heirloom en rodajas",
-        "quantity": "1 pieza grande",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Queso mozzarella fresco en rodajas",
-        "quantity": "100g",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Aguacate en rodajas",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Hojas de albahaca fresca",
-        "quantity": "Un puño",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Aceite de oliva extra virgen",
-        "quantity": "2 cdas",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Vinagre balsámico (opcional)",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      }
+      { "name": "Jitomate bola o heirloom en rodajas", "quantity": "1 pieza grande", "category": "Frutas y Verduras" },
+      { "name": "Queso mozzarella fresco en rodajas", "quantity": "100g", "category": "Lácteos y Huevos" },
+      { "name": "Aguacate en rodajas", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Hojas de albahaca fresca", "quantity": "Un puño", "category": "Frutas y Verduras" },
+      { "name": "Aceite de oliva extra virgen", "quantity": "2 cdas", "category": "Aceites y Grasas" },
+      { "name": "Vinagre balsámico (opcional)", "quantity": "1 cdita", "category": "Especias" }
     ],
     "instructions": [
       "En un plato, alterna las rodajas de jitomate, queso mozzarella y aguacate de forma decorativa.",
@@ -2124,15 +1082,9 @@ export const recipes = [
       "familiar": "Los colores y la simplicidad la hacen muy atractiva para todos.",
       "general": "Puedes añadirle unas tiras de prosciutto o jamón serrano para convertirla en un platillo con más proteína."
     },
-    "tags": [
-      "ensalada",
-      "caprese",
-      "aguacate",
-      "fresco",
-      "rápido",
-      "vegetariano"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_ensalada_caprese_con_aguacate.png"
+    "tags": ["ensalada", "caprese", "aguacate", "fresco", "rápido", "vegetariano"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_ensalada_caprese_con_aguacate.png",
+    "proteina_aprox_g": 28.0
   },
   {
     "id": "ligero_huevos_a_la_cazuela",
@@ -2140,36 +1092,12 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Huevos horneados en una cazuelita individual sobre una cama de vegetales y queso. Una presentación elegante para una comida sencilla.",
     "ingredients": [
-      {
-        "name": "Huevo",
-        "quantity": "2 piezas",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Espinaca fresca",
-        "quantity": "1 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Champiñones rebanados",
-        "quantity": "1/2 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Crema para batir (heavy cream)",
-        "quantity": "2 cdas",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Queso parmesano rallado",
-        "quantity": "1 cda",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Mantequilla",
-        "quantity": "1 cdita",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Huevo", "quantity": "2 piezas", "category": "Carnes y Pescados" },
+      { "name": "Espinaca fresca", "quantity": "1 taza", "category": "Frutas y Verduras" },
+      { "name": "Champiñones rebanados", "quantity": "1/2 taza", "category": "Frutas y Verduras" },
+      { "name": "Crema para batir (heavy cream)", "quantity": "2 cdas", "category": "Lácteos y Huevos" },
+      { "name": "Queso parmesano rallado", "quantity": "1 cda", "category": "Lácteos y Huevos" },
+      { "name": "Mantequilla", "quantity": "1 cdita", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Precalienta el horno a 190°C.",
@@ -2186,14 +1114,9 @@ export const recipes = [
       "familiar": "A los niños les encanta tener su propia “cazuelita”. Puedes usar otros quesos que se derritan bien.",
       "general": "Puedes añadir trocitos de tocino, jamón serrano o chorizo a la base de vegetales para más sabor y proteína."
     },
-    "tags": [
-      "huevo",
-      "horneado",
-      "cazuela",
-      "espinacas",
-      "elegante"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_huevos_a_la_cazuela.png"
+    "tags": ["huevo", "horneado", "cazuela", "espinacas", "elegante"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_huevos_a_la_cazuela.png",
+    "proteina_aprox_g": 18.0
   },
   {
     "id": "ligero_revuelto_de_tofu_a_la_mexicana",
@@ -2201,36 +1124,12 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Una excelente alternativa vegana a los huevos revueltos, con todo el sabor del sofrito a la mexicana.",
     "ingredients": [
-      {
-        "name": "Tofu firme, escurrido",
-        "quantity": "200g",
-        "category": "Legumbres y Alternativas"
-      },
-      {
-        "name": "Jitomate picado",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cebolla picada",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Chile serrano picado",
-        "quantity": "1/2 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cúrcuma en polvo",
-        "quantity": "1/4 cdita",
-        "category": "Especias"
-      },
-      {
-        "name": "Tu grasa preferida: aceite de coco o aguacate",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Tofu firme, escurrido", "quantity": "200g", "category": "Legumbres y Alternativas" },
+      { "name": "Jitomate picado", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cebolla picada", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Chile serrano picado", "quantity": "1/2 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cúrcuma en polvo", "quantity": "1/4 cdita", "category": "Especias" },
+      { "name": "Tu grasa preferida: aceite de coco o aguacate", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Presiona el tofu entre toallas de papel para quitar el exceso de agua. Desmenúzalo con un tenedor.",
@@ -2245,14 +1144,9 @@ export const recipes = [
       "familiar": "Es una forma de introducir platillos basados en plantas. El sabor es muy similar al de los huevos a la mexicana.",
       "general": "Un poco de levadura nutricional al final le da un sabor “a queso” muy agradable."
     },
-    "tags": [
-      "tofu",
-      "vegano",
-      "revuelto",
-      "a la mexicana",
-      "rápido"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_revuelto_de_tofu_a_la_mexicana.png"
+    "tags": ["tofu", "vegano", "revuelto", "a la mexicana", "rápido"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_revuelto_de_tofu_a_la_mexicana.png",
+    "proteina_aprox_g": 20.0
   },
   {
     "id": "ligero_sopa_de_champinones_cremosa",
@@ -2260,36 +1154,12 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Una sopa elegante, sedosa y con un profundo sabor a tierra. Perfecta como entrada o como una cena ligera y reconfortante.",
     "ingredients": [
-      {
-        "name": "Champiñones (cremini o portobello), rebanados",
-        "quantity": "250g",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Caldo de pollo o de vegetales",
-        "quantity": "1.5 tazas",
-        "category": "Caldos y Sopas"
-      },
-      {
-        "name": "Cebolla picada",
-        "quantity": "1/4 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Diente de ajo picado",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Crema para batir (heavy cream)",
-        "quantity": "1/4 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Mantequilla o ghee",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Champiñones (cremini o portobello), rebanados", "quantity": "250g", "category": "Frutas y Verduras" },
+      { "name": "Caldo de pollo o de vegetales", "quantity": "1.5 tazas", "category": "Caldos y Sopas" },
+      { "name": "Cebolla picada", "quantity": "1/4 pieza", "category": "Frutas y Verduras" },
+      { "name": "Diente de ajo picado", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Crema para batir (heavy cream)", "quantity": "1/4 taza", "category": "Lácteos y Huevos" },
+      { "name": "Mantequilla o ghee", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "En una olla, derrite la mantequilla. Sofríe la cebolla y el ajo.",
@@ -2305,14 +1175,9 @@ export const recipes = [
       "familiar": "Es una sopa muy reconfortante. Puedes dejar algunos trozos de champiñón sin licuar para darle más textura.",
       "general": "Un poco de tomillo fresco o nuez moscada realza increíblemente el sabor de los champiñones."
     },
-    "tags": [
-      "sopa",
-      "champiñones",
-      "cremosa",
-      "elegante",
-      "vegetariano"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_sopa_de_champinones_cremosa.png"
+    "tags": ["sopa", "champiñones", "cremosa", "elegante", "vegetariano"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_sopa_de_champinones_cremosa.png",
+    "proteina_aprox_g": 6.0
   },
   {
     "id": "ligero_aguacates_rellenos_de_camaron",
@@ -2320,36 +1185,12 @@ export const recipes = [
     "type": "Platillo Ligero",
     "description": "Un platillo fresco, rápido y muy vistoso. El aguacate sirve como el recipiente perfecto para una ensalada de camarón cremosa y refrescante.",
     "ingredients": [
-      {
-        "name": "Aguacate, partido a la mitad y sin hueso",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Camarones pacotilla, cocidos y picados",
-        "quantity": "150g",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Cebolla morada picada finamente",
-        "quantity": "2 cdas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cilantro fresco picado",
-        "quantity": "1 cda",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Mayonesa casera o de aceite de aguacate",
-        "quantity": "2 cdas",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Jugo de limón",
-        "quantity": "1 cda",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Aguacate, partido a la mitad y sin hueso", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Camarones pacotilla, cocidos y picados", "quantity": "150g", "category": "Carnes y Pescados" },
+      { "name": "Cebolla morada picada finamente", "quantity": "2 cdas", "category": "Frutas y Verduras" },
+      { "name": "Cilantro fresco picado", "quantity": "1 cda", "category": "Frutas y Verduras" },
+      { "name": "Mayonesa casera o de aceite de aguacate", "quantity": "2 cdas", "category": "Aceites y Grasas" },
+      { "name": "Jugo de limón", "quantity": "1 cda", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "En un tazón, mezcla los camarones picados, la cebolla morada y el cilantro.",
@@ -2363,43 +1204,22 @@ export const recipes = [
       "familiar": "Es una presentación muy divertida. Puedes usar atún en lugar de camarones.",
       "general": "Un poco de apio picado finamente le da un toque crujiente y picante muy bueno a la ensalada."
     },
-    "tags": [
-      "aguacate",
-      "relleno",
-      "camarones",
-      "ensalada",
-      "fresco",
-      "rápido"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_aguacates_rellenos_de_camaron.png"
+    "tags": ["aguacate", "relleno", "camarones", "ensalada", "fresco", "rápido"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/ligero_aguacates_rellenos_de_camaron.png",
+    "proteina_aprox_g": 30.0
   },
-  null,
+
+  // --- ANTOJOS SIN CULPA ---
   {
     "id": "antojo_pan_microondas",
     "name": "Pan Rápido de Microondas (90 segundos)",
     "type": "Antojo sin Culpa",
     "description": "Un antojo de pan resuelto en menos de 2 minutos. Perfecto para un sándwich rápido o para acompañar un platillo. Cero azúcar, cero gluten, cero culpa.",
     "ingredients": [
-      {
-        "name": "Harina de almendras",
-        "quantity": "3 cdas",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "1",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Polvo para hornear",
-        "quantity": "1/2 cdita",
-        "category": "Especias"
-      },
-      {
-        "name": "Mantequilla o ghee derretido",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Harina de almendras", "quantity": "3 cdas", "category": "Harinas y Semillas" },
+      { "name": "Huevo", "quantity": "1", "category": "Carnes y Pescados" },
+      { "name": "Polvo para hornear", "quantity": "1/2 cdita", "category": "Especias" },
+      { "name": "Mantequilla o ghee derretido", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "En una taza o un molde pequeño apto para microondas, mezcla todos los ingredientes hasta que no queden grumos.",
@@ -2411,14 +1231,9 @@ export const recipes = [
       "familiar": "A los niños les encanta. Pueden usarlo como base para una mini pizza con salsa de tomate sin azúcar y queso.",
       "general": "La textura mejora mucho si lo tuestas después de sacarlo del microondas. No te saltes ese paso si tienes tiempo."
     },
-    "tags": [
-      "pan",
-      "keto",
-      "rápido",
-      "microondas",
-      "sin gluten"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_pan_microondas.png"
+    "tags": ["pan", "keto", "rápido", "microondas", "sin gluten"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_pan_microondas.png",
+    "proteina_aprox_g": 12.0
   },
   {
     "id": "antojo_mousse_aguacate",
@@ -2426,31 +1241,11 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Un postre cremoso, decadente y sorprendentemente saludable. Lleno de grasas buenas y antioxidantes, nadie adivinará el ingrediente secreto.",
     "ingredients": [
-      {
-        "name": "Aguacate maduro",
-        "quantity": "1 pieza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cacao en polvo 100% puro",
-        "quantity": "3 cdas",
-        "category": "Especias"
-      },
-      {
-        "name": "Tu endulzante preferido: monk fruit, alulosa",
-        "quantity": "2-3 cdas (al gusto)",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Leche de coco o almendras sin azúcar",
-        "quantity": "2-4 cdas",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Extracto de vainilla",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      }
+      { "name": "Aguacate maduro", "quantity": "1 pieza", "category": "Frutas y Verduras" },
+      { "name": "Cacao en polvo 100% puro", "quantity": "3 cdas", "category": "Especias" },
+      { "name": "Tu endulzante preferido: monk fruit, alulosa", "quantity": "2-3 cdas (al gusto)", "category": "Endulzantes" },
+      { "name": "Leche de coco o almendras sin azúcar", "quantity": "2-4 cdas", "category": "Lácteos y Huevos" },
+      { "name": "Extracto de vainilla", "quantity": "1 cdita", "category": "Especias" }
     ],
     "instructions": [
       "Coloca todos los ingredientes en una licuadora o procesador de alimentos.",
@@ -2463,14 +1258,9 @@ export const recipes = [
       "familiar": "Es una forma increíble de que los niños coman aguacate sin darse cuenta. ¡Les encantará!",
       "general": "Una pizca de sal y un poco de café espresso en polvo intensifican increíblemente el sabor del chocolate."
     },
-    "tags": [
-      "postre",
-      "chocolate",
-      "aguacate",
-      "vegano",
-      "sin culpa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_mousse_aguacate.png"
+    "tags": ["postre", "chocolate", "aguacate", "vegano", "sin culpa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_mousse_aguacate.png",
+    "proteina_aprox_g": 4.0
   },
   {
     "id": "antojo_galletas_chispas_chocolate",
@@ -2478,41 +1268,13 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Las clásicas galletas con chispas de chocolate, en una versión suave, deliciosa y sin culpas. Ideales para acompañar un café.",
     "ingredients": [
-      {
-        "name": "Harina de almendras",
-        "quantity": "1.5 tazas",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Mantequilla a temperatura ambiente",
-        "quantity": "1/2 taza",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Tu endulzante preferido: monk fruit, alulosa",
-        "quantity": "1/2 taza",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "1",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Extracto de vainilla",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      },
-      {
-        "name": "Polvo para hornear",
-        "quantity": "1/2 cdita",
-        "category": "Especias"
-      },
-      {
-        "name": "Chispas de chocolate sin azúcar (o chocolate >85% picado)",
-        "quantity": "1/2 taza",
-        "category": "Endulzantes"
-      }
+      { "name": "Harina de almendras", "quantity": "1.5 tazas", "category": "Harinas y Semillas" },
+      { "name": "Mantequilla a temperatura ambiente", "quantity": "1/2 taza", "category": "Aceites y Grasas" },
+      { "name": "Tu endulzante preferido: monk fruit, alulosa", "quantity": "1/2 taza", "category": "Endulzantes" },
+      { "name": "Huevo", "quantity": "1", "category": "Carnes y Pescados" },
+      { "name": "Extracto de vainilla", "quantity": "1 cdita", "category": "Especias" },
+      { "name": "Polvo para hornear", "quantity": "1/2 cdita", "category": "Especias" },
+      { "name": "Chispas de chocolate sin azúcar (o chocolate >85% picado)", "quantity": "1/2 taza", "category": "Endulzantes" }
     ],
     "instructions": [
       "Precalienta el horno a 180°C y prepara una charola con papel para hornear.",
@@ -2529,14 +1291,9 @@ export const recipes = [
       "familiar": "Son un antojo perfecto para compartir. Nadie notará que son saludables.",
       "general": "Una pizca de sal marina en escamas sobre las galletas antes de hornear realza el sabor del chocolate."
     },
-    "tags": [
-      "galletas",
-      "postre",
-      "chocolate",
-      "horno",
-      "sin gluten"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_galletas_chispas_chocolate.png"
+    "tags": ["galletas", "postre", "chocolate", "horno", "sin gluten"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_galletas_chispas_chocolate.png",
+    "proteina_aprox_g": 6.0
   },
   {
     "id": "antojo_hotcakes_keto",
@@ -2544,36 +1301,12 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Un desayuno de fin de semana sin remordimientos. Estos hot cakes son esponjosos, deliciosos y se preparan en minutos.",
     "ingredients": [
-      {
-        "name": "Harina de almendras",
-        "quantity": "1/2 taza",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Queso crema a temperatura ambiente",
-        "quantity": "50g",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "2",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Tu endulzante preferido",
-        "quantity": "1 cda",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Polvo para hornear",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      },
-      {
-        "name": "Mantequilla o aceite de coco para el sartén",
-        "quantity": "1 cda",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Harina de almendras", "quantity": "1/2 taza", "category": "Harinas y Semillas" },
+      { "name": "Queso crema a temperatura ambiente", "quantity": "50g", "category": "Lácteos y Huevos" },
+      { "name": "Huevo", "quantity": "2", "category": "Carnes y Pescados" },
+      { "name": "Tu endulzante preferido", "quantity": "1 cda", "category": "Endulzantes" },
+      { "name": "Polvo para hornear", "quantity": "1 cdita", "category": "Especias" },
+      { "name": "Mantequilla o aceite de coco para el sartén", "quantity": "1 cda", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Coloca todos los ingredientes (excepto la mantequilla para el sartén) en una licuadora.",
@@ -2588,14 +1321,9 @@ export const recipes = [
       "familiar": "Sírvelos con frutos rojos y un poco de crema batida sin azúcar. Un desayuno especial para todos.",
       "general": "La clave para que no se peguen es un buen sartén antiadherente y cocinarlos a fuego medio-bajo."
     },
-    "tags": [
-      "hot cakes",
-      "desayuno",
-      "sartén",
-      "rápido",
-      "sin gluten"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_hotcakes_keto.png"
+    "tags": ["hot cakes", "desayuno", "sartén", "rápido", "sin gluten"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_hotcakes_keto.png",
+    "proteina_aprox_g": 16.0
   },
   {
     "id": "antojo_gelatina_frutos_rojos",
@@ -2603,36 +1331,12 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Un postre refrescante, ligero y elegante. Perfecto para después de una comida o como un antojo fresco por la tarde.",
     "ingredients": [
-      {
-        "name": "Grenetina (gelatina sin sabor)",
-        "quantity": "2 sobres (14g)",
-        "category": "Especias"
-      },
-      {
-        "name": "Agua fría",
-        "quantity": "1/2 taza",
-        "category": "Otros"
-      },
-      {
-        "name": "Agua caliente",
-        "quantity": "1.5 tazas",
-        "category": "Otros"
-      },
-      {
-        "name": "Frutos rojos congelados",
-        "quantity": "1 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu endulzante preferido",
-        "quantity": "1/2 taza (o al gusto)",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Para la capa de crema: 1 sobre de grenetina, 1/4 taza de agua fría, 1 taza de crema para batir o leche de coco, 2 cdas de endulzante",
-        "quantity": "",
-        "category": "Otros"
-      }
+      { "name": "Grenetina (gelatina sin sabor)", "quantity": "2 sobres (14g)", "category": "Especias" },
+      { "name": "Agua fría", "quantity": "1/2 taza", "category": "Otros" },
+      { "name": "Agua caliente", "quantity": "1.5 tazas", "category": "Otros" },
+      { "name": "Frutos rojos congelados", "quantity": "1 taza", "category": "Frutas y Verduras" },
+      { "name": "Tu endulzante preferido", "quantity": "1/2 taza (o al gusto)", "category": "Endulzantes" },
+      { "name": "Para la capa de crema: 1 sobre de grenetina, 1/4 taza de agua fría, 1 taza de crema para batir o leche de coco, 2 cdas de endulzante", "quantity": "", "category": "Otros" }
     ],
     "instructions": [
       "Para la gelatina de frutos rojos: Hidrata los 2 sobres de grenetina en la 1/2 taza de agua fría por 5 minutos.",
@@ -2647,14 +1351,9 @@ export const recipes = [
       "familiar": "Es un postre visualmente muy atractivo y una forma saludable de comer gelatina.",
       "general": "Asegúrate de que la capa de crema no esté caliente al verterla sobre la de frutos rojos, o se mezclarán."
     },
-    "tags": [
-      "postre",
-      "gelatina",
-      "frutos rojos",
-      "refrescante",
-      "sin culpa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_gelatina_frutos_rojos.png"
+    "tags": ["postre", "gelatina", "frutos rojos", "refrescante", "sin culpa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_gelatina_frutos_rojos.png",
+    "proteina_aprox_g": 6.0
   },
   {
     "id": "antojo_brownies_keto",
@@ -2662,41 +1361,13 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Un brownie denso, chocolatoso y húmedo, como debe ser. Nadie creerá que no tiene azúcar ni harina tradicional.",
     "ingredients": [
-      {
-        "name": "Mantequilla",
-        "quantity": "1/2 taza",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Chocolate sin azúcar (>85% cacao), picado",
-        "quantity": "100g",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Tu endulzante preferido: alulosa o eritritol",
-        "quantity": "3/4 taza",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "2",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Harina de almendras",
-        "quantity": "1/2 taza",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Cacao en polvo sin azúcar",
-        "quantity": "1/4 taza",
-        "category": "Especias"
-      },
-      {
-        "name": "Polvo para hornear",
-        "quantity": "1/2 cdita",
-        "category": "Especias"
-      }
+      { "name": "Mantequilla", "quantity": "1/2 taza", "category": "Aceites y Grasas" },
+      { "name": "Chocolate sin azúcar (>85% cacao), picado", "quantity": "100g", "category": "Endulzantes" },
+      { "name": "Tu endulzante preferido: alulosa o eritritol", "quantity": "3/4 taza", "category": "Endulzantes" },
+      { "name": "Huevo", "quantity": "2", "category": "Carnes y Pescados" },
+      { "name": "Harina de almendras", "quantity": "1/2 taza", "category": "Harinas y Semillas" },
+      { "name": "Cacao en polvo sin azúcar", "quantity": "1/4 taza", "category": "Especias" },
+      { "name": "Polvo para hornear", "quantity": "1/2 cdita", "category": "Especias" }
     ],
     "instructions": [
       "Precalienta el horno a 175°C. Engrasa un molde cuadrado pequeño.",
@@ -2712,15 +1383,9 @@ export const recipes = [
       "familiar": "Un postre chocolatoso que encantará a todos. Puedes servirlo con una bola de helado keto.",
       "general": "No sobre hornear los brownies es el secreto para que queden ‘fudgy’ (húmedos) y no secos."
     },
-    "tags": [
-      "postre",
-      "brownie",
-      "chocolate",
-      "horno",
-      "sin gluten",
-      "fudgy"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_brownies_keto.png"
+    "tags": ["postre", "brownie", "chocolate", "horno", "sin gluten", "fudgy"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_brownies_keto.png",
+    "proteina_aprox_g": 14.0
   },
   {
     "id": "antojo_pan_de_queso_sarten",
@@ -2728,26 +1393,10 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Un panecillo chicloso por dentro y dorado por fuera, con un intenso sabor a queso. Se prepara rápidamente en el sartén.",
     "ingredients": [
-      {
-        "name": "Harina de almendras o de coco",
-        "quantity": "1/4 taza",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "1",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Queso mozzarella o parmesano rallado",
-        "quantity": "1/2 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Polvo para hornear",
-        "quantity": "1/2 cdita",
-        "category": "Especias"
-      }
+      { "name": "Harina de almendras o de coco", "quantity": "1/4 taza", "category": "Harinas y Semillas" },
+      { "name": "Huevo", "quantity": "1", "category": "Carnes y Pescados" },
+      { "name": "Queso mozzarella o parmesano rallado", "quantity": "1/2 taza", "category": "Lácteos y Huevos" },
+      { "name": "Polvo para hornear", "quantity": "1/2 cdita", "category": "Especias" }
     ],
     "instructions": [
       "En un tazón, mezcla todos los ingredientes hasta formar una masa pegajosa.",
@@ -2761,14 +1410,9 @@ export const recipes = [
       "familiar": "A los niños les encanta la textura chiclosa del queso.",
       "general": "Puedes añadir hierbas secas a la masa, como orégano o romero, para darles un toque diferente."
     },
-    "tags": [
-      "pan",
-      "queso",
-      "sartén",
-      "rápido",
-      "sin gluten"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_pan_de_queso_sarten.png"
+    "tags": ["pan", "queso", "sartén", "rápido", "sin gluten"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_pan_de_queso_sarten.png",
+    "proteina_aprox_g": 16.0
   },
   {
     "id": "antojo_trufas_chocolate_aguacate",
@@ -2776,21 +1420,9 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Unas trufas increíblemente cremosas y saludables. Solo necesitas 3 ingredientes para este antojo elegante y fácil.",
     "ingredients": [
-      {
-        "name": "Chocolate sin azúcar (>85% cacao)",
-        "quantity": "150g",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Aguacate maduro",
-        "quantity": "1 pieza mediana",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Cacao en polvo sin azúcar para revolcar",
-        "quantity": "1/4 taza",
-        "category": "Especias"
-      }
+      { "name": "Chocolate sin azúcar (>85% cacao)", "quantity": "150g", "category": "Endulzantes" },
+      { "name": "Aguacate maduro", "quantity": "1 pieza mediana", "category": "Frutas y Verduras" },
+      { "name": "Cacao en polvo sin azúcar para revolcar", "quantity": "1/4 taza", "category": "Especias" }
     ],
     "instructions": [
       "Derrite el chocolate a baño maría o en el microondas. Deja que se enfríe un poco.",
@@ -2805,15 +1437,9 @@ export const recipes = [
       "familiar": "Son tan deliciosas que nadie notará que llevan aguacate.",
       "general": "Puedes revolcarlas en otros ingredientes como nuez picada, coco rallado sin azúcar o harina de almendras."
     },
-    "tags": [
-      "postre",
-      "trufas",
-      "chocolate",
-      "aguacate",
-      "vegano",
-      "fácil"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_trufas_chocolate_aguacate.png"
+    "tags": ["postre", "trufas", "chocolate", "aguacate", "vegano", "fácil"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_trufas_chocolate_aguacate.png",
+    "proteina_aprox_g": 3.0
   },
   {
     "id": "antojo_cheesecake_sin_horno",
@@ -2821,16 +1447,8 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Un postre cremoso y delicioso que no requiere encender el horno. Perfecto para preparar con antelación.",
     "ingredients": [
-      {
-        "name": "Para la base: 1 taza de harina de almendras, 3 cdas de mantequilla derretida, 1 cda de endulzante",
-        "quantity": "",
-        "category": "Otros"
-      },
-      {
-        "name": "Para el relleno: 200g de queso crema, 1/2 taza de crema para batir, 1/4 taza de endulzante, 1 cdita de jugo de limón, 1 cdita de vainilla",
-        "quantity": "",
-        "category": "Otros"
-      }
+      { "name": "Para la base: 1 taza de harina de almendras, 3 cdas de mantequilla derretida, 1 cda de endulzante", "quantity": "", "category": "Otros" },
+      { "name": "Para el relleno: 200g de queso crema, 1/2 taza de crema para batir, 1/4 taza de endulzante, 1 cdita de jugo de limón, 1 cdita de vainilla", "quantity": "", "category": "Otros" }
     ],
     "instructions": [
       "Para la base: Mezcla la harina de almendras, la mantequilla derretida y el endulzante. Presiona en el fondo de 4 moldes individuales. Refrigera.",
@@ -2845,14 +1463,9 @@ export const recipes = [
       "familiar": "Un éxito garantizado en cualquier reunión.",
       "general": "Puedes añadir la ralladura de un limón al relleno para un sabor más fresco e intenso."
     },
-    "tags": [
-      "postre",
-      "cheesecake",
-      "sin horno",
-      "cremoso",
-      "frutos rojos"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_cheesecake_sin_horno.png"
+    "tags": ["postre", "cheesecake", "sin horno", "cremoso", "frutos rojos"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_cheesecake_sin_horno.png",
+    "proteina_aprox_g": 8.0
   },
   {
     "id": "antojo_tortillas_de_queso",
@@ -2860,11 +1473,7 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "La forma más fácil y deliciosa de hacer una “tortilla” para tus tacos. Solo necesitas un ingrediente: queso.",
     "ingredients": [
-      {
-        "name": "Queso que derrita y dore (manchego, asadero), rallado",
-        "quantity": "1/4 taza por tortilla",
-        "category": "Lácteos y Huevos"
-      }
+      { "name": "Queso que derrita y dore (manchego, asadero), rallado", "quantity": "1/4 taza por tortilla", "category": "Lácteos y Huevos" }
     ],
     "instructions": [
       "Calienta un sartén antiadherente a fuego medio.",
@@ -2878,43 +1487,20 @@ export const recipes = [
       "familiar": "A los niños les fascina. Es como comer la parte más rica de la pizza.",
       "general": "Funcionan mejor con quesos que no sean excesivamente grasosos. Experimenta con diferentes tipos."
     },
-    "tags": [
-      "tortilla",
-      "queso",
-      "costra",
-      "taco",
-      "rápido",
-      "sin gluten"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_tortillas_de_queso.png"
+    "tags": ["tortilla", "queso", "costra", "taco", "rápido", "sin gluten"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_tortillas_de_queso.png",
+    "proteina_aprox_g": 7.0
   },
-  null,
   {
     "id": "antojo_pan_nube",
     "name": "Pan Nube (Oopsie Bread)",
     "type": "Antojo sin Culpa",
     "description": "Un pan increíblemente ligero y aireado, hecho principalmente de huevo y queso crema. Es flexible y perfecto para sándwiches o como base de pizza.",
     "ingredients": [
-      {
-        "name": "Huevo, separado en claras y yemas",
-        "quantity": "3",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Queso crema a temperatura ambiente",
-        "quantity": "85g",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Crémor tártaro (opcional)",
-        "quantity": "1/8 cdita",
-        "category": "Especias"
-      },
-      {
-        "name": "Sal",
-        "quantity": "Una pizca",
-        "category": "Especias"
-      }
+      { "name": "Huevo, separado en claras y yemas", "quantity": "3", "category": "Carnes y Pescados" },
+      { "name": "Queso crema a temperatura ambiente", "quantity": "85g", "category": "Lácteos y Huevos" },
+      { "name": "Crémor tártaro (opcional)", "quantity": "1/8 cdita", "category": "Especias" },
+      { "name": "Sal", "quantity": "Una pizca", "category": "Especias" }
     ],
     "instructions": [
       "Precalienta el horno a 150°C y prepara una charola con papel para hornear.",
@@ -2930,15 +1516,9 @@ export const recipes = [
       "familiar": "La textura es muy divertida. Puedes espolvorearles semillas de sésamo antes de hornear.",
       "general": "El secreto está en no sobre mezclar al combinar las yemas con las claras para mantener la estructura aireada."
     },
-    "tags": [
-      "pan",
-      "nube",
-      "oopsie",
-      "horno",
-      "sin gluten",
-      "ligero"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_pan_nube.png"
+    "tags": ["pan", "nube", "oopsie", "horno", "sin gluten", "ligero"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_pan_nube.png",
+    "proteina_aprox_g": 20.0
   },
   {
     "id": "antojo_crema_batida_keto",
@@ -2946,21 +1526,9 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "El acompañamiento perfecto para tus postres o frutos rojos. Cremosa, deliciosa y se prepara en 2 minutos.",
     "ingredients": [
-      {
-        "name": "Crema para batir (heavy cream, 35% grasa o más), muy fría",
-        "quantity": "1 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Tu endulzante preferido en polvo",
-        "quantity": "1-2 cdas (al gusto)",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Extracto de vainilla",
-        "quantity": "1/2 cdita",
-        "category": "Especias"
-      }
+      { "name": "Crema para batir (heavy cream, 35% grasa o más), muy fría", "quantity": "1 taza", "category": "Lácteos y Huevos" },
+      { "name": "Tu endulzante preferido en polvo", "quantity": "1-2 cdas (al gusto)", "category": "Endulzantes" },
+      { "name": "Extracto de vainilla", "quantity": "1/2 cdita", "category": "Especias" }
     ],
     "instructions": [
       "Asegúrate de que la crema, el tazón y las aspas de la batidora estén muy fríos.",
@@ -2974,14 +1542,9 @@ export const recipes = [
       "familiar": "A todos les encanta la crema batida. Es una forma fácil de hacer un postre saludable más atractivo.",
       "general": "El endulzante en polvo (no granulado) se disuelve mejor y evita una textura arenosa."
     },
-    "tags": [
-      "postre",
-      "crema batida",
-      "chantilly",
-      "rápido",
-      "acompañamiento"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_crema_batida_keto.png"
+    "tags": ["postre", "crema batida", "chantilly", "rápido", "acompañamiento"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_crema_batida_keto.png",
+    "proteina_aprox_g": 2.0
   },
   {
     "id": "antojo_carlota_de_limon_keto",
@@ -2989,36 +1552,12 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Una versión saludable del postre clásico. Cremosa, ácida y refrescante, usando galletas keto en lugar de las tradicionales.",
     "ingredients": [
-      {
-        "name": "Queso crema a temperatura ambiente",
-        "quantity": "200g",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Crema para batir o media crema",
-        "quantity": "1 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Jugo de limón fresco",
-        "quantity": "1/2 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Ralladura de 1 limón",
-        "quantity": "1",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Tu endulzante preferido",
-        "quantity": "1/2 taza (o al gusto)",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Galletas keto o pan nube",
-        "quantity": "8-10 piezas",
-        "category": "Antojo sin Culpa"
-      }
+      { "name": "Queso crema a temperatura ambiente", "quantity": "200g", "category": "Lácteos y Huevos" },
+      { "name": "Crema para batir o media crema", "quantity": "1 taza", "category": "Lácteos y Huevos" },
+      { "name": "Jugo de limón fresco", "quantity": "1/2 taza", "category": "Frutas y Verduras" },
+      { "name": "Ralladura de 1 limón", "quantity": "1", "category": "Frutas y Verduras" },
+      { "name": "Tu endulzante preferido", "quantity": "1/2 taza (o al gusto)", "category": "Endulzantes" },
+      { "name": "Galletas keto o pan nube", "quantity": "8-10 piezas", "category": "Antojo sin Culpa" }
     ],
     "instructions": [
       "En una licuadora, mezcla el queso crema, la crema, el jugo de limón, la ralladura y el endulzante hasta obtener una mezcla suave.",
@@ -3033,14 +1572,9 @@ export const recipes = [
       "familiar": "Un postre familiar que todos reconocerán y amarán en su versión saludable.",
       "general": "El tiempo de refrigeración es clave para que la “galleta” se suavice y el postre tenga la consistencia correcta."
     },
-    "tags": [
-      "postre",
-      "carlota",
-      "limón",
-      "sin horno",
-      "cremoso"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_carlota_de_limon_keto.png"
+    "tags": ["postre", "carlota", "limón", "sin horno", "cremoso"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_carlota_de_limon_keto.png",
+    "proteina_aprox_g": 10.0
   },
   {
     "id": "antojo_paletas_de_hielo_fresa_crema",
@@ -3048,26 +1582,10 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Un antojo helado, cremoso y perfecto para un día caluroso. Mucho más saludables que cualquier versión comercial.",
     "ingredients": [
-      {
-        "name": "Fresas frescas o congeladas",
-        "quantity": "1.5 tazas",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Leche de coco de lata (full-fat) o crema para batir",
-        "quantity": "1 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Tu endulzante preferido",
-        "quantity": "1/4 taza (o al gusto)",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Extracto de vainilla",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      }
+      { "name": "Fresas frescas o congeladas", "quantity": "1.5 tazas", "category": "Frutas y Verduras" },
+      { "name": "Leche de coco de lata (full-fat) o crema para batir", "quantity": "1 taza", "category": "Lácteos y Huevos" },
+      { "name": "Tu endulzante preferido", "quantity": "1/4 taza (o al gusto)", "category": "Endulzantes" },
+      { "name": "Extracto de vainilla", "quantity": "1 cdita", "category": "Especias" }
     ],
     "instructions": [
       "Coloca todos los ingredientes en una licuadora.",
@@ -3081,15 +1599,9 @@ export const recipes = [
       "familiar": "A los niños les encantan las paletas de hielo, y estas son una opción nutritiva que puedes darles sin preocupación.",
       "general": "Puedes dejar algunos trocitos de fresa sin licuar para encontrar sorpresas de fruta en tus paletas."
     },
-    "tags": [
-      "postre",
-      "paletas",
-      "helado",
-      "fresas",
-      "verano",
-      "sin culpa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_paletas_de_hielo_fresa_crema.png"
+    "tags": ["postre", "paletas", "helado", "fresas", "verano", "sin culpa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_paletas_de_hielo_fresa_crema.png",
+    "proteina_aprox_g": 3.0
   },
   {
     "id": "antojo_pan_de_elote_keto",
@@ -3097,46 +1609,14 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Captura la textura húmeda y el sabor dulce del pan de elote tradicional, pero sin usar maíz. El secreto es una combinación de harinas y endulzante.",
     "ingredients": [
-      {
-        "name": "Harina de almendras",
-        "quantity": "1.5 tazas",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Harina de coco",
-        "quantity": "1/4 taza",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Mantequilla derretida",
-        "quantity": "1/2 taza",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "3",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Crema ácida o yogurt griego sin azúcar",
-        "quantity": "1/2 taza",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Tu endulzante preferido",
-        "quantity": "3/4 taza",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Polvo para hornear",
-        "quantity": "2 cditas",
-        "category": "Especias"
-      },
-      {
-        "name": "Extracto de vainilla o de mantequilla (opcional)",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      }
+      { "name": "Harina de almendras", "quantity": "1.5 tazas", "category": "Harinas y Semillas" },
+      { "name": "Harina de coco", "quantity": "1/4 taza", "category": "Harinas y Semillas" },
+      { "name": "Mantequilla derretida", "quantity": "1/2 taza", "category": "Aceites y Grasas" },
+      { "name": "Huevo", "quantity": "3", "category": "Carnes y Pescados" },
+      { "name": "Crema ácida o yogurt griego sin azúcar", "quantity": "1/2 taza", "category": "Lácteos y Huevos" },
+      { "name": "Tu endulzante preferido", "quantity": "3/4 taza", "category": "Endulzantes" },
+      { "name": "Polvo para hornear", "quantity": "2 cditas", "category": "Especias" },
+      { "name": "Extracto de vainilla o de mantequilla (opcional)", "quantity": "1 cdita", "category": "Especias" }
     ],
     "instructions": [
       "Precalienta el horno a 180°C. Engrasa un molde para pan.",
@@ -3151,14 +1631,9 @@ export const recipes = [
       "familiar": "Perfecto para acompañar un café en una tarde familiar.",
       "general": "La combinación de harina de almendras y coco es clave para lograr la textura correcta."
     },
-    "tags": [
-      "pan",
-      "postre",
-      "elote",
-      "horno",
-      "sin gluten"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_pan_de_elote_keto.png"
+    "tags": ["pan", "postre", "elote", "horno", "sin gluten"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_pan_de_elote_keto.png",
+    "proteina_aprox_g": 24.0
   },
   {
     "id": "antojo_mazapan_de_almendra",
@@ -3166,16 +1641,8 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Una versión saludable del clásico dulce mexicano. Con solo 2 ingredientes, puedes tener un mazapán delicioso y sin azúcar.",
     "ingredients": [
-      {
-        "name": "Harina de almendras",
-        "quantity": "1 taza",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Tu endulzante preferido en polvo",
-        "quantity": "1/4 taza (o al gusto)",
-        "category": "Endulzantes"
-      }
+      { "name": "Harina de almendras", "quantity": "1 taza", "category": "Harinas y Semillas" },
+      { "name": "Tu endulzante preferido en polvo", "quantity": "1/4 taza (o al gusto)", "category": "Endulzantes" }
     ],
     "instructions": [
       "En un procesador de alimentos, mezcla la harina de almendras y el endulzante en polvo.",
@@ -3188,15 +1655,9 @@ export const recipes = [
       "familiar": "Una actividad divertida para hacer con niños.",
       "general": "La clave es la paciencia. Sigue procesando hasta que la masa se junte por sí sola."
     },
-    "tags": [
-      "postre",
-      "mazapán",
-      "almendra",
-      "fácil",
-      "vegano",
-      "sin culpa"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_mazapan_de_almendra.png"
+    "tags": ["postre", "mazapán", "almendra", "fácil", "vegano", "sin culpa"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_mazapan_de_almendra.png",
+    "proteina_aprox_g": 24.0
   },
   {
     "id": "antojo_cafe_cremoso_keto",
@@ -3204,21 +1665,9 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Más que un café, es una bebida energética que te dará saciedad y claridad mental por horas. Ideal para empezar el día o romper el ayuno.",
     "ingredients": [
-      {
-        "name": "Café americano o espresso caliente",
-        "quantity": "1 taza",
-        "category": "Bebidas"
-      },
-      {
-        "name": "Mantequilla sin sal o ghee",
-        "quantity": "1-2 cdas",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Aceite MCT o aceite de coco",
-        "quantity": "1-2 cdas",
-        "category": "Aceites y Grasas"
-      }
+      { "name": "Café americano o espresso caliente", "quantity": "1 taza", "category": "Bebidas" },
+      { "name": "Mantequilla sin sal o ghee", "quantity": "1-2 cdas", "category": "Aceites y Grasas" },
+      { "name": "Aceite MCT o aceite de coco", "quantity": "1-2 cdas", "category": "Aceites y Grasas" }
     ],
     "instructions": [
       "Prepara tu café caliente como de costumbre.",
@@ -3232,14 +1681,9 @@ export const recipes = [
       "familiar": "No es una bebida para niños.",
       "general": "Licuar es indispensable. Si solo lo revuelves, tendrás una capa de grasa flotando. La emulsión es la clave."
     },
-    "tags": [
-      "bebida",
-      "café",
-      "bulletproof",
-      "energía",
-      "cetogénico"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_cafe_cremoso_keto.png"
+    "tags": ["bebida", "café", "bulletproof", "energía", "cetogénico"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_cafe_cremoso_keto.png",
+    "proteina_aprox_g": 0.0
   },
   {
     "id": "antojo_donas_horneadas_canela",
@@ -3247,36 +1691,12 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Unas donas suaves y esponjosas, cubiertas con una mezcla de “azúcar” y canela. El antojo perfecto para el fin de semana.",
     "ingredients": [
-      {
-        "name": "Harina de almendras",
-        "quantity": "1 taza",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Tu endulzante preferido",
-        "quantity": "1/3 taza",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Polvo para hornear",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      },
-      {
-        "name": "Huevo",
-        "quantity": "2",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Mantequilla derretida",
-        "quantity": "1/4 taza",
-        "category": "Aceites y Grasas"
-      },
-      {
-        "name": "Para la cubierta: 2 cdas de mantequilla derretida, 2 cdas de endulzante, 1 cdita de canela",
-        "quantity": "",
-        "category": "Otros"
-      }
+      { "name": "Harina de almendras", "quantity": "1 taza", "category": "Harinas y Semillas" },
+      { "name": "Tu endulzante preferido", "quantity": "1/3 taza", "category": "Endulzantes" },
+      { "name": "Polvo para hornear", "quantity": "1 cdita", "category": "Especias" },
+      { "name": "Huevo", "quantity": "2", "category": "Carnes y Pescados" },
+      { "name": "Mantequilla derretida", "quantity": "1/4 taza", "category": "Aceites y Grasas" },
+      { "name": "Para la cubierta: 2 cdas de mantequilla derretida, 2 cdas de endulzante, 1 cdita de canela", "quantity": "", "category": "Otros" }
     ],
     "instructions": [
       "Precalienta el horno a 180°C. Engrasa un molde para donas.",
@@ -3292,14 +1712,9 @@ export const recipes = [
       "familiar": "A los niños les encantarán. Es una versión mucho más saludable que las donas fritas comerciales.",
       "general": "Si no tienes molde para donas, puedes usar un molde para muffins."
     },
-    "tags": [
-      "postre",
-      "donas",
-      "canela",
-      "horno",
-      "sin gluten"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_donas_horneadas_canela.png"
+    "tags": ["postre", "donas", "canela", "horno", "sin gluten"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_donas_horneadas_canela.png",
+    "proteina_aprox_g": 16.0
   },
   {
     "id": "antojo_mermelada_de_chia",
@@ -3307,26 +1722,10 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Una mermelada instantánea, sin azúcar y llena de fibra. Las semillas de chía hacen todo el trabajo de espesar la fruta.",
     "ingredients": [
-      {
-        "name": "Frutos rojos (fresas, frambuesas)",
-        "quantity": "1 taza",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Semillas de chía",
-        "quantity": "2 cdas",
-        "category": "Harinas y Semillas"
-      },
-      {
-        "name": "Tu endulzante preferido",
-        "quantity": "1-2 cdas (al gusto)",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Jugo de limón",
-        "quantity": "1 cdita",
-        "category": "Frutas y Verduras"
-      }
+      { "name": "Frutos rojos (fresas, frambuesas)", "quantity": "1 taza", "category": "Frutas y Verduras" },
+      { "name": "Semillas de chía", "quantity": "2 cdas", "category": "Harinas y Semillas" },
+      { "name": "Tu endulzante preferido", "quantity": "1-2 cdas (al gusto)", "category": "Endulzantes" },
+      { "name": "Jugo de limón", "quantity": "1 cdita", "category": "Frutas y Verduras" }
     ],
     "instructions": [
       "En una olla pequeña, calienta los frutos rojos hasta que empiecen a deshacerse.",
@@ -3339,15 +1738,9 @@ export const recipes = [
       "familiar": "Una mermelada sin azúcar que puedes darles a tus hijos con confianza.",
       "general": "Puedes usar cualquier fruto rojo. Las frambuesas espesan particularmente bien."
     },
-    "tags": [
-      "mermelada",
-      "chía",
-      "frutos rojos",
-      "fácil",
-      "vegano",
-      "sin azúcar"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_mermelada_de_chia.png"
+    "tags": ["mermelada", "chía", "frutos rojos", "fácil", "vegano", "sin azúcar"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_mermelada_de_chia.png",
+    "proteina_aprox_g": 4.0
   },
   {
     "id": "antojo_helado_de_chocolate_sin_maquina",
@@ -3355,26 +1748,10 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "Un helado cremoso, intenso y chocolatoso que no requiere una máquina especial para helados.",
     "ingredients": [
-      {
-        "name": "Leche de coco de lata (full-fat), refrigerada",
-        "quantity": "1 lata (400ml)",
-        "category": "Lácteos y Huevos"
-      },
-      {
-        "name": "Cacao en polvo sin azúcar",
-        "quantity": "1/2 taza",
-        "category": "Especias"
-      },
-      {
-        "name": "Tu endulzante preferido en polvo",
-        "quantity": "1/2 taza (o al gusto)",
-        "category": "Endulzantes"
-      },
-      {
-        "name": "Extracto de vainilla",
-        "quantity": "1 cdita",
-        "category": "Especias"
-      }
+      { "name": "Leche de coco de lata (full-fat), refrigerada", "quantity": "1 lata (400ml)", "category": "Lácteos y Huevos" },
+      { "name": "Cacao en polvo sin azúcar", "quantity": "1/2 taza", "category": "Especias" },
+      { "name": "Tu endulzante preferido en polvo", "quantity": "1/2 taza (o al gusto)", "category": "Endulzantes" },
+      { "name": "Extracto de vainilla", "quantity": "1 cdita", "category": "Especias" }
     ],
     "instructions": [
       "Saca solo la parte sólida y espesa de la lata de leche de coco refrigerada.",
@@ -3389,15 +1766,9 @@ export const recipes = [
       "familiar": "Un helado de chocolate casero y saludable. ¿Qué más se puede pedir?",
       "general": "Añadir una cucharada de aceite MCT puede ayudar a que el helado se mantenga un poco más suave en el congelador."
     },
-    "tags": [
-      "postre",
-      "helado",
-      "chocolate",
-      "sin máquina",
-      "vegano",
-      "cremoso"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_helado_de_chocolate_sin_maquina.png"
+    "tags": ["postre", "helado", "chocolate", "sin máquina", "vegano", "cremoso"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_helado_de_chocolate_sin_maquina.png",
+    "proteina_aprox_g": 6.0
   },
   {
     "id": "antojo_caldo_de_huesos",
@@ -3405,31 +1776,11 @@ export const recipes = [
     "type": "Antojo sin Culpa",
     "description": "El elixir de la salud intestinal y articular. Un caldo cocinado lentamente para extraer todo el colágeno y los minerales de los huesos.",
     "ingredients": [
-      {
-        "name": "Huesos de res con tuétano y/o patas de pollo",
-        "quantity": "1-1.5 kg",
-        "category": "Carnes y Pescados"
-      },
-      {
-        "name": "Vinagre de sidra de manzana",
-        "quantity": "2 cdas",
-        "category": "Especias"
-      },
-      {
-        "name": "Vegetales (opcional): 1 cebolla, 2 zanahorias, 2 tallos de apio",
-        "quantity": "",
-        "category": "Frutas y Verduras"
-      },
-      {
-        "name": "Hierbas de olor (opcional): laurel, tomillo, perejil",
-        "quantity": "",
-        "category": "Especias"
-      },
-      {
-        "name": "Sal de mar",
-        "quantity": "Al gusto",
-        "category": "Especias"
-      }
+      { "name": "Huesos de res con tuétano y/o patas de pollo", "quantity": "1-1.5 kg", "category": "Carnes y Pescados" },
+      { "name": "Vinagre de sidra de manzana", "quantity": "2 cdas", "category": "Especias" },
+      { "name": "Vegetales (opcional): 1 cebolla, 2 zanahorias, 2 tallos de apio", "quantity": "", "category": "Frutas y Verduras" },
+      { "name": "Hierbas de olor (opcional): laurel, tomillo, perejil", "quantity": "", "category": "Especias" },
+      { "name": "Sal de mar", "quantity": "Al gusto", "category": "Especias" }
     ],
     "instructions": [
       "Para un caldo más limpio, asa los huesos en el horno a 200°C por 30 minutos.",
@@ -3445,13 +1796,8 @@ export const recipes = [
       "familiar": "Usa el caldo como base para las sopas de los niños para darles un impulso nutricional sin que se den cuenta.",
       "general": "No añadas la sal hasta el final, ya que el líquido se reduce y podría quedar demasiado salado."
     },
-    "tags": [
-      "caldo",
-      "huesos",
-      "bone broth",
-      "colágeno",
-      "salud intestinal"
-    ],
-    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_caldo_de_huesos.png"
+    "tags": ["caldo", "huesos", "bone broth", "colágeno", "salud intestinal"],
+    "imageUrl": "https://mgjzlohapnepvrqlxmpo.supabase.co/storage/v1/object/public/recetas/antojo_caldo_de_huesos.png",
+    "proteina_aprox_g": 10.0
   }
 ];

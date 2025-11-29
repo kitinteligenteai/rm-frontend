@@ -1,59 +1,100 @@
-// src/hooks/useMealPlanner.js
+// src/hooks/useSmartPlanner.js
+// Lógica del Planeador Inteligente v1.0
+
 import { useState, useEffect } from 'react';
+import { recipes } from '../data/recipes';
 
-const IS_SERVER = typeof window === 'undefined';
+const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
-export const useMealPlanner = () => {
-  const [weeklyPlan, setWeeklyPlan] = useState({});
+// Configuración de los espacios de comida
+const MEAL_SLOTS = [
+  { id: 'desayuno', label: 'Desayuno', types: ['Platillo Ligero'] },
+  { id: 'comida', label: 'Comida', types: ['Platillo Principal'] },
+  { id: 'cena', label: 'Cena', types: ['Platillo Ligero'] },
+  { id: 'snack', label: 'Antojo', types: ['Antojo sin Culpa'] }
+];
 
-  // Efecto para cargar el plan desde localStorage solo en el cliente
+export function useSmartPlanner() {
+  const [weekPlan, setWeekPlan] = useState({});
+  const [activeTab, setActiveTab] = useState('rapido'); // 'rapido' | 'experto'
+
+  // 1. Cargar datos guardados al iniciar
   useEffect(() => {
-    if (IS_SERVER) return;
-
-    try {
-      const savedPlan = localStorage.getItem('chef-sistematizado-meal-plan');
-      if (savedPlan) {
-        setWeeklyPlan(JSON.parse(savedPlan));
-      }
-    } catch (error) {
-      console.error("Error reading meal plan from localStorage", error);
-      setWeeklyPlan({}); // Resetea a un objeto vacío en caso de error
+    const saved = localStorage.getItem('rm_smart_plan');
+    if (saved) {
+      setWeekPlan(JSON.parse(saved));
+    } else {
+      generateQuickMenu(); // Si es nuevo, generar uno automático
     }
-  }, []); // Se ejecuta solo una vez al montar el componente
+  }, []);
 
-  // Efecto para guardar el plan en localStorage cada vez que cambia
+  // 2. Guardar cambios automáticamente
   useEffect(() => {
-    if (IS_SERVER) return;
-
-    try {
-      // No guardar un objeto vacío al inicio si no hay nada
-      if (Object.keys(weeklyPlan).length > 0) {
-        localStorage.setItem('chef-sistematizado-meal-plan', JSON.stringify(weeklyPlan));
-      }
-    } catch (error) {
-      console.error("Error saving meal plan to localStorage", error);
+    if (Object.keys(weekPlan).length > 0) {
+      localStorage.setItem('rm_smart_plan', JSON.stringify(weekPlan));
     }
-  }, [weeklyPlan]);
+  }, [weekPlan]);
 
-  const updateMealPlan = (newPlan) => {
-    setWeeklyPlan(newPlan);
+  // --- GENERADOR AUTOMÁTICO (Modo Rápido) ---
+  const generateQuickMenu = () => {
+    const newPlan = {};
+    
+    // Filtramos las recetas de tu base de datos
+    const ligeros = recipes.filter(r => r.type === 'Platillo Ligero');
+    const fuertes = recipes.filter(r => r.type === 'Platillo Principal');
+    const antojos = recipes.filter(r => r.type === 'Antojo sin Culpa');
+
+    // Función para elegir al azar
+    const getRandom = (arr) => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
+
+    DAYS.forEach(day => {
+      newPlan[day] = {
+        desayuno: getRandom(ligeros),
+        comida: getRandom(fuertes),
+        cena: getRandom(ligeros), 
+        // 50% de probabilidad de tener snack
+        snack: Math.random() > 0.5 ? getRandom(antojos) : null 
+      };
+    });
+    setWeekPlan(newPlan);
   };
 
-  const updateMeal = (dayIndex, mealType, recipe) => {
-    const weekKey = 'week_0'; // Asumimos una sola semana para simplicidad
-    setWeeklyPlan(prev => {
-      const newWeekData = { ...prev[weekKey] };
-      newWeekData[`day_${dayIndex}`] = {
-        ...newWeekData[`day_${dayIndex}`],
-        [mealType]: recipe
-      };
-      return { ...prev, [weekKey]: newWeekData };
+  // --- ACTUALIZAR MANUALMENTE (Modo Experto) ---
+  const updateSlot = (day, slotId, recipe) => {
+    setWeekPlan(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [slotId]: recipe
+      }
+    }));
+  };
+
+  // --- SEMÁFORO DE PROTEÍNA ---
+  const calculateDailyStats = (day) => {
+    const meals = weekPlan[day];
+    if (!meals) return 0;
+
+    let totalProtein = 0;
+    MEAL_SLOTS.forEach(slot => {
+      const recipe = meals[slot.id];
+      if (recipe && recipe.proteina_aprox_g) {
+        totalProtein += recipe.proteina_aprox_g;
+      }
     });
+
+    // Redondear a 1 decimal
+    return Math.round(totalProtein * 10) / 10;
   };
 
   return {
-    weeklyPlan,
-    updateMealPlan,
-    updateMeal
+    weekPlan,
+    generateQuickMenu,
+    updateSlot,
+    calculateDailyStats,
+    activeTab,
+    setActiveTab,
+    days: DAYS,
+    slots: MEAL_SLOTS
   };
-};
+}
