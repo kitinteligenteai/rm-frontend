@@ -1,12 +1,11 @@
 // src/hooks/useSmartPlanner.js
-// Lógica del Planeador Inteligente v1.0
+// v3.0 - Con Shuffle, Fix de Generación y Lógica Robusta
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { recipes } from '../data/recipes';
 
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
-// Configuración de los espacios de comida
 const MEAL_SLOTS = [
   { id: 'desayuno', label: 'Desayuno', types: ['Platillo Ligero'] },
   { id: 'comida', label: 'Comida', types: ['Platillo Principal'] },
@@ -16,61 +15,70 @@ const MEAL_SLOTS = [
 
 export function useSmartPlanner() {
   const [weekPlan, setWeekPlan] = useState({});
-  const [activeTab, setActiveTab] = useState('rapido'); // 'rapido' | 'experto'
+  const [activeTab, setActiveTab] = useState('rapido'); 
 
-  // 1. Cargar datos guardados al iniciar
-  useEffect(() => {
-    const saved = localStorage.getItem('rm_smart_plan');
-    if (saved) {
-      setWeekPlan(JSON.parse(saved));
-    } else {
-      generateQuickMenu(); // Si es nuevo, generar uno automático
-    }
-  }, []);
+  // Helpers
+  const getRecipesByType = (type) => recipes.filter(r => r.type === type);
+  const getRandom = (arr) => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
 
-  // 2. Guardar cambios automáticamente
-  useEffect(() => {
-    if (Object.keys(weekPlan).length > 0) {
-      localStorage.setItem('rm_smart_plan', JSON.stringify(weekPlan));
-    }
-  }, [weekPlan]);
-
-  // --- GENERADOR AUTOMÁTICO (Modo Rápido) ---
-  const generateQuickMenu = () => {
+  // --- GENERADOR AUTOMÁTICO ---
+  // Usamos useCallback para que React no pierda la referencia de la función
+  const generateQuickMenu = useCallback(() => {
     const newPlan = {};
     
-    // Filtramos las recetas de tu base de datos
-    const ligeros = recipes.filter(r => r.type === 'Platillo Ligero');
-    const fuertes = recipes.filter(r => r.type === 'Platillo Principal');
-    const antojos = recipes.filter(r => r.type === 'Antojo sin Culpa');
-
-    // Función para elegir al azar
-    const getRandom = (arr) => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
+    const ligeros = getRecipesByType('Platillo Ligero');
+    const fuertes = getRecipesByType('Platillo Principal');
+    const antojos = getRecipesByType('Antojo sin Culpa');
 
     DAYS.forEach(day => {
       newPlan[day] = {
         desayuno: getRandom(ligeros),
         comida: getRandom(fuertes),
         cena: getRandom(ligeros), 
-        // 50% de probabilidad de tener snack
         snack: Math.random() > 0.5 ? getRandom(antojos) : null 
       };
     });
-    setWeekPlan(newPlan);
-  };
+    
+    // Forzamos actualización creando un objeto nuevo
+    setWeekPlan({...newPlan});
+  }, []);
 
-  // --- ACTUALIZAR MANUALMENTE (Modo Experto) ---
+  // Cargar al inicio
+  useEffect(() => {
+    const saved = localStorage.getItem('rm_smart_plan');
+    if (saved && Object.keys(JSON.parse(saved)).length > 0) {
+      setWeekPlan(JSON.parse(saved));
+    } else {
+      generateQuickMenu();
+    }
+  }, []);
+
+  // Guardar cambios
+  useEffect(() => {
+    if (Object.keys(weekPlan).length > 0) {
+      localStorage.setItem('rm_smart_plan', JSON.stringify(weekPlan));
+    }
+  }, [weekPlan]);
+
   const updateSlot = (day, slotId, recipe) => {
     setWeekPlan(prev => ({
       ...prev,
-      [day]: {
-        ...prev[day],
-        [slotId]: recipe
-      }
+      [day]: { ...prev[day], [slotId]: recipe }
     }));
   };
 
-  // --- SEMÁFORO DE PROTEÍNA ---
+  // --- NUEVO: BOTÓN "SORPRÉNDEME" (Shuffle) ---
+  const shuffleSlot = (day, slotId) => {
+    const slotConfig = MEAL_SLOTS.find(s => s.id === slotId);
+    if (!slotConfig) return;
+
+    // Buscamos recetas compatibles
+    const candidates = recipes.filter(r => slotConfig.types.includes(r.type));
+    const randomRecipe = getRandom(candidates);
+
+    updateSlot(day, slotId, randomRecipe);
+  };
+
   const calculateDailyStats = (day) => {
     const meals = weekPlan[day];
     if (!meals) return 0;
@@ -82,15 +90,14 @@ export function useSmartPlanner() {
         totalProtein += recipe.proteina_aprox_g;
       }
     });
-
-    // Redondear a 1 decimal
-    return Math.round(totalProtein * 10) / 10;
+    return Math.round(totalProtein);
   };
 
   return {
     weekPlan,
     generateQuickMenu,
     updateSlot,
+    shuffleSlot, // Exportamos la nueva función
     calculateDailyStats,
     activeTab,
     setActiveTab,

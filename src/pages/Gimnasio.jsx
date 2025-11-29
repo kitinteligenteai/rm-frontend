@@ -1,8 +1,8 @@
-// Contenido COMPLETO Y ACTUALIZADO para: rm-frontend/src/pages/Gimnasio.jsx
-
+// src/pages/Gimnasio.jsx (v2.0 - Visual + Tooltips)
 import React, { useState, useEffect } from 'react';
 import { trainingProgram } from '../data/trainingProgram.js';
 import EquipmentModal from '../components/gimnasio/EquipmentModal.jsx';
+import { Dumbbell, Info, PlayCircle } from 'lucide-react';
 
 const EQUIPMENT_OPTIONS = [
   { id: 'cuerpo', name: 'Solo mi Cuerpo', description: 'Ejercicios que no requieren equipo, solo una silla o toalla.' },
@@ -10,18 +10,39 @@ const EQUIPMENT_OPTIONS = [
 ];
 
 const ExerciseCard = ({ exercise, slotTitle }) => {
-  if (!exercise) {
-    return (
-      <div className="border rounded-lg p-4 bg-gray-100 text-gray-500 shadow-inner">
-        <h4 className="font-bold text-gray-600">{slotTitle}</h4>
-        <p className="text-sm mt-2">Ejercicio no disponible para tu equipo. Intenta con otra selección.</p>
-      </div>
-    );
-  }
+  const [showTip, setShowTip] = useState(false);
+
+  if (!exercise) return null;
+
   return (
-    <div className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
-      <h4 className="font-bold text-teal-700">{exercise.name}</h4>
-      <p className="text-sm text-gray-600 mt-2">{exercise.description}</p>
+    <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 hover:border-teal-500/50 transition-all group relative">
+      <div className="flex justify-between items-start mb-2">
+        <span className="text-xs font-bold text-teal-400 uppercase tracking-wider">{slotTitle}</span>
+        <button onClick={() => setShowTip(!showTip)} className="text-slate-500 hover:text-white transition-colors">
+          <Info className="w-4 h-4" />
+        </button>
+      </div>
+      
+      <h4 className="font-bold text-white text-lg mb-2 group-hover:text-teal-300 transition-colors">{exercise.name}</h4>
+      
+      {/* Tooltip / Explicación */}
+      {showTip && (
+        <div className="bg-indigo-900/90 text-indigo-100 text-xs p-3 rounded-lg mb-3 border border-indigo-500/30 animate-in fade-in zoom-in">
+          <strong>¿Por qué este ejercicio?</strong> {exercise.description}
+        </div>
+      )}
+
+      <p className={`text-sm text-slate-400 leading-relaxed ${showTip ? 'hidden' : 'block'}`}>
+        {exercise.description}
+      </p>
+
+      <div className="mt-4 pt-4 border-t border-slate-700 flex items-center justify-between">
+        <span className="text-xs text-slate-500 font-mono">45s trabajo / 15s descanso</span>
+        {/* Si tuvieras video, aquí iría el botón */}
+        <div className="bg-slate-700/50 p-1.5 rounded-full">
+           <PlayCircle className="w-5 h-5 text-slate-500" />
+        </div>
+      </div>
     </div>
   );
 };
@@ -45,78 +66,62 @@ const Gimnasio = () => {
     setShowModal(false);
   };
 
-  // Función para cerrar el modal
-  const handleCloseModal = () => {
-    // Solo cierra el modal si ya hay un equipo seleccionado.
-    // Si es la primera vez, fuerza al usuario a elegir.
-    if (userEquipment) {
-      setShowModal(false);
-    }
-    // Si no hay equipo seleccionado, el modal no se puede cerrar.
-    // Esto mantiene el comportamiento original para la primera visita.
-    // Para cambiar esto y permitir cerrar siempre, simplemente usa:
-    // setShowModal(false);
-  };
-
-  // Para permitir que el modal se cierre siempre, incluso la primera vez,
-  // simplemente define la función así:
-  const handleCloseModalAlways = () => {
-    setShowModal(false);
-  };
-
-
-  if (!userEquipment && !showModal) {
-    return <div className="p-8 text-center">Cargando configuración...</div>;
-  }
+  if (!userEquipment && !showModal) return <div className="p-10 text-center text-slate-400">Cargando tu entrenador...</div>;
 
   return (
-    <div className="container mx-auto p-4 md:p-8 bg-gray-50 min-h-full">
-      {/* 
-        Aquí pasamos la función para cerrar el modal.
-        He usado 'handleCloseModalAlways' para implementar el cambio que pediste:
-        que el usuario pueda salir incluso si entra por error la primera vez.
-      */}
+    <div className="p-6 md:p-10 pb-24 animate-in fade-in duration-500">
       {showModal && (
         <EquipmentModal 
           onSelect={handleEquipmentSelect} 
           availableEquipment={EQUIPMENT_OPTIONS}
-          onClose={handleCloseModalAlways} 
+          onClose={() => userEquipment && setShowModal(false)} 
         />
       )}
 
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900">Gimnasio Digital Adaptable</h1>
-        <p className="text-lg text-gray-500 mt-2 max-w-2xl mx-auto">Tu programa de entrenamiento, personalizado según tu equipo.</p>
-        {userEquipment && (
-          <button onClick={() => setShowModal(true)} className="mt-4 text-sm text-blue-600 hover:underline">
-            Cambiar equipo (Seleccionado: {EQUIPMENT_OPTIONS.find(e => e.id === userEquipment)?.name})
-          </button>
-        )}
+      <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Gimnasio Digital</h1>
+          <p className="text-slate-400 max-w-xl">
+            Tu programa de entrenamiento metabólico, adaptado a {userEquipment === 'cuerpo' ? 'tu peso corporal' : 'tus mancuernas'}.
+          </p>
+        </div>
+        <button 
+          onClick={() => setShowModal(true)} 
+          className="text-sm font-semibold text-teal-400 hover:text-teal-300 border border-teal-500/30 px-4 py-2 rounded-lg transition-colors"
+        >
+          Cambiar Equipo
+        </button>
       </div>
 
-      {userEquipment && trainingProgram && trainingProgram.weeks && (
-        <div className="space-y-12">
-          {trainingProgram.weeks.map((weekData) => (
-            <div key={weekData.week} className="bg-white p-6 rounded-xl shadow-lg">
-              <h2 className="text-3xl font-bold text-gray-800 mb-6">Semana {weekData.week}: {weekData.title}</h2>
-              {weekData.days.map((day) => (
-                <div key={day.day} className="border-t pt-6 mt-6">
-                  <h3 className="text-xl font-semibold text-gray-700 mb-4">Día {day.day}: {day.title}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {day.routine.map((slot) => (
-                      <ExerciseCard 
-                        key={slot.slot} 
-                        slotTitle={slot.slot} 
-                        exercise={slot.variants[userEquipment]} 
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
+      {trainingProgram?.weeks?.map((weekData) => (
+        <div key={weekData.week} className="mb-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-teal-500/10 rounded-lg flex items-center justify-center text-teal-400 font-bold text-lg">
+              {weekData.week}
             </div>
-          ))}
+            <h2 className="text-2xl font-bold text-white">{weekData.title}</h2>
+          </div>
+          
+          <div className="space-y-8">
+            {weekData.days.map((day) => (
+              <div key={day.day} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-white mb-6 border-l-4 border-indigo-500 pl-3">
+                  Día {day.day}: {day.title}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {day.routine.map((slot) => (
+                    <ExerciseCard 
+                      key={slot.slot} 
+                      slotTitle={slot.slot} 
+                      exercise={slot.variants[userEquipment]} 
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
+      ))}
     </div>
   );
 };

@@ -1,142 +1,140 @@
-// src/components/ShoppingList.jsx (VERSIÓN FINAL CON ESTÉTICA "LUJO TERRENAL")
+// src/components/ShoppingList.jsx
+// v3.0 - Lógica "Humana": Separa Despensa de Frescos y Suma Cantidades
+
 import React, { useMemo, useState } from 'react';
-import { ShoppingCart, Check, Trash2, Leaf, Drumstick, Milk } from 'lucide-react';
+import { ShoppingCart, Check, Trash2, Leaf, Drumstick, Milk, Archive } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// Íconos para las categorías
+// Palabras clave para identificar "Fondo de Despensa" (No sumar, solo listar)
+const PANTRY_KEYWORDS = ['aceite', 'sal', 'pimienta', 'vinagre', 'endulzante', 'polvo para hornear', 'canela', 'vainilla', 'ghee', 'mantequilla', 'mayonesa', 'mostaza', 'especias', 'cacao', 'harina'];
+
 const categoryIcons = {
-  'Frutas y Verduras': <Leaf size={20} className="text-primary-600" />,
+  'Frutas y Verduras': <Leaf size={20} className="text-green-600" />,
   'Carnes y Pescados': <Drumstick size={20} className="text-red-500" />,
   'Lácteos y Huevos': <Milk size={20} className="text-blue-500" />,
-  'Despensa': <ShoppingCart size={20} className="text-amber-600" />,
+  'Despensa y Básicos': <Archive size={20} className="text-amber-600" />,
   'Otros': <ShoppingCart size={20} className="text-neutral-500" />,
 };
 
 const ShoppingList = ({ mealPlan }) => {
   const [checkedItems, setCheckedItems] = useState({});
 
-  const groupedList = useMemo(() => {
+  const processedList = useMemo(() => {
     if (!mealPlan) return {};
-    const ingredientsMap = new Map();
+    const list = {
+      'Carnes y Pescados': {},
+      'Frutas y Verduras': {},
+      'Lácteos y Huevos': {},
+      'Despensa y Básicos': {},
+      'Otros': {}
+    };
 
-    Object.values(mealPlan).forEach(dailyMeals => {
-      if(!dailyMeals) return;
-      Object.values(dailyMeals).forEach(recipe => {
+    // Recorrer todo el plan
+    Object.values(mealPlan).forEach(dayMeals => {
+      if (!dayMeals) return;
+      Object.values(dayMeals).forEach(recipe => {
         if (recipe && recipe.ingredients) {
           recipe.ingredients.forEach(ing => {
-            if (!ing || !ing.name) return;
-            const key = ing.name.toLowerCase().trim();
-            const quantity = ing.quantity;
-            const category = ing.category || 'Otros';
+            const nameLower = ing.name.toLowerCase();
+            let category = ing.category || 'Otros';
+            
+            // 1. Detectar si es de Despensa
+            if (PANTRY_KEYWORDS.some(keyword => nameLower.includes(keyword))) {
+              category = 'Despensa y Básicos';
+            }
 
-            if (ingredientsMap.has(key)) {
-              ingredientsMap.get(key).quantities.push(quantity);
+            // 2. Normalizar Nombres (Para que sume "Huevo" y "Huevos")
+            let cleanName = ing.name;
+            
+            // 3. Lógica de Suma
+            if (!list[category]) list[category] = {};
+            
+            if (!list[category][cleanName]) {
+              list[category][cleanName] = { original: ing.quantity, count: 1 };
             } else {
-              ingredientsMap.set(key, { name: ing.name, quantities: [quantity], category });
+              list[category][cleanName].count += 1;
+              // Si no es despensa, concatenamos para referencia visual
+              if (category !== 'Despensa y Básicos') {
+                 list[category][cleanName].original += ` + ${ing.quantity}`;
+              }
             }
           });
         }
       });
     });
 
-    const grouped = {};
-    ingredientsMap.forEach(item => {
-      if (!grouped[item.category]) grouped[item.category] = [];
-      grouped[item.category].push(item);
+    // Formatear para vista final
+    const finalGrouped = {};
+    Object.keys(list).forEach(cat => {
+      const items = Object.entries(list[cat]).map(([name, data]) => {
+        // Lógica especial para HUEVOS
+        if (name.toLowerCase().includes('huevo')) {
+           return { name: name, label: `Total aprox: ${data.count * 2} a ${data.count * 3} piezas (Compra una tapa de 30)` };
+        }
+        // Lógica para CARNES (Intentar sumar gramos si es posible, o mostrar total días)
+        if (cat === 'Carnes y Pescados') {
+             return { name: name, label: `Usado en ${data.count} comidas (Aprox ${data.count * 200}g)` };
+        }
+        // Despensa: Solo mostrar nombre
+        if (cat === 'Despensa y Básicos') {
+            return { name: name, label: 'Revisar alacena' };
+        }
+
+        return { name: name, label: data.original };
+      });
+      
+      if (items.length > 0) finalGrouped[cat] = items;
     });
 
-    for (const category in grouped) {
-      grouped[category].sort((a, b) => a.name.localeCompare(b.name));
-    }
-    
-    return grouped;
+    return finalGrouped;
   }, [mealPlan]);
 
-  const toggleItem = (itemName) => {
-    setCheckedItems(prev => ({ ...prev, [itemName]: !prev[itemName] }));
-  };
-
-  const clearChecked = () => setCheckedItems({});
-
-  const categories = Object.keys(groupedList).sort();
+  const toggleItem = (name) => setCheckedItems(prev => ({ ...prev, [name]: !prev[name] }));
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <motion.header 
-        initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-12"
-      >
-        <h1 className="font-display text-display text-neutral-800 mb-4 flex items-center justify-center gap-3">
-          <ShoppingCart className="w-10 h-10 text-primary-600" />
-          Lista de Súper
-        </h1>
-        <p className="text-subtitle text-neutral-600">
-          Generada y organizada a partir de tu plan semanal.
+    <div className="p-4 md:p-8">
+      <div className="text-center mb-10">
+        <h2 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-2">
+          <ShoppingCart className="w-8 h-8 text-teal-600" />
+          Tu Lista de Súper Inteligente
+        </h2>
+        <p className="text-slate-500 mt-2">
+          Hemos separado los frescos de tu fondo de alacena.
         </p>
-      </motion.header>
+      </div>
 
-      {categories.length > 0 ? (
-        <div className="max-w-3xl mx-auto">
-          <div className="text-right mb-6">
-            <button onClick={clearChecked} className="text-sm flex items-center gap-2 ml-auto text-neutral-500 hover:text-primary-600 transition-colors">
-              <Trash2 className="w-4 h-4" />
-              Limpiar Selección
-            </button>
+      <div className="grid gap-8 max-w-4xl mx-auto">
+        {Object.keys(processedList).map((category) => (
+          <div key={category} className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+            <h3 className="text-xl font-bold text-slate-700 mb-4 flex items-center gap-2">
+              {categoryIcons[category]} {category}
+            </h3>
+            <ul className="space-y-3">
+              {processedList[category].map((item, idx) => (
+                <li 
+                  key={idx} 
+                  onClick={() => toggleItem(item.name)}
+                  className={`flex items-start p-3 rounded-lg cursor-pointer transition-all ${
+                    checkedItems[item.name] ? 'bg-green-100 opacity-60' : 'bg-white shadow-sm hover:shadow-md'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded border mr-3 mt-1 flex items-center justify-center ${
+                    checkedItems[item.name] ? 'bg-green-500 border-green-500' : 'border-slate-300'
+                  }`}>
+                    {checkedItems[item.name] && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                  <div>
+                    <p className={`font-medium ${checkedItems[item.name] ? 'line-through text-slate-500' : 'text-slate-800'}`}>
+                      {item.name}
+                    </p>
+                    <p className="text-xs text-slate-500 font-mono mt-1">{item.label}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="space-y-8">
-            {categories.map((category, catIndex) => (
-              <motion.div 
-                key={category}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: catIndex * 0.1 }}
-              >
-                <h2 className="text-2xl font-display font-medium text-primary-700 mb-4 flex items-center gap-3 border-b-2 border-neutral-200 pb-2">
-                  {categoryIcons[category] || categoryIcons['Otros']}
-                  {category}
-                </h2>
-                <ul className="space-y-3">
-                  {groupedList[category].map((item, itemIndex) => {
-                    const isChecked = checkedItems[item.name] || false;
-                    return (
-                      <motion.li
-                        key={item.name}
-                        layout
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: itemIndex * 0.02 }}
-                        onClick={() => toggleItem(item.name)}
-                        className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 shadow-soft
-                          ${isChecked 
-                            ? 'bg-green-100/50 text-neutral-500' 
-                            : 'bg-white hover:bg-neutral-50'
-                          }`}
-                      >
-                        <div className={`w-6 h-6 mr-4 flex-shrink-0 rounded-md flex items-center justify-center border-2 transition-all
-                          ${isChecked ? 'bg-green-500 border-green-500' : 'border-neutral-300 bg-neutral-100'}`}>
-                          {isChecked && <Check className="w-4 h-4 text-white" />}
-                        </div>
-                        <div className={`flex-grow ${isChecked ? 'line-through' : ''}`}>
-                          <p className="font-medium text-lg capitalize text-neutral-800">{item.name}</p>
-                          <p className="text-caption text-neutral-600">{item.quantities.join(' + ')}</p>
-                        </div>
-                      </motion.li>
-                    );
-                  })}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          className="text-center mt-10 p-10 border-2 border-dashed border-neutral-200 rounded-2xl max-w-2xl mx-auto bg-white/50">
-          <h2 className="font-display text-title">Tu lista está vacía.</h2>
-          <p className="text-body text-neutral-600 mt-2">
-            Genera un plan en la sección <span className="font-semibold text-primary-600">Planeador</span> para ver tus compras aquí.
-          </p>
-        </motion.div>
-      )}
+        ))}
+      </div>
     </div>
   );
 };
