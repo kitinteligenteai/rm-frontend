@@ -1,8 +1,8 @@
-// src/pages/Gimnasio.jsx (v4.0 - FIX BUCLE INFINITO)
+// src/pages/Gimnasio.jsx (v5.0 - FIX DEFINITIVO BUCLE)
 import React, { useState, useEffect, useRef } from 'react';
 import { trainingProgram } from '../data/trainingProgram.js';
 import EquipmentModal from '../components/gimnasio/EquipmentModal.jsx';
-import { Dumbbell, Info, Play, Pause, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { Info, Play, Pause, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const EQUIPMENT_OPTIONS = [
@@ -87,22 +87,22 @@ const ExerciseCard = ({ exercise, slotTitle, isCompleted, onToggleComplete }) =>
   );
 };
 
-// --- MAIN COMPONENT ---
+// --- MAIN COMPONENT (CON FIX DE BUCLE) ---
 export default function Gimnasio() {
-  const [userEquipment, setUserEquipment] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [completed, setCompleted] = useState({});
-
-  // CORRECCIÓN CRÍTICA: useEffect simplificado
-  useEffect(() => {
-    const saved = localStorage.getItem('userTrainingEquipment');
-    if (saved) {
-      setUserEquipment(saved);
-    } else {
-      // Si no hay equipo, mostramos el modal pero NO forzamos recargas
-      setShowModal(true);
+  // ✅ SOLUCIÓN: Leemos localStorage DIRECTAMENTE en el estado inicial.
+  // Esto evita que el componente se renderice, luego lea, luego actualice y cause un bucle.
+  const [userEquipment, setUserEquipment] = useState(() => {
+    // Si estamos en el navegador, intentamos leer. Si no, null.
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('userTrainingEquipment');
     }
-  }, []);
+    return null;
+  });
+
+  // Si no hay equipo seleccionado al inicio, mostramos el modal automáticamente.
+  const [showModal, setShowModal] = useState(!userEquipment);
+  
+  const [completed, setCompleted] = useState({});
 
   const handleSelect = (id) => {
     localStorage.setItem('userTrainingEquipment', id);
@@ -110,23 +110,31 @@ export default function Gimnasio() {
     setShowModal(false);
   };
 
-  // Si no hay equipo seleccionado, mostramos modal o mensaje, no pantalla negra
-  if (!userEquipment && !showModal) return <div className="p-10 text-center text-white">Cargando...</div>;
-
   return (
-    <div className="p-6 md:p-10 pb-24 min-h-screen bg-slate-950 text-white">
-      {showModal && <EquipmentModal onSelect={handleSelect} availableEquipment={EQUIPMENT_OPTIONS} onClose={() => userEquipment && setShowModal(false)} />}
+    <div className="p-6 md:p-10 pb-24 min-h-screen bg-slate-950 text-white animate-in fade-in duration-500">
+      {showModal && (
+        <EquipmentModal 
+          onSelect={handleSelect} 
+          availableEquipment={EQUIPMENT_OPTIONS} 
+          // Permitimos cerrar solo si ya hay algo seleccionado previamente
+          onClose={() => userEquipment && setShowModal(false)} 
+        />
+      )}
       
-      <div className="flex justify-between items-end mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
         <div>
           <h1 className="text-3xl font-bold">Gimnasio Digital</h1>
-          <p className="text-slate-400 text-sm">Modo: {userEquipment === 'cuerpo' ? 'Peso Corporal' : 'Mancuernas'}</p>
+          <p className="text-slate-400 text-sm mt-1">
+            Modo Actual: <span className="text-teal-400 font-bold">{userEquipment === 'cuerpo' ? 'Peso Corporal' : 'Mancuernas'}</span>
+          </p>
         </div>
-        <button onClick={() => setShowModal(true)} className="text-xs bg-slate-800 px-3 py-2 rounded border border-slate-700">Cambiar</button>
+        <button onClick={() => setShowModal(true)} className="text-xs bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 hover:border-teal-500 transition-colors">
+          Cambiar Equipo
+        </button>
       </div>
 
       <div className="space-y-12">
-        {trainingProgram.weeks.map(week => (
+        {trainingProgram?.weeks?.map(week => (
           <div key={week.week}>
             <h2 className="text-xl font-bold text-teal-400 mb-4 border-b border-slate-800 pb-2">Semana {week.week}: {week.title}</h2>
             <div className="space-y-6">
