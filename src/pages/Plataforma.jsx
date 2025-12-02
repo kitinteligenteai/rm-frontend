@@ -1,4 +1,4 @@
-// src/pages/Plataforma.jsx (v4.0 - Integración Final Maestra)
+// src/pages/Plataforma.jsx (v5.1 - FIX BUCLE URL)
 import React from 'react';
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext'; 
@@ -7,8 +7,6 @@ import {
   Utensils, Calendar, BookHeart, ShoppingBag 
 } from 'lucide-react';
 
-/* --- IMPORTACIÓN DE MÓDULOS REALES --- */
-// Asegúrate de que estos archivos existan en src/pages/
 import DashboardHome from '../components/dashboard/DashboardHome';
 import Planeador from './Planeador';
 import BovedaRecetas from './BovedaRecetas'; 
@@ -26,7 +24,6 @@ export default function Plataforma() {
     window.location.href = "/auth";
   };
 
-  // Componente interno para los enlaces del menú
   const NavItem = ({ to, icon: Icon, label }) => {
     const isActive = location.pathname.includes(to);
     return (
@@ -46,7 +43,7 @@ export default function Plataforma() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex text-slate-100 font-sans">
-      {/* SIDEBAR (Menú Lateral) */}
+      {/* SIDEBAR */}
       <aside className="w-72 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-8">
@@ -56,18 +53,17 @@ export default function Plataforma() {
           
           <nav className="space-y-1">
             <NavItem to="/plataforma/panel-de-control" icon={LayoutDashboard} label="Panel de Control" />
-            
             <div className="pt-4 pb-2">
               <p className="px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Herramientas</p>
             </div>
-            
             <NavItem to="/plataforma/planeador" icon={Calendar} label="Planeador Semanal" />
             <NavItem to="/plataforma/recetas" icon={Utensils} label="Bóveda de Recetas" />
+            
+            {/* ✅ CAMBIO 1: La ruta ahora es 'gimnasio' */}
             <NavItem to="/plataforma/gimnasio" icon={Dumbbell} label="Gimnasio Digital" />
+            
             <NavItem to="/plataforma/bitacora" icon={BookHeart} label="Bitácora" />
             <NavItem to="/plataforma/biblioteca" icon={BookOpen} label="Biblioteca" />
-            
-            {/* Aquí está el enlace nuevo a Mis Compras */}
             <NavItem to="/plataforma/mis-compras" icon={ShoppingBag} label="Mis Compras" />
           </nav>
         </div>
@@ -82,37 +78,35 @@ export default function Plataforma() {
               <p className="text-[10px] text-teal-400">Plan Premium</p>
             </div>
           </div>
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors border border-transparent hover:border-red-500/20"
-          >
+          <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors border border-transparent hover:border-red-500/20">
             <LogOut className="w-4 h-4" /> Cerrar Sesión
           </button>
         </div>
       </aside>
 
-      {/* ÁREA PRINCIPAL (Donde se muestra el contenido) */}
+      {/* MAIN CONTENT */}
       <main className="flex-1 min-w-0 bg-slate-950 overflow-y-auto">
-        {/* Mobile Header (Solo visible en celular) */}
         <header className="md:hidden h-16 border-b border-slate-800 flex items-center justify-between px-4 bg-slate-900 sticky top-0 z-20">
-          <span className="font-bold text-white">Reinicio Metabólico</span>
+          <span className="font-bold text-white">Reinicio M.</span>
           <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-white">
             <LogOut className="w-5 h-5" />
           </button>
         </header>
 
-        {/* DEFINICIÓN DE RUTAS INTERNAS */}
         <Routes>
           <Route path="panel-de-control" element={<DashboardHome user={user} />} />
           <Route path="planeador" element={<Planeador />} />
           <Route path="recetas" element={<BovedaRecetas />} />
-          <Route path="entrenamientos" element={<Gimnasio />} />
+          
+          {/* ✅ CAMBIO 2: Ruta alineada */}
+          <Route path="gimnasio" element={<Gimnasio />} />
+          
           <Route path="bitacora" element={<Bitacora />} />
           <Route path="biblioteca" element={<Biblioteca />} />
           <Route path="mis-compras" element={<MisCompras />} />
           
-          {/* Si entran a una ruta rara, mandar al panel */}
-          <Route path="*" element={<Navigate to="panel-de-control" replace />} />
+          {/* 🚨 CAMBIO 3 (EL MÁS IMPORTANTE): Redirección Absoluta para romper bucles */}
+          <Route path="*" element={<Navigate to="/plataforma/panel-de-control" replace />} />
         </Routes>
       </main>
     </div>
