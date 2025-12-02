@@ -90,7 +90,7 @@ const AsesorProteico = () => {
             <p className="text-sm text-teal-800 font-semibold">
               ¿No sabes cómo empezar a llenar tu medidor?
             </p>
-            <Link to="/plataforma/guia-visual-proteinas" className="text-sm font-bold text-teal-600 hover:underline mt-1 inline-block">
+            <Link to="/plataforma/biblioteca" className="text-sm font-bold text-teal-600 hover:underline mt-1 inline-block">
               Consulta la Guía Visual de Proteínas →
             </Link>
           </div>
