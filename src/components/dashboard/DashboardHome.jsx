@@ -1,19 +1,17 @@
 // src/components/dashboard/DashboardHome.jsx
-// Dashboard Premium: Gráficas, Logros y Resumen
+// Dashboard Premium: Gráficas, Logros y Resumen Personalizado
 
 import React from "react";
-import { motion } from "framer-motion";
 import { Link } from 'react-router-dom';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
-  TrendingUp, ArrowRight, Zap, CheckCircle2 
+  TrendingUp, ArrowRight, Zap 
 } from "lucide-react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from "recharts";
 
 // --- DATOS DE EJEMPLO PARA VISUALIZACIÓN ---
-// (En el futuro esto vendrá de Supabase real)
 const weightData = [
   { day: 'Lun', peso: 85.5 }, { day: 'Mar', peso: 85.4 }, 
   { day: 'Mié', peso: 85.2 }, { day: 'Jue', peso: 85.0 }, 
@@ -50,6 +48,9 @@ const Achievement = ({ title, desc, unlocked }) => (
 );
 
 export default function DashboardHome({ user }) {
+  // Lógica para obtener el nombre: Metadata (si existe) > Email > "Campeón"
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
+
   return (
     <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500">
       
@@ -57,7 +58,7 @@ export default function DashboardHome({ user }) {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
-            Hola, {user?.email?.split('@')[0]} <span className="animate-wave inline-block">👋</span>
+            Hola, {displayName} <span className="animate-wave inline-block">👋</span>
           </h1>
           <p className="text-slate-400 mt-2 max-w-xl">
             Bienvenido a tu panel de control. Aquí tienes el pulso de tu transformación.
