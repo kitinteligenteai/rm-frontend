@@ -1,90 +1,100 @@
-// src/components/planner/RecipeDetailModal.jsx (VERSIÓN FINAL CORREGIDA)
+// src/components/planner/RecipeDetailModal.jsx (v2.0 - High Contrast Fix)
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ChefHat, Sparkles } from 'lucide-react';
-import Button from '../common/Button';
+import { ArrowLeft, ChefHat, Sparkles, X } from 'lucide-react';
 
 const RecipeDetailModal = ({ recipe, isOpen, onClose }) => {
-  if (!isOpen) return null;
-  const colorClass = recipe.type === 'Platillo Ligero' ? 'primary' : 'secondary';
+  if (!isOpen || !recipe) return null;
   
+  // Definimos colores fuertes
+  const colorClass = recipe.type === 'Platillo Ligero' ? 'text-indigo-600' : 'text-teal-600';
+  const bgClass = recipe.type === 'Platillo Ligero' ? 'bg-indigo-50' : 'bg-teal-50';
+
   return (
-    <motion.div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }}
-    >
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <motion.div 
-        className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl shadow-strong overflow-hidden flex flex-col" 
-        initial={{ scale: 0.9 }} 
-        animate={{ scale: 1 }} 
-        exit={{ scale: 0.9 }}
+        className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col" 
+        initial={{ scale: 0.95, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }}
       >
-        <header className={`p-6 border-b border-neutral-200`}>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h1 className="font-display text-display text-neutral-800 mb-2">{recipe.name}</h1>
-              <p className="text-body text-neutral-600">{recipe.description}</p>
-            </div>
-            <Button onClick={onClose} variant="ghost" size="small" className="flex items-center space-x-2 ml-4">
-              <ArrowLeft className="w-4 h-4" />
-              <span>Volver</span>
-            </Button>
+        {/* Header con Imagen de Fondo (Opcional) o Color Solido */}
+        <div className="relative bg-slate-50 p-6 border-b border-slate-200 flex justify-between items-start">
+          <div className="pr-10">
+            <span className={`text-xs font-bold uppercase tracking-wider ${colorClass} border border-current px-2 py-1 rounded-full mb-2 inline-block`}>
+              {recipe.type}
+            </span>
+            {/* TÍTULO EN NEGRO PURO PARA LEGIBILIDAD */}
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">
+              {recipe.name}
+            </h2>
+            <p className="text-slate-600 mt-2 text-sm font-medium leading-relaxed">
+              {recipe.description}
+            </p>
           </div>
-        </header>
+          <button 
+            onClick={onClose} 
+            className="p-2 bg-white rounded-full shadow-md text-slate-500 hover:text-red-500 transition-colors absolute top-4 right-4"
+          >
+            <X size={24} />
+          </button>
+        </div>
         
-        <div className="overflow-y-auto p-6 space-y-8">
-          {/* SECCIÓN DE INGREDIENTES CORREGIDA */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-8">
+          
+          {/* INGREDIENTES */}
           <section>
-            <div className="flex items-center space-x-2 mb-4">
-              <Sparkles className={`w-5 h-5 text-${colorClass}-600`} />
-              <h2 className="font-display text-title text-neutral-800">Ingredientes</h2>
+            <div className="flex items-center gap-2 mb-4 border-b pb-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h3 className="text-lg font-bold text-slate-800">Ingredientes</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {recipe.ingredients?.map((ing, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl border">
-                  <span className="text-body font-medium">{ing.name}</span>
-                  <span className={`text-caption text-${colorClass}-700 font-medium`}>{ing.quantity}</span>
-                </div>
+                <li key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <span className="text-slate-700 font-medium text-sm">{ing.name}</span>
+                  <span className="text-slate-900 font-bold text-sm">{ing.quantity}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
 
-          {/* SECCIÓN DE INSTRUCCIONES CORREGIDA */}
+          {/* INSTRUCCIONES */}
           <section>
-            <div className="flex items-center space-x-2 mb-4">
-              <ChefHat className={`w-5 h-5 text-${colorClass}-600`} />
-              <h2 className="font-display text-title text-neutral-800">Instrucciones</h2>
+            <div className="flex items-center gap-2 mb-4 border-b pb-2">
+              <ChefHat className="w-5 h-5 text-teal-600" />
+              <h3 className="text-lg font-bold text-slate-800">Preparación</h3>
             </div>
             <div className="space-y-4">
               {recipe.instructions?.map((inst, i) => (
-                <div key={i} className="flex space-x-4">
-                  <div className={`w-8 h-8 bg-${colorClass}-600 text-white rounded-full flex items-center justify-center font-medium text-sm flex-shrink-0 mt-1`}>
+                <div key={i} className="flex gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
                     {i + 1}
                   </div>
-                  <p className="text-body text-neutral-700 leading-relaxed flex-1">{inst}</p>
+                  <p className="text-slate-700 leading-relaxed text-base mt-1">
+                    {inst}
+                  </p>
                 </div>
               ))}
             </div>
           </section>
-
-          {/* SECCIÓN DE TIPS (YA ESTABA BIEN) */}
+          
+          {/* Tips de Dante (Si existen) */}
           {recipe.tips_dante && (
-            <section>
-              <div className="bg-gradient-to-r from-secondary-50 to-primary-50 rounded-2xl p-6 border">
-                <h3 className="font-display text-title mb-3">Tips del Chef</h3>
-                <div className="space-y-4 text-body text-neutral-700">
-                  {recipe.tips_dante.general && <div><h4 className="font-medium mb-2">💡 General</h4><p>{recipe.tips_dante.general}</p></div>}
-                  {recipe.tips_dante.estricto && <div><h4 className="font-medium mb-2">🎯 Estricto</h4><p>{recipe.tips_dante.estricto}</p></div>}
-                  {recipe.tips_dante.familiar && <div><h4 className="font-medium mb-2">👨‍👩‍👧‍👦 Familiar</h4><p>{recipe.tips_dante.familiar}</p></div>}
-                </div>
-              </div>
-            </section>
+            <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-100">
+              <h4 className="font-bold text-indigo-900 mb-2 text-sm">💡 Tip del Chef</h4>
+              <p className="text-indigo-800 text-sm">{recipe.tips_dante.general || recipe.tips_dante.familiar}</p>
+            </div>
           )}
+
+        </div>
+
+        {/* Footer Fijo */}
+        <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+          <button onClick={onClose} className="px-6 py-2 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-colors">
+            Cerrar Receta
+          </button>
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
