@@ -1,7 +1,7 @@
 // src/data/educationalContent.js
-// REPOSITORIO DE FILOSOFÍA Y GUÍAS PRÁCTICAS (v2.1 Full)
+// REPOSITORIO DE FILOSOFÍA, GUÍAS Y CIENCIA (v5.0 - COMPLETO)
 
-// 1. FILOSOFÍA
+// 1. FILOSOFÍA (Tarjetas Superiores)
 export const philosophyContent = [
   {
     id: 'manifesto',
@@ -23,7 +23,7 @@ export const philosophyContent = [
   }
 ];
 
-// 2. GUÍAS DE SUPERVIVENCIA (Información Práctica del Dr.)
+// 2. GUÍAS DE SUPERVIVENCIA (Información Práctica)
 export const survivalGuides = [
   {
     id: 'plate-formula',
@@ -115,4 +115,39 @@ export const survivalGuides = [
   }
 ];
 
+// 3. CIENCIA Y REFERENCIAS (La pieza que faltaba)
+export const scienceReferences = [
+  {
+    id: 'ciencia-1',
+    title: 'Fuentes Médicas y Científicas',
+    category: 'Bibliografía',
+    icon: '🧬',
+    content: `
+      <p>Nuestra metodología no es una opinión; es una síntesis de bioquímica aplicada. Nos basamos en el trabajo clínico de:</p>
+      <ul class="list-disc pl-5 space-y-2 mt-3">
+        <li><strong>Dr. Peter Attia (Stanford/NIH):</strong> Pionero en medicina de la longevidad y flexibilidad metabólica ("Outlive").</li>
+        <li><strong>Dr. Jason Fung (Nefrólogo):</strong> Autoridad mundial en ayuno intermitente y reversión de diabetes tipo 2 ("The Obesity Code").</li>
+        <li><strong>Virta Health:</strong> Ensayos clínicos sobre reversión de diabetes mediante restricción de carbohidratos.</li>
+        <li><strong>Harvard T.H. Chan School:</strong> Principios de carga glucémica y salud hormonal.</li>
+      </ul>
+      <p class="mt-4 text-xs italic">Nota: Estas referencias respaldan los principios bioquímicos que utilizamos. Reinicio Metabólico es un programa independiente.</p>
+    `
+  },
+  {
+    id: 'ciencia-2',
+    title: 'Lectura Recomendada',
+    category: 'Profundizar',
+    icon: '📚',
+    content: `
+      <p>Si quieres entender "qué pasa bajo el capó" de tu cuerpo, te recomendamos:</p>
+      <ul class="list-disc pl-5 mt-2">
+        <li><em>"Why We Get Sick"</em> - Dr. Benjamin Bikman (Insulina y enfermedades crónicas).</li>
+        <li><em>"The Big Fat Surprise"</em> - Nina Teicholz (La verdad sobre las grasas saludables).</li>
+        <li><em>"Cerebro de Pan"</em> - Dr. David Perlmutter (Impacto del gluten y azúcar en el cerebro).</li>
+      </ul>
+    `
+  }
+];
+
+// Se mantiene vacío por compatibilidad
 export const toolsContent = [];
