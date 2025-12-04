@@ -1,12 +1,43 @@
-// src/pages/Biblioteca.jsx (v3.0 - Full Content Display)
-import React from 'react';
+// src/pages/Biblioteca.jsx (v4.0 - Audio Integrado)
+import React, { useState } from 'react';
 import { Disclosure } from '@headlessui/react';
-import { ChevronUp, BookOpen, Zap, Brain, Compass } from 'lucide-react';
+import { ChevronUp, BookOpen, Zap, Brain, Compass, Volume2, StopCircle } from 'lucide-react';
 
-// Importamos todo el contenido actualizado
-import { philosophyContent, survivalGuides } from '../data/educationalContent';
+import { philosophyContent, survivalGuides, scienceReferences } from '../data/educationalContent';
 import { principles } from '../data/principlesData';
 import AsesorProteico from '../components/tools/AsesorProteico';
+
+// --- COMPONENTE REPRODUCTOR DE VOZ ---
+const AudioPlayer = ({ text }) => {
+  const [speaking, setSpeaking] = useState(false);
+
+  const handleSpeak = (e) => {
+    e.stopPropagation(); // Evita que se cierre el acordeón al dar click
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+    } else {
+      // Limpiamos HTML tags para leer solo texto
+      const cleanText = text.replace(/<[^>]+>/g, '');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'es-MX'; // Español Latino
+      utterance.rate = 1.0;
+      utterance.onend = () => setSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+      setSpeaking(true);
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleSpeak}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${speaking ? 'bg-red-500/20 text-red-400 border-red-500/50' : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600 hover:text-white'}`}
+    >
+      {speaking ? <StopCircle size={14} /> : <Volume2 size={14} />}
+      {speaking ? 'Detener' : 'Escuchar'}
+    </button>
+  );
+};
 
 const Biblioteca = () => {
   return (
@@ -22,20 +53,18 @@ const Biblioteca = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        
-        {/* --- COLUMNA IZQUIERDA (2/3) --- */}
         <div className="w-full lg:w-2/3 space-y-12">
           
-          {/* SECCIÓN 1: FILOSOFÍA */}
+          {/* FILOSOFÍA */}
           <section>
-            <div className="flex items-center gap-2 mb-6">
-              <Zap className="w-6 h-6 text-teal-400" />
-              <h2 className="text-2xl font-bold text-white">Filosofía del Reinicio</h2>
-            </div>
+            <div className="flex items-center gap-2 mb-6"><Zap className="w-6 h-6 text-teal-400" /><h2 className="text-2xl font-bold text-white">Filosofía del Reinicio</h2></div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {philosophyContent.map((item) => (
                 <div key={item.id} className="bg-slate-800/50 border border-slate-700 p-5 rounded-xl">
-                  <div className="text-2xl mb-2">{item.icon}</div>
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="text-2xl">{item.icon}</div>
+                    <AudioPlayer text={item.content} />
+                  </div>
                   <h3 className="text-lg font-bold text-slate-200 mb-2">{item.title}</h3>
                   <p className="text-sm text-slate-400 leading-relaxed">{item.content}</p>
                 </div>
@@ -43,12 +72,9 @@ const Biblioteca = () => {
             </div>
           </section>
 
-          {/* SECCIÓN 2: GUÍAS DE SUPERVIVENCIA (¡NUEVO!) */}
+          {/* GUÍAS DE SUPERVIVENCIA */}
           <section>
-            <div className="flex items-center gap-2 mb-6">
-              <Compass className="w-6 h-6 text-orange-400" />
-              <h2 className="text-2xl font-bold text-white">Guías de Supervivencia</h2>
-            </div>
+            <div className="flex items-center gap-2 mb-6"><Compass className="w-6 h-6 text-orange-400" /><h2 className="text-2xl font-bold text-white">Guías de Supervivencia</h2></div>
             <div className="grid grid-cols-1 gap-4">
               {survivalGuides.map((guide) => (
                 <Disclosure as="div" key={guide.id} className="bg-slate-800/80 border border-slate-600 rounded-xl overflow-hidden">
@@ -62,14 +88,13 @@ const Biblioteca = () => {
                             <span className="text-xs font-bold text-teal-400 uppercase tracking-wider bg-teal-900/30 px-2 py-1 rounded">{guide.category}</span>
                           </div>
                         </div>
-                        <ChevronUp className={`${open ? 'rotate-180' : ''} h-6 w-6 text-slate-400 transition-transform`} />
+                        <div className="flex items-center gap-4">
+                            <AudioPlayer text={guide.content} />
+                            <ChevronUp className={`${open ? 'rotate-180' : ''} h-6 w-6 text-slate-400 transition-transform`} />
+                        </div>
                       </Disclosure.Button>
-                      
                       <Disclosure.Panel className="px-6 pb-6 pt-2 bg-slate-900/50 border-t border-slate-600">
-                        <div 
-                          className="prose prose-invert prose-p:text-slate-300 prose-strong:text-white prose-li:text-slate-300 max-w-none mt-4" 
-                          dangerouslySetInnerHTML={{ __html: guide.content }} 
-                        />
+                        <div className="prose prose-invert prose-p:text-slate-300 prose-strong:text-white max-w-none mt-4" dangerouslySetInnerHTML={{ __html: guide.content }} />
                       </Disclosure.Panel>
                     </>
                   )}
@@ -78,12 +103,9 @@ const Biblioteca = () => {
             </div>
           </section>
 
-          {/* SECCIÓN 3: PRINCIPIOS CIENTÍFICOS */}
+          {/* PRINCIPIOS CIENTÍFICOS */}
           <section>
-            <div className="flex items-center gap-2 mb-6">
-              <Brain className="w-6 h-6 text-indigo-400" />
-              <h2 className="text-2xl font-bold text-white">Ciencia Profunda</h2>
-            </div>
+            <div className="flex items-center gap-2 mb-6"><Brain className="w-6 h-6 text-indigo-400" /><h2 className="text-2xl font-bold text-white">Ciencia Profunda</h2></div>
             <div className="space-y-3">
               {principles.map((principio) => (
                 <Disclosure as="div" key={principio.id} className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
@@ -91,7 +113,10 @@ const Biblioteca = () => {
                     <>
                       <Disclosure.Button className="flex w-full justify-between items-center px-6 py-4 text-left hover:bg-slate-700 transition-colors">
                         <span className="text-slate-200 font-medium">{principio.title}</span>
-                        <ChevronUp className={`${open ? 'rotate-180' : ''} h-5 w-5 text-slate-500`} />
+                        <div className="flex items-center gap-4">
+                             <AudioPlayer text={principio.content} />
+                             <ChevronUp className={`${open ? 'rotate-180' : ''} h-5 w-5 text-slate-500`} />
+                        </div>
                       </Disclosure.Button>
                       <Disclosure.Panel className="px-6 pb-6 pt-4 bg-slate-800 border-t border-slate-700">
                         <p className="text-indigo-300 italic mb-4 text-sm">{principio.subtitle}</p>
@@ -103,21 +128,27 @@ const Biblioteca = () => {
               ))}
             </div>
           </section>
-
         </div>
 
-        {/* --- COLUMNA DERECHA (1/3) --- */}
+        {/* COLUMNA DERECHA */}
         <div className="w-full lg:w-1/3">
           <div className="sticky top-6 space-y-6">
             <div className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
               <div className="bg-teal-600 p-3 text-center font-bold text-white">Herramienta Exclusiva</div>
-              <div className="bg-white">
-                 <AsesorProteico />
-              </div>
+              <div className="bg-white"><AsesorProteico /></div>
+            </div>
+            {/* CIENCIA */}
+            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+                <h4 className="text-white font-bold mb-4 flex items-center gap-2">🧬 Referencias Médicas</h4>
+                {scienceReferences?.map((ref) => (
+                    <div key={ref.id} className="mb-6 last:mb-0">
+                        <h5 className="text-teal-400 text-sm font-bold mb-1">{ref.title}</h5>
+                        <div className="text-xs text-slate-400" dangerouslySetInnerHTML={{ __html: ref.content }} />
+                    </div>
+                ))}
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
