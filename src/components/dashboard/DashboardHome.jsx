@@ -1,23 +1,14 @@
-// src/components/dashboard/DashboardHome.jsx (v2.1 - Links Corregidos)
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
-  TrendingUp, ArrowRight, Zap 
+  TrendingUp, ArrowRight, Zap, Activity, BookOpen, BookHeart
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from "recharts";
 import OnboardingModal from './OnboardingModal';
-
-// ... (El resto de los componentes StatCard, Achievement, etc se mantienen igual) ...
-// Si quieres pégalos de la versión anterior, o usa este código completo:
-
-const weightData = [
-  { day: 'Lun', peso: 85.5 }, { day: 'Mar', peso: 85.4 }, 
-  { day: 'Mié', peso: 85.2 }, { day: 'Jue', peso: 85.0 }, 
-  { day: 'Vie', peso: 84.9 }, { day: 'Sáb', peso: 84.8 }, { day: 'Dom', peso: 84.5 }
-];
 
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
@@ -61,13 +52,39 @@ const QuickAction = ({ icon: Icon, title, desc, to }) => (
 );
 
 export default function DashboardHome({ user }) {
-  const [showOnboarding, setShowOnboarding] = React.useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [latestWeight, setLatestWeight] = useState(null);
+  const [weightTrend, setWeightTrend] = useState([]);
+  
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user && !user.user_metadata?.full_name) {
       setShowOnboarding(true);
     }
+
+    const fetchData = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('progress_logs')
+        .select('weight, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(7);
+
+      if (!error && data && data.length > 0) {
+        setLatestWeight(data[0].weight); 
+        
+        const graphData = [...data].reverse().map(log => ({
+          day: new Date(log.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
+          peso: log.weight
+        }));
+        setWeightTrend(graphData);
+      }
+    };
+    fetchData();
+
   }, [user]);
 
   const handleOnboardingComplete = () => {
@@ -77,6 +94,7 @@ export default function DashboardHome({ user }) {
 
   return (
     <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500">
+      
       {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
@@ -96,64 +114,52 @@ export default function DashboardHome({ user }) {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Días Activos" value="Día 1" subtext="Inicio Fuerte" icon={Calendar} color="teal" />
-        <StatCard title="Peso Actual" value="--" subtext="Registrar en Bitácora" icon={TrendingUp} color="indigo" />
+        <StatCard title="Peso Actual" value={latestWeight ? `${latestWeight} kg` : "--"} subtext={latestWeight ? "Último registro" : "Sin datos"} icon={TrendingUp} color="indigo" />
         <StatCard title="Recetas" value="61" subtext="Disponibles" icon={Utensils} color="orange" />
-        <StatCard title="Entrenamientos" value="12" subtext="Nivel 1" icon={Dumbbell} color="emerald" />
+        <StatCard title="Nivel" value="Inicial" subtext="Fundador" icon={Dumbbell} color="emerald" />
       </div>
 
-      {/* ACCESOS RÁPIDOS */}
       <div>
         <h3 className="text-lg font-semibold text-white mb-4">¿Qué quieres hacer hoy?</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <QuickAction 
-            to="/plataforma/planeador" 
-            icon={Calendar} 
-            title="Planificar Menú" 
-            desc="Genera tu menú semanal automático o personalízalo."
-          />
-          {/* ✅ LINK CORREGIDO AQUI */}
-          <QuickAction 
-            to="/plataforma/gimnasio" 
-            icon={Dumbbell} 
-            title="Ir al Gimnasio" 
-            desc="Rutinas de 20 minutos para acelerar tu metabolismo."
-          />
-          <QuickAction 
-            to="/plataforma/bitacora" 
-            icon={TrendingUp} 
-            title="Mi Bitácora" 
-            desc="Registra tu peso, medidas y sensaciones diarias."
-          />
+          <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planificar Menú" desc="Genera tu menú semanal automático o personalízalo." />
+          <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Ir al Gimnasio" desc="Rutinas de 20 minutos para acelerar tu metabolismo." />
+          <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Mi Bitácora" desc="Registra tu peso, medidas y sensaciones diarias." />
         </div>
       </div>
       
-      {/* ... (El resto de la gamificación y gráficas igual que antes) ... */}
-       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-slate-800/40 border border-slate-700 p-6 rounded-2xl">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <TrendingUp size={20} className="text-teal-400" />
-              Tendencia de Peso (Demo)
+              <Activity size={20} className="text-teal-400" />
+              Tendencia de Peso
             </h3>
-            <Link to="/plataforma/bitacora" className="text-xs text-teal-400 hover:underline">
-              Ver detalle completo
-            </Link>
+            <Link to="/plataforma/bitacora" className="text-xs text-teal-400 hover:underline">Ver detalle completo</Link>
           </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weightData}>
-                <defs>
-                  <linearGradient id="colorPeso" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                <XAxis dataKey="day" stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
-                <YAxis stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
-                <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f1f5f9' }} />
-                <Area type="monotone" dataKey="peso" stroke="#14b8a6" strokeWidth={3} fillOpacity={1} fill="url(#colorPeso)" />
-              </AreaChart>
+              {weightTrend.length > 0 ? (
+                <AreaChart data={weightTrend}>
+                  <defs>
+                    <linearGradient id="colorPeso" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                  <XAxis dataKey="day" stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
+                  <YAxis domain={['auto', 'auto']} stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f1f5f9' }} />
+                  <Area type="monotone" dataKey="peso" stroke="#14b8a6" strokeWidth={3} fillOpacity={1} fill="url(#colorPeso)" />
+                </AreaChart>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-slate-500 text-sm">
+                  <Activity size={32} className="mb-2 opacity-50" />
+                  <p>Aún no hay datos suficientes.</p>
+                  <Link to="/plataforma/bitacora" className="text-teal-400 mt-2 hover:underline">Registra tu peso inicial</Link>
+                </div>
+              )}
             </ResponsiveContainer>
           </div>
         </div>
@@ -165,14 +171,23 @@ export default function DashboardHome({ user }) {
               Tus Logros
             </h3>
             <div className="space-y-3">
-              <Achievement title="Fundador" desc="Te uniste al programa piloto." unlocked={true} />
-              <Achievement title="Primeros Pasos" desc="Completaste tu registro." unlocked={true} />
-              <Achievement title="Chef en Casa" desc="Cocina 5 recetas del plan." unlocked={false} />
+              <Achievement title="Fundador" desc="Te uniste al programa." unlocked={true} />
+              <Achievement title="Primer Paso" desc="Registraste tu peso." unlocked={latestWeight !== null} />
+              <Achievement title="Chef en Casa" desc="Usa el planeador." unlocked={false} />
             </div>
           </div>
+
+          <Link to="/plataforma/biblioteca" className="block bg-gradient-to-r from-teal-600 to-emerald-600 p-5 rounded-2xl shadow-lg hover:shadow-teal-500/20 transition-all group">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-teal-100 text-xs font-bold uppercase tracking-wider mb-1">Educación</p>
+                <h3 className="text-white font-bold text-lg">Guía de Inicio</h3>
+              </div>
+              <ArrowRight className="text-white group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
         </div>
       </div>
-
     </div>
   );
 }
