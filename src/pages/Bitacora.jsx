@@ -1,9 +1,11 @@
+// src/pages/Bitacora.jsx (v4.0 - Sliders Claros y Contenido Legible)
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useUser } from '../context/UserContext';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertTriangle, Scale, Ruler, Zap, Moon, Trash2, Edit2, Calendar } from 'lucide-react';
 
+// --- MODAL DE EDICIÓN ---
 const EditModal = ({ log, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     ...log,
@@ -27,25 +29,25 @@ const EditModal = ({ log, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 max-w-md w-full">
-        <h2 className="text-xl font-bold text-white mb-4">Editar Registro</h2>
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 max-w-md w-full text-slate-900">
+        <h2 className="text-xl font-bold mb-4">Editar Registro</h2>
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-400 mb-1">Fecha</label>
-            <input type="date" name="created_at" value={formData.created_at} onChange={handleChange} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" />
+            <label className="block text-xs font-bold text-slate-500 mb-1">Fecha</label>
+            <input type="date" name="created_at" value={formData.created_at} onChange={handleChange} className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1">Peso (kg)</label>
-                <input type="number" step="0.1" name="weight" value={formData.weight} onChange={handleChange} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white font-bold" />
+                <label className="block text-xs font-bold text-slate-500 mb-1">Peso (kg)</label>
+                <input type="number" step="0.1" name="weight" value={formData.weight} onChange={handleChange} className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
             </div>
             <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1">Cintura (cm)</label>
-                <input type="number" step="0.1" name="waist" value={formData.waist} onChange={handleChange} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white font-bold" />
+                <label className="block text-xs font-bold text-slate-500 mb-1">Cintura (cm)</label>
+                <input type="number" step="0.1" name="waist" value={formData.waist} onChange={handleChange} className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
             <button type="submit" disabled={isSaving} className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-500 font-bold">Guardar</button>
           </div>
         </form>
@@ -126,29 +128,63 @@ export default function Bitacora() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* FORMULARIO ALTO CONTRASTE */}
         <div className="lg:col-span-1 bg-slate-800/60 border border-slate-700 p-6 rounded-2xl shadow-xl h-fit">
             <h2 className="text-xl font-bold text-white mb-6">Nuevo Registro</h2>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-bold text-slate-300 mb-1">Peso (kg)</label>
-                <input type="number" step="0.1" value={weight} onChange={(e) => setWeight(e.target.value)} required className="block w-full px-4 py-3 border border-slate-500 rounded-lg bg-white text-black font-extrabold text-lg" placeholder="0.0" />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-bold text-slate-300 mb-1">Peso (kg)</label>
+                    <input type="number" step="0.1" value={weight} onChange={(e) => setWeight(e.target.value)} required className="block w-full px-3 py-3 border border-slate-500 rounded-lg bg-white text-black font-extrabold text-lg text-center" placeholder="0.0" />
+                </div>
+                <div>
+                    <label className="block text-sm font-bold text-slate-300 mb-1">Cintura (cm)</label>
+                    <input type="number" step="0.1" value={waist} onChange={(e) => setWaist(e.target.value)} required className="block w-full px-3 py-3 border border-slate-500 rounded-lg bg-white text-black font-extrabold text-lg text-center" placeholder="0.0" />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-slate-300 mb-1">Cintura (cm)</label>
-                <input type="number" step="0.1" value={waist} onChange={(e) => setWaist(e.target.value)} required className="block w-full px-4 py-3 border border-slate-500 rounded-lg bg-white text-black font-extrabold text-lg" placeholder="0.0" />
+
+              {/* SLIDER ENERGÍA MEJORADO */}
+              <div className="bg-slate-700/30 p-4 rounded-xl border border-slate-600">
+                 <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-bold text-slate-200">Nivel de Energía</label>
+                    <span className="bg-teal-500 text-white text-xs font-bold px-2 py-1 rounded-full">{energyLevel}/5</span>
+                 </div>
+                 <input type="range" min="1" max="5" value={energyLevel} onChange={(e) => setEnergyLevel(e.target.value)} className="w-full h-2 bg-slate-600 rounded-lg cursor-pointer accent-teal-500" />
+                 <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-wide">
+                    <span>Baja</span>
+                    <span>Media</span>
+                    <span>Alta</span>
+                 </div>
               </div>
-              <div>
-                 <label className="block text-sm font-bold text-slate-300">Energía (1-5)</label>
-                 <input type="range" min="1" max="5" value={energyLevel} onChange={(e) => setEnergyLevel(e.target.value)} className="w-full h-2 bg-slate-600 rounded-lg accent-teal-500" />
+
+              {/* SLIDER SUEÑO MEJORADO */}
+              <div className="bg-slate-700/30 p-4 rounded-xl border border-slate-600">
+                 <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-bold text-slate-200">Calidad del Sueño</label>
+                    <span className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">{sleepQuality}/5</span>
+                 </div>
+                 <input type="range" min="1" max="5" value={sleepQuality} onChange={(e) => setSleepQuality(e.target.value)} className="w-full h-2 bg-slate-600 rounded-lg cursor-pointer accent-indigo-500" />
+                 <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-wide">
+                    <span>Mala</span>
+                    <span>Regular</span>
+                    <span>Excelente</span>
+                 </div>
               </div>
+
               <div>
-                 <label className="block text-sm font-bold text-slate-300">Sueño (1-5)</label>
-                 <input type="range" min="1" max="5" value={sleepQuality} onChange={(e) => setSleepQuality(e.target.value)} className="w-full h-2 bg-slate-600 rounded-lg accent-teal-500" />
+                <label className="block text-sm font-bold text-slate-300 mb-1">Notas</label>
+                <textarea 
+                  rows="3" value={notes} onChange={(e) => setNotes(e.target.value)} 
+                  className="block w-full px-4 py-3 border border-slate-500 rounded-lg focus:ring-2 focus:ring-teal-500 bg-white text-black font-medium placeholder-slate-500"
+                  placeholder="¿Cómo te sentiste hoy?"
+                ></textarea>
               </div>
-              <button type="submit" disabled={submitting} className="w-full bg-teal-600 text-white font-bold py-3 rounded-xl hover:bg-teal-500 transition-all">Guardar Progreso</button>
+              <button type="submit" disabled={submitting} className="w-full bg-teal-600 text-white font-bold py-3 rounded-xl hover:bg-teal-500 transition-all shadow-lg">Guardar Progreso</button>
             </form>
         </div>
 
+        {/* HISTORIAL */}
         <div className="lg:col-span-2 space-y-6">
           {logs.length > 0 ? (
             <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-2xl h-80">
@@ -178,6 +214,7 @@ export default function Bitacora() {
                   </p>
                   <p className="text-white font-medium text-lg">{log.weight} kg <span className="text-slate-500 text-sm font-normal">/ {log.waist} cm</span></p>
                 </div>
+                
                 <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => setEditingLog(log)} className="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white" title="Editar">
                         <Edit2 className="w-4 h-4"/>
