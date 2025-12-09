@@ -1,3 +1,4 @@
+// src/pages/Auth.jsx
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext.jsx'; 
 import { useNavigate } from 'react-router-dom';
@@ -33,11 +34,15 @@ const AuthPage = () => {
     e.preventDefault();
     setLoading(true);
     setFeedback({ type: '', message: '' });
+
     try {
       if (mode === 'reset') {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/reset` });
+        // ✅ CORRECCIÓN: Apuntamos a la ruta exacta de la app
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { 
+            redirectTo: `${window.location.origin}/reset-password` 
+        });
         if (error) throw error;
-        setFeedback({ type: 'success', message: 'Revisa tu correo para restablecer contraseña.' });
+        setFeedback({ type: 'success', message: 'Revisa tu correo. El enlace te llevará a crear una nueva contraseña.' });
       } else {
         const { error } = await signIn({ email, password });
         if (error) throw error;
@@ -53,17 +58,23 @@ const AuthPage = () => {
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-teal-500/20 mb-4"><ShieldCheck className="w-6 h-6 text-teal-400" /></div>
           <h2 className="text-3xl font-bold text-white tracking-tight">{mode === 'login' ? 'Acceso Miembros' : 'Recuperar Acceso'}</h2>
-          <p className="mt-2 text-sm text-slate-400">{mode === 'login' ? 'Ingresa tus credenciales para continuar.' : 'Te enviaremos un enlace seguro.'}</p>
+          <p className="mt-2 text-sm text-slate-400">{mode === 'login' ? 'Ingresa tus credenciales.' : 'Te enviaremos un enlace seguro.'}</p>
         </div>
+        
         <AnimatePresence>{feedback.message && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className={`flex items-start p-3 text-sm rounded-lg ${feedback.type === 'error' ? 'text-red-300 bg-red-500/10' : 'text-green-300 bg-green-500/10'}`}>{feedback.message}</motion.div>}</AnimatePresence>
+
         <form onSubmit={handleAuth} className="space-y-5">
           <AuthInput id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Correo electrónico" icon={Mail} disabled={loading} />
           {mode === 'login' && <AuthInput id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña" icon={Lock} disabled={loading} />}
-          <button type="submit" disabled={loading} className="w-full py-3 font-semibold text-white bg-teal-600 rounded-xl shadow-lg hover:bg-teal-500 transition-all flex items-center justify-center gap-2">{loading ? <Loader2 className="animate-spin" /> : mode === 'login' ? 'Iniciar Sesión' : 'Enviar Enlace'}</button>
+          
+          <button type="submit" disabled={loading} className="w-full py-3 font-semibold text-white bg-teal-600 rounded-xl shadow-lg hover:bg-teal-500 transition-all flex items-center justify-center gap-2">
+            {loading ? <Loader2 className="animate-spin" /> : mode === 'login' ? 'Entrar' : 'Enviar Enlace'}
+          </button>
         </form>
+
         <div className="mt-6 text-center text-sm text-slate-400">
           {mode === 'login' ? (
-            <><p className="mb-2"><button onClick={() => setMode('reset')} className="text-teal-400 hover:underline">¿Olvidaste tu contraseña?</button></p><p className="text-xs text-slate-500 pt-4 border-t border-white/10">¿No tienes cuenta? <br/> Adquiere tu acceso en <a href="/programa" className="text-teal-400 hover:underline">reiniciometabolico.net</a></p></>
+            <p className="mb-2"><button onClick={() => setMode('reset')} className="text-teal-400 hover:underline">¿Olvidaste tu contraseña?</button></p>
           ) : (
             <button onClick={() => setMode('login')} className="text-teal-400 flex items-center justify-center w-full gap-2"><ArrowLeft className="w-4 h-4" /> Volver al Login</button>
           )}
