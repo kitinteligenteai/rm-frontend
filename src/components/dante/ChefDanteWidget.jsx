@@ -1,7 +1,9 @@
 // src/components/dante/ChefDanteWidget.jsx
+// v5.1 - Fix Z-Index y Visibilidad
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, RefreshCw, MessageCircle, User } from 'lucide-react'; 
+import { X, RefreshCw, User, ExternalLink } from 'lucide-react';
 import { danteMessages } from '../../data/danteContent';
 import { useUser } from '../../context/UserContext';
 import { Link } from 'react-router-dom';
@@ -11,7 +13,6 @@ const ChefDanteWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(null);
   
-  // URL de la imagen
   const danteAvatarUrl = "/dante_avatar.png"; 
 
   const pickMessage = () => {
@@ -27,6 +28,7 @@ const ChefDanteWidget = () => {
   useEffect(() => {
     if (user) {
       setCurrentMessage(pickMessage());
+      // Forzar aparición a los 3 segundos
       const timer = setTimeout(() => setIsOpen(true), 3000);
       return () => clearTimeout(timer);
     }
@@ -35,14 +37,16 @@ const ChefDanteWidget = () => {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
+      {/* Usamos pointer-events-auto en los hijos para que se puedan clicar, pero el contenedor no tape clicks */}
+      
       <AnimatePresence>
         {isOpen && currentMessage && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8, x: 20 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.8, x: 20 }}
-            className="bg-white border-2 border-indigo-600 rounded-2xl rounded-br-none p-4 shadow-2xl max-w-xs w-72 relative"
+            className="bg-white border-2 border-indigo-600 rounded-2xl rounded-br-none p-4 shadow-2xl max-w-xs w-72 relative pointer-events-auto"
           >
             <button onClick={() => setIsOpen(false)} className="absolute top-2 right-2 text-slate-400 hover:text-slate-600"><X size={16} /></button>
             <h4 className="font-extrabold text-indigo-700 text-sm mb-1 uppercase tracking-wider">Tip del Chef</h4>
@@ -60,7 +64,7 @@ const ChefDanteWidget = () => {
         whileHover={{ scale: 1.1 }}
         animate={{ y: [0, -5, 0] }}
         transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-        className="relative group w-16 h-16 rounded-full border-4 border-white bg-indigo-600 shadow-xl z-10 flex items-center justify-center overflow-hidden"
+        className="relative group w-16 h-16 rounded-full border-4 border-white bg-indigo-600 shadow-xl flex items-center justify-center overflow-hidden cursor-pointer pointer-events-auto"
       >
         <img 
             src={danteAvatarUrl} 

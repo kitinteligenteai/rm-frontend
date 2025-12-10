@@ -1,14 +1,18 @@
+// src/components/dashboard/DashboardHome.jsx
+// v5.0 - Fix: Onboarding Force & Chart Spacing
+
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
-  TrendingUp, ArrowRight, Zap, Activity, BookOpen, BookHeart
+  TrendingUp, ArrowRight, Zap, Activity 
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from "recharts";
 import OnboardingModal from './OnboardingModal';
+import ChefDanteWidget from '../dante/ChefDanteWidget';
 
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
@@ -59,7 +63,10 @@ export default function DashboardHome({ user }) {
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
 
   useEffect(() => {
-    if (user && !user.user_metadata?.full_name) {
+    // 1. CORRECCIÓN LÓGICA ONBOARDING:
+    // Si no tiene nombre O si se llama "Miembro Fundador" (el default del sistema), pedimos nombre real.
+    const currentName = user?.user_metadata?.full_name;
+    if (!currentName || currentName === "Miembro Fundador") {
       setShowOnboarding(true);
     }
 
@@ -75,7 +82,6 @@ export default function DashboardHome({ user }) {
 
       if (!error && data && data.length > 0) {
         setLatestWeight(data[0].weight); 
-        
         const graphData = [...data].reverse().map(log => ({
           day: new Date(log.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
           peso: log.weight
@@ -93,10 +99,11 @@ export default function DashboardHome({ user }) {
   };
 
   return (
-    <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500">
+    <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 pb-20">
       
       {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
       
+      {/* SALUDO */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
@@ -129,17 +136,23 @@ export default function DashboardHome({ user }) {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-slate-800/40 border border-slate-700 p-6 rounded-2xl">
-          <div className="flex justify-between items-center mb-6">
+        
+        {/* GRÁFICA DE PROGRESO (VISUAL FIX) */}
+        <div className="lg:col-span-2 bg-slate-800/40 border border-slate-700 p-6 rounded-2xl flex flex-col h-96">
+          <div className="flex justify-between items-center mb-4 shrink-0">
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
               <Activity size={20} className="text-teal-400" />
               Tendencia de Peso
             </h3>
-            <Link to="/plataforma/bitacora" className="text-xs text-teal-400 hover:underline">Ver detalle completo</Link>
+            <Link to="/plataforma/bitacora" className="text-xs text-teal-400 hover:underline">
+              Ver detalle completo
+            </Link>
           </div>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              {weightTrend.length > 0 ? (
+          
+          {/* Contenedor flexible para la gráfica o el mensaje vacío */}
+          <div className="flex-1 w-full min-h-0 relative">
+            {weightTrend.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={weightTrend}>
                   <defs>
                     <linearGradient id="colorPeso" x1="0" y1="0" x2="0" y2="1">
@@ -153,17 +166,20 @@ export default function DashboardHome({ user }) {
                   <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f1f5f9' }} />
                   <Area type="monotone" dataKey="peso" stroke="#14b8a6" strokeWidth={3} fillOpacity={1} fill="url(#colorPeso)" />
                 </AreaChart>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-slate-500 text-sm">
-                  <Activity size={32} className="mb-2 opacity-50" />
-                  <p>Aún no hay datos suficientes.</p>
-                  <Link to="/plataforma/bitacora" className="text-teal-400 mt-2 hover:underline">Registra tu peso inicial</Link>
-                </div>
-              )}
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-sm border-2 border-dashed border-slate-700 rounded-xl">
+                <Activity size={32} className="mb-2 opacity-50" />
+                <p>Aún no hay datos suficientes.</p>
+                <Link to="/plataforma/bitacora" className="text-teal-400 mt-2 hover:underline font-bold">
+                   + Registrar peso inicial
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* LOGROS */}
         <div className="space-y-4">
           <div className="bg-slate-800/40 border border-slate-700 p-6 rounded-2xl">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -188,6 +204,9 @@ export default function DashboardHome({ user }) {
           </Link>
         </div>
       </div>
+      
+      {/* WIDGET DE DANTE AL FINAL */}
+      <ChefDanteWidget />
     </div>
   );
 }
