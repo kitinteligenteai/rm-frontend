@@ -1,4 +1,8 @@
-// mp-webhook-v3 — versión estable con NTFY antidébil duplicado (2025-11-13)
+// supabase/functions/mp-webhook-v3/index.ts
+// BUILD: 2025-12-10 — v5.0-FINAL-SILENT
+// Procesa pagos de Mercado Pago, registra compras y envía 
+// UNA SOLA notificación al administrador usando deduplicación por DB.
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -6,153 +10,138 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BUILD = "mp-webhook-v3@2025-11-13-NTFY-IDEMPOTENT";
+const BUILD = "mp-webhook-v3@v5.0";
 
 Deno.serve(async (req) => {
+  // Manejo de CORS
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    // Configuración
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
+    
+    const accessToken = Deno.env.get("MP_ACCESS_TOKEN");
+    const topic = Deno.env.get("NTFY_TOPIC");
 
-    const accessToken =
-      Deno.env.get("MP_ACCESS_TOKEN") || Deno.env.get("MERCADOPAGO_ACCESS_TOKEN");
-
+    // 1. Obtener ID del Pago desde el Webhook
     const body = await req.json().catch(() => ({}));
     const url = new URL(req.url);
+    
+    // Mercado Pago envía el ID en varios lugares dependiendo del tipo de evento
+    let paymentId = body?.data?.id || body?.id || url.searchParams.get("id") || url.searchParams.get("data.id");
 
-    const qpType = url.searchParams.get("type") || url.searchParams.get("topic");
-    const qpId = url.searchParams.get("id");
-    const bType = body?.type || body?.topic || qpType;
-    let paymentId = body?.data?.id || body?.id || qpId || null;
-
-    if (!paymentId && body?.resource) {
-      const parts = String(body.resource).split("/");
-      paymentId = parts[parts.length - 1] || null;
+    if (!paymentId) {
+      // Si no hay ID, ignoramos (puede ser un ping de prueba)
+      return new Response(JSON.stringify({ ok: true, ignored: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    console.log(`[${BUILD}] Event:`, { bType, paymentId });
+    console.log(`[${BUILD}] Procesando Pago ID: ${paymentId}`);
 
-    if (!(bType === "payment") || !paymentId) {
-      return new Response(
-        JSON.stringify({ ok: true, ignored: true, build: BUILD }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // 🔍 Consultar a Mercado Pago
+    // 2. Consultar a la API de Mercado Pago (Fuente de Verdad)
     const r = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    const payment = await r.json();
     if (!r.ok) {
-      console.error(`[${BUILD}] MP error`, r.status, payment);
-      return new Response(
-        JSON.stringify({ ok: false, mp_error: r.status, build: BUILD }),
-        { headers: corsHeaders }
-      );
+      console.error(`[${BUILD}] Error consultando MP:`, r.status);
+      return new Response(JSON.stringify({ ok: false, error: "MP API Error" }), { headers: corsHeaders, status: 400 });
     }
 
-    const status = payment?.status ?? "";
-    const sessionId = payment?.external_reference ?? null;
+    const payment = await r.json();
+    const status = payment.status; // 'approved', 'pending', etc.
+    const sessionId = payment.external_reference; // ID de nuestra sesión
 
-    // 🧭 Actualizar checkout_sessions
+    // 3. Actualizar la Sesión de Checkout (Si existe)
+    let emailFromSession = null;
+    
     if (sessionId) {
+      // Guardar status y payment_id en la sesión
       await supabase
         .from("checkout_sessions")
-        .update({ payment_id: String(paymentId), status })
+        .update({ 
+            payment_id: String(paymentId), 
+            status: status,
+            updated_at: new Date().toISOString()
+        })
         .eq("id", sessionId);
-    }
 
-    // 🧩 Resolver email
-    let emailFromSession = null;
-    if (sessionId) {
+      // Intentar recuperar el email que el usuario puso en el checkout (si lo hubo)
       const { data: s } = await supabase
         .from("checkout_sessions")
         .select("email_final")
         .eq("id", sessionId)
         .single();
-      emailFromSession = s?.email_final?.trim().toLowerCase() || null;
+        
+      emailFromSession = s?.email_final;
     }
 
-    const emailFromMP = (payment?.payer?.email || "").trim().toLowerCase();
-    const safeEmail =
-      emailFromSession && !emailFromSession.endsWith("@testuser.com")
-        ? emailFromSession
-        : emailFromMP || null;
+    // 4. Determinar el email del cliente (Prioridad: Sesión > MP Payer)
+    const emailFromMP = payment.payer?.email;
+    // Evitamos correos de prueba de MP si tenemos uno real
+    const finalEmail = (emailFromSession && !emailFromSession.includes("test_user")) 
+        ? emailFromSession 
+        : emailFromMP;
 
-    // 🧾 Upsert en purchases
-    const row = {
+    // 5. Registrar la Compra (Idempotente)
+    // Usamos 'upsert' para que si el webhook llega 2 veces, no duplique la venta, solo actualice
+    const purchaseRow = {
       provider: "mercadopago",
       provider_payment_id: String(paymentId),
-      email: safeEmail,
-      product_id:
-        payment?.additional_info?.items?.[0]?.id ?? "kit-reinicio-01",
-      status,
+      email: finalEmail?.toLowerCase(),
+      product_id: payment.description || "programa-completo", // Fallback
+      status: status,
       session_id: sessionId,
-      meta: payment,
+      meta: payment, // Guardamos toda la data por seguridad
+      created_at: new Date().toISOString() // Upsert manejará esto
     };
 
-    const { error: upsertErr } = await supabase
+    const { error: purchaseError } = await supabase
       .from("purchases")
-      .upsert(row, { onConflict: "provider,provider_payment_id" });
+      .upsert(purchaseRow, { onConflict: "provider, provider_payment_id" });
 
-    if (upsertErr)
-      console.error(`[${BUILD}] Upsert error`, upsertErr.message);
-
-    // 🟢 NTFY IDEMPOTENTE (corrección sin riesgo)
-    if (status === "approved") {
-      const topic = Deno.env.get("NTFY_TOPIC");
-
-      if (topic) {
-        //  Guardar en tabla de logs y verificar si ya fue enviado
-        const payload = {
-          payment_id: paymentId,
-          email: safeEmail,
-          amount: payment.transaction_amount,
-        };
-
-        const { data: rpc, error: rpcErr } = await supabase.rpc(
-          "log_notification_if_not_exists",
-          {
-            p_event_type: "sale",
-            p_reference_id: String(paymentId),
-            p_message: JSON.stringify(payload),
-          }
-        );
-
-        if (!rpcErr && rpc?.inserted === true) {
-          // Solo enviar NTFY si inserted === true
-          await fetch(`https://ntfy.sh/${topic}`, {
-            method: "POST",
-            body: `💰 🎉 Venta confirmada!\nMonto: ${payment.transaction_amount} ${payment.currency_id}\nEmail: ${safeEmail}`,
-            headers: {
-              Title: "¡Venta confirmada!",
-              Priority: "high",
-              Tags: "moneybag,tada",
-            },
-          });
-        }
-      }
+    if (purchaseError) {
+        console.error(`[${BUILD}] Error guardando compra:`, purchaseError);
+        throw purchaseError;
     }
 
-    console.log(`[${BUILD}] OK paymentId=${paymentId} status=${status}`);
-    return new Response(JSON.stringify({ ok: true, build: BUILD }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    // 6. NOTIFICACIÓN NTFY (Con Filtro Anti-Duplicados)
+    if (status === "approved" && topic) {
+        // Intentamos insertar en el log de notificaciones
+        const { error: logError } = await supabase
+            .from('admin_notifications_log')
+            .insert({ 
+                provider_payment_id: String(paymentId),
+                channel: 'ntfy'
+            });
+
+        // Si NO hay error, significa que es la primera vez que procesamos este ID. Enviamos notificación.
+        // Si hay error (código 23505 - unique violation), significa que ya avisamos. No hacemos nada.
+        if (!logError) {
+            const amount = payment.transaction_amount;
+            const currency = payment.currency_id;
+            
+            await fetch(`https://ntfy.sh/${topic}`, {
+                method: "POST",
+                body: `💰 Venta Confirmada!\nMonto: $${amount} ${currency}\nCliente: ${finalEmail}\nID: ${paymentId}`,
+                headers: { 
+                    Title: "¡Nueva Venta! 🎉", 
+                    Tags: "moneybag,tada", 
+                    Priority: "high" 
+                },
+            });
+            console.log(`[${BUILD}] Notificación enviada.`);
+        } else {
+            console.log(`[${BUILD}] Notificación duplicada prevenida para ${paymentId}.`);
+        }
+    }
+
+    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (e) {
-    console.error(`[${BUILD}] FATAL`, e);
-    return new Response(
-      JSON.stringify({
-        ok: false,
-        error: e.message,
-        build: BUILD,
-      }),
-      { headers: corsHeaders }
-    );
+    console.error(`[${BUILD}] CRITICAL ERROR:`, e);
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
   }
 });
