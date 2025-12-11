@@ -1,7 +1,10 @@
-// RUTA: src/pages/Home.jsx
+// src/pages/Home.jsx
+// v5.0 - Final: Con Botón de Acceso para Miembros
+
 import React from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, LogIn } from "lucide-react";
+import { Link } from 'react-router-dom'; // Importar Link
 import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
 
 const FEATURES = [
@@ -27,7 +30,7 @@ export default function Home() {
       />
 
       {/* Header simple */}
-      <header className="relative z-10 sticky top-0 backdrop-blur-sm/0">
+      <header className="relative z-10 sticky top-0 backdrop-blur-sm/0 border-b border-white/10">
         <div className="mx-auto max-w-[1140px] px-4 sm:px-6 py-3 flex items-center justify-between">
           <div>
             <p className="text-[15px] font-extrabold tracking-tight">
@@ -37,12 +40,12 @@ export default function Home() {
               Claridad y energía en 7 días
             </p>
           </div>
-          <div className="hidden sm:flex items-center gap-2 text-[13px] text-white/75">
-            <span className="inline-block h-2 w-2 rounded-full bg-emerald-400/80" />
-            Compra 100% segura
-          </div>
+          
+          {/* ✅ BOTÓN DE ACCESO PARA MIEMBROS (Nuevo) */}
+          <Link to="/auth" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-xs font-bold text-white transition-colors border border-white/20">
+            <LogIn size={14} /> Soy Miembro
+          </Link>
         </div>
-        <div className="h-px bg-white/10" />
       </header>
 
       {/* MAIN */}
@@ -106,8 +109,6 @@ export default function Home() {
                 mxnRounding="auto-9"
                 size="normal"
                 dense={false}
-                // 👇 si tu CTA tiene prop para mostrar la leyenda, mantenemos sólo 1:
-                // showTrustNote={true}
               />
             </div>
           </div>

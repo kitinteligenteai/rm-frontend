@@ -1,54 +1,68 @@
-// src/pages/ResetPasswordPage.jsx (v2.0 - Detecta Errores de URL)
+// src/pages/ResetPasswordPage.jsx
+// v5.0 - Final: Con Ojito y Validación de URL
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, CheckCircle, AlertTriangle, KeyRound } from 'lucide-react';
+import { Loader2, CheckCircle, AlertTriangle, KeyRound, Eye, EyeOff } from 'lucide-react';
 
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Estado para el ojito
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
   const [viewState, setViewState] = useState('checking'); // 'checking', 'ready', 'error'
 
   useEffect(() => {
-    // Analizar la URL al cargar
     const hash = window.location.hash;
-    
-    // CASO 1: Error en la URL (Link vencido o usado por Outlook)
+    // Detección robusta de errores en la URL (Link vencido o usado)
     if (hash.includes('error=access_denied') || hash.includes('error_code=otp_expired')) {
       setViewState('error');
-      setFeedback({ 
-        type: 'error', 
-        message: 'Este enlace ha caducado o ya fue utilizado. Por seguridad, los enlaces son de un solo uso.' 
-      });
-    } 
-    // CASO 2: Todo bien (tenemos access_token)
-    else if (hash.includes('access_token')) {
+      setFeedback({ type: 'error', message: 'El enlace ha caducado. Solicita uno nuevo.' });
+    } else if (hash.includes('access_token') || hash.includes('type=recovery')) {
       setViewState('ready');
-    }
-    // CASO 3: Entró directo sin link
-    else {
+    } else {
+      // Si no hay hash, tal vez el usuario llegó directo. Lo mandamos a error.
       setViewState('error');
-      setFeedback({ type: 'error', message: 'Enlace inválido. Debes llegar aquí desde tu correo.' });
+      setFeedback({ type: 'error', message: 'Enlace no válido.' });
     }
   }, []);
 
   const handleReset = async (e) => {
     e.preventDefault();
+    if (password.length < 6) {
+        setFeedback({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres.' });
+        return;
+    }
+
     setLoading(true);
     setFeedback({ type: '', message: '' });
+
     try {
       const { error } = await supabase.auth.updateUser({ password });
+      
       if (error) throw error;
-      setFeedback({ type: 'success', message: '¡Contraseña actualizada! Redirigiendo...' });
-      setTimeout(() => navigate('/auth'), 3000);
+
+      // ÉXITO REAL
+      setFeedback({ type: 'success', message: '¡Contraseña guardada! Iniciando sesión...' });
+      
+      // Esperamos 2 segundos para que el usuario lea el éxito y redirigimos
+      setTimeout(() => {
+          navigate('/auth'); 
+      }, 2000);
+
     } catch (err) {
-      setFeedback({ type: 'error', message: 'No se pudo actualizar. Intenta solicitar un nuevo enlace.' });
+      console.error("Reset Error:", err);
+      setFeedback({ type: 'error', message: 'Hubo un problema. Intenta de nuevo.' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRequestNewLink = () => {
+      navigate('/auth'); // Mandar al login para que pida "Olvidé contraseña"
   };
 
   return (
@@ -63,9 +77,9 @@ const ResetPasswordPage = () => {
                 <KeyRound className="w-6 h-6 text-indigo-400" />
             </div>
             <h2 className="text-3xl font-bold text-white">Nueva Contraseña</h2>
+            {viewState === 'ready' && <p className="text-slate-400 text-sm mt-2">Crea una clave segura para tu cuenta.</p>}
         </div>
 
-        {/* MENSAJES DE ESTADO */}
         <AnimatePresence>
           {feedback.message && (
             <motion.div
@@ -80,34 +94,46 @@ const ResetPasswordPage = () => {
           )}
         </AnimatePresence>
 
-        {/* FORMULARIO (Solo si el link es válido) */}
         {viewState === 'ready' && (
-          <form onSubmit={handleReset} className="space-y-4">
-            <input
-              type="password" required
-              value={password} onChange={(e) => setPassword(e.target.value)}
-              placeholder="Escribe tu nueva contraseña"
-              className="w-full px-4 py-3 border border-gray-700 rounded-xl bg-gray-900/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
-              disabled={loading || feedback.type === 'success'}
-            />
+          <form onSubmit={handleReset} className="space-y-6">
+            <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Escribe tu nueva contraseña"
+                  className="w-full px-4 py-3 border border-gray-700 rounded-xl bg-gray-900/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all pr-12"
+                  disabled={loading || feedback.type === 'success'}
+                />
+                <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3.5 text-gray-400 hover:text-white"
+                >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+            </div>
+
             <button
               type="submit"
               disabled={loading || feedback.type === 'success'}
-              className="w-full py-3 font-semibold text-white bg-teal-600 rounded-xl shadow-lg hover:bg-teal-500 transition-all flex justify-center"
+              className="w-full py-3.5 font-bold text-slate-900 bg-teal-500 rounded-xl shadow-lg hover:bg-teal-400 transition-all flex justify-center items-center gap-2"
             >
               {loading ? <Loader2 className="animate-spin" /> : 'Guardar y Entrar'}
             </button>
           </form>
         )}
 
-        {/* BOTÓN PARA REINTENTAR (Si hubo error) */}
         {viewState === 'error' && (
-            <button
-              onClick={() => navigate('/auth')}
-              className="w-full py-3 font-semibold text-slate-300 bg-slate-800 rounded-xl hover:bg-slate-700 transition-all border border-slate-600"
-            >
-              Volver a solicitar enlace
-            </button>
+            <div className="text-center">
+                <button
+                onClick={handleRequestNewLink}
+                className="w-full py-3 font-semibold text-slate-300 bg-slate-800 rounded-xl hover:bg-slate-700 transition-all border border-slate-600"
+                >
+                Volver a solicitar enlace
+                </button>
+            </div>
         )}
       </motion.div>
     </div>

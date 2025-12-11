@@ -1,12 +1,13 @@
 // src/components/dashboard/DashboardHome.jsx
-// v5.0 - Fix: Onboarding Force & Chart Spacing
+// v5.1 - FIX: Error BookHeart is not defined
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
-  TrendingUp, ArrowRight, Zap, Activity 
+  TrendingUp, ArrowRight, Zap, Activity, BookOpen, 
+  BookHeart // <--- ESTE FALTABA Y CAUSABA LA PANTALLA NEGRA
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -63,8 +64,6 @@ export default function DashboardHome({ user }) {
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
 
   useEffect(() => {
-    // 1. CORRECCIÓN LÓGICA ONBOARDING:
-    // Si no tiene nombre O si se llama "Miembro Fundador" (el default del sistema), pedimos nombre real.
     const currentName = user?.user_metadata?.full_name;
     if (!currentName || currentName === "Miembro Fundador") {
       setShowOnboarding(true);
@@ -103,7 +102,6 @@ export default function DashboardHome({ user }) {
       
       {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
       
-      {/* SALUDO */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
@@ -136,8 +134,6 @@ export default function DashboardHome({ user }) {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* GRÁFICA DE PROGRESO (VISUAL FIX) */}
         <div className="lg:col-span-2 bg-slate-800/40 border border-slate-700 p-6 rounded-2xl flex flex-col h-96">
           <div className="flex justify-between items-center mb-4 shrink-0">
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -149,7 +145,6 @@ export default function DashboardHome({ user }) {
             </Link>
           </div>
           
-          {/* Contenedor flexible para la gráfica o el mensaje vacío */}
           <div className="flex-1 w-full min-h-0 relative">
             {weightTrend.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -179,7 +174,6 @@ export default function DashboardHome({ user }) {
           </div>
         </div>
 
-        {/* LOGROS */}
         <div className="space-y-4">
           <div className="bg-slate-800/40 border border-slate-700 p-6 rounded-2xl">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -205,7 +199,6 @@ export default function DashboardHome({ user }) {
         </div>
       </div>
       
-      {/* WIDGET DE DANTE AL FINAL */}
       <ChefDanteWidget />
     </div>
   );
