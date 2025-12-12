@@ -1,19 +1,19 @@
 // src/components/dashboard/DashboardHome.jsx
-// v5.1 - FIX: Error BookHeart is not defined
+// v6.0 - Dashboard Completo con Check-in Semanal Integrado
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
-  TrendingUp, ArrowRight, Zap, Activity, BookOpen, 
-  BookHeart // <--- ESTE FALTABA Y CAUSABA LA PANTALLA NEGRA
+  TrendingUp, ArrowRight, Zap, Activity, ClipboardCheck 
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from "recharts";
 import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
+import WeeklyCheckin from './WeeklyCheckin'; // <--- NUEVO IMPORT
 
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
@@ -58,6 +58,7 @@ const QuickAction = ({ icon: Icon, title, desc, to }) => (
 
 export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showCheckin, setShowCheckin] = useState(false); // Estado para el Check-in
   const [latestWeight, setLatestWeight] = useState(null);
   const [weightTrend, setWeightTrend] = useState([]);
   
@@ -101,7 +102,9 @@ export default function DashboardHome({ user }) {
     <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 pb-20">
       
       {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
+      {showCheckin && <WeeklyCheckin onClose={() => setShowCheckin(false)} />}
       
+      {/* SALUDO */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
@@ -111,12 +114,18 @@ export default function DashboardHome({ user }) {
             Bienvenido a tu panel de control. Aquí tienes el pulso de tu transformación.
           </p>
         </div>
-        <div className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 flex items-center gap-2">
-          <Zap size={16} className="text-yellow-300" />
-          Fase 1: Desintoxicación
-        </div>
+        
+        {/* CHECK-IN BUTTON (NUEVO) */}
+        <button 
+            onClick={() => setShowCheckin(true)}
+            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform"
+        >
+          <ClipboardCheck size={18} />
+          Check-in Semanal
+        </button>
       </div>
 
+      {/* STATS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Días Activos" value="Día 1" subtext="Inicio Fuerte" icon={Calendar} color="teal" />
         <StatCard title="Peso Actual" value={latestWeight ? `${latestWeight} kg` : "--"} subtext={latestWeight ? "Último registro" : "Sin datos"} icon={TrendingUp} color="indigo" />
@@ -129,7 +138,7 @@ export default function DashboardHome({ user }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planificar Menú" desc="Genera tu menú semanal automático o personalízalo." />
           <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Ir al Gimnasio" desc="Rutinas de 20 minutos para acelerar tu metabolismo." />
-          <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Mi Bitácora" desc="Registra tu peso, medidas y sensaciones diarias." />
+          <QuickAction to="/plataforma/bitacora" icon={Activity} title="Mi Bitácora" desc="Registra tu peso, medidas y sensaciones diarias." />
         </div>
       </div>
       
@@ -186,19 +195,10 @@ export default function DashboardHome({ user }) {
               <Achievement title="Chef en Casa" desc="Usa el planeador." unlocked={false} />
             </div>
           </div>
-
-          <Link to="/plataforma/biblioteca" className="block bg-gradient-to-r from-teal-600 to-emerald-600 p-5 rounded-2xl shadow-lg hover:shadow-teal-500/20 transition-all group">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-teal-100 text-xs font-bold uppercase tracking-wider mb-1">Educación</p>
-                <h3 className="text-white font-bold text-lg">Guía de Inicio</h3>
-              </div>
-              <ArrowRight className="text-white group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
         </div>
       </div>
       
+      {/* WIDGET DE DANTE AL FINAL */}
       <ChefDanteWidget />
     </div>
   );

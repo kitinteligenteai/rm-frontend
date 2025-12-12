@@ -1,9 +1,9 @@
 // src/components/dante/ChefDanteWidget.jsx
-// v6.0 - AI Coach Proactivo (Optimizado)
+// v6.0 - AI Coach Proactivo (Funciona con o sin imagen)
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, RefreshCw, User, ExternalLink, Sparkles, Scale, Utensils } from 'lucide-react'; 
+import { X, RefreshCw, User, ExternalLink, Sparkles, Scale } from 'lucide-react'; 
 import { danteMessages } from '../../data/danteContent';
 import { useUser } from '../../context/UserContext';
 import { Link } from 'react-router-dom';
@@ -13,6 +13,8 @@ const ChefDanteWidget = () => {
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(null);
+  
+  // Ruta de la imagen (Si no existe, se activará el fallback)
   const danteAvatarUrl = "/dante_avatar.png"; 
 
   // Función inteligente para elegir mensaje
@@ -29,13 +31,13 @@ const ChefDanteWidget = () => {
             .order('created_at', { ascending: false })
             .limit(1);
         
-        // Si nunca ha registrado, o hace más de 3 días
         const lastLog = logs?.[0];
+        // Si nunca ha registrado, o hace más de 3 días
         const daysSinceLog = lastLog ? (new Date() - new Date(lastLog.created_at)) / (1000 * 60 * 60 * 24) : 999;
 
         if (daysSinceLog > 3) {
              return { 
-                 message: "Hace días que no registras tu progreso. ¡Retoma el control hoy!", 
+                 message: "Hace días que no registras tu progreso en la Bitácora. ¡Retoma el control hoy!", 
                  action: "/plataforma/bitacora",
                  icon: <Scale size={18} className="text-indigo-400" />
              };
@@ -65,8 +67,8 @@ const ChefDanteWidget = () => {
             const msg = await pickSmartMessage();
             if (mounted && msg) {
                 setCurrentMessage(msg);
-                // Retraso para no invadir al usuario inmediatamente
-                setTimeout(() => setIsOpen(true), 2500);
+                // Retraso de 3 segundos para no invadir al usuario inmediatamente al entrar
+                setTimeout(() => setIsOpen(true), 3000);
             }
         }
     };
@@ -77,7 +79,6 @@ const ChefDanteWidget = () => {
 
   // Handler para pedir otro tip manual
   const handleNextTip = async () => {
-      // Al pedir manual, solo damos tips aleatorios, no regaños proactivos
       const categories = ['nutrition', 'hydration', 'motivation'];
       const cat = categories[Math.floor(Math.random() * categories.length)];
       const opts = danteMessages[cat];
@@ -90,6 +91,7 @@ const ChefDanteWidget = () => {
   return (
     <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
       
+      {/* GLOBO DE TEXTO */}
       <AnimatePresence>
         {isOpen && currentMessage && (
           <motion.div
@@ -105,7 +107,7 @@ const ChefDanteWidget = () => {
                 Tip del Chef
             </h4>
             
-            <p className="text-slate-700 text-sm leading-relaxed font-medium">
+            <p className="text-slate-700 text-sm leading-relaxed font-medium mt-1">
               {currentMessage.message}
             </p>
 
@@ -129,6 +131,7 @@ const ChefDanteWidget = () => {
         )}
       </AnimatePresence>
 
+      {/* BOTÓN FLOTANTE (PERSONAJE) */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.1 }}
@@ -141,15 +144,19 @@ const ChefDanteWidget = () => {
             alt="Chef Dante" 
             className="w-full h-full object-cover"
             onError={(e) => {
+                // SI NO HAY IMAGEN: Se oculta la etiqueta img y se muestra el icono de respaldo
                 e.target.style.display = 'none'; 
                 e.target.parentElement.classList.add('bg-indigo-600'); 
                 const icon = document.getElementById('dante-fallback-icon');
                 if(icon) icon.style.display = 'block';
             }} 
         />
+        {/* ICONO DE RESPALDO (Se muestra si falla la imagen) */}
         <div id="dante-fallback-icon" className="hidden absolute inset-0 flex items-center justify-center text-white">
             <User size={32} />
         </div>
+
+        {/* Punto rojo de notificación */}
         {!isOpen && <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 border-2 border-white rounded-full z-20"></span>}
       </motion.button>
     </div>
