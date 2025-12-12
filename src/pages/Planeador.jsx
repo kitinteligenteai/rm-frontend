@@ -1,5 +1,5 @@
-// src/pages/Planeador.jsx (v8.0 - Guía Visual Restaurada y Optimizada)
-import React, { useState } from 'react';
+// src/pages/Planeador.jsx (v9.0 - Meta Personalizada Conectada)
+import React, { useState, useEffect } from 'react';
 import { useSmartPlanner } from '../hooks/useSmartPlanner';
 import { recipes } from '../data/recipes';
 import ShoppingList from '../components/ShoppingList';
@@ -8,10 +8,10 @@ import {
   ShoppingCart, Sun, Moon, Coffee, Utensils, 
   Dumbbell, Dice5, XCircle, CheckCircle, Printer, Zap 
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const SlotIcons = { desayuno: Sun, comida: Utensils, cena: Moon, snack: Coffee };
 
-// --- COMPONENTE: ESTRATEGIA VISUAL (LO QUE FALTABA) ---
 const QuickStrategyVisual = () => (
   <div className="mb-8">
     <div className="bg-gradient-to-r from-indigo-900/80 to-slate-900 border border-indigo-500/30 p-6 rounded-3xl text-center print:bg-white print:border-0 print:p-0 print:text-left">
@@ -21,38 +21,30 @@ const QuickStrategyVisual = () => (
       </p>
       
       <div className="grid md:grid-cols-3 gap-4 text-left">
-        {/* Desayuno */}
         <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700 print:border-gray-300 print:bg-gray-50">
           <div className="flex items-center gap-2 mb-2 text-yellow-400 font-bold print:text-black">
             <Sun size={18} /> Desayuno
           </div>
           <p className="text-slate-300 text-sm print:text-gray-800">
-            <strong>Opción A:</strong> Huevos al gusto (2-3) con verduras (espinacas/nopales).<br/>
-            <strong>Opción B:</strong> Batido de Proteína (1 scoop + fresas + nueces).
+            <strong>Opción A:</strong> Huevos al gusto (2-3) con verduras.<br/>
+            <strong>Opción B:</strong> Batido de Proteína (1 scoop + fresas).
           </p>
         </div>
-
-        {/* Comida */}
         <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700 print:border-gray-300 print:bg-gray-50">
           <div className="flex items-center gap-2 mb-2 text-teal-400 font-bold print:text-black">
             <Utensils size={18} /> Comida Fuerte
           </div>
           <p className="text-slate-300 text-sm print:text-gray-800">
-            Elige una proteína asada (200g de Pollo, Res o Pescado) + <br/>
-            Montaña de Verduras (frescas o congeladas) + <br/>
-            Grasa buena (Aguacate o Aceite de Oliva).
+            Proteína asada (200g) + Montaña de Verduras + Grasa buena.
           </p>
         </div>
-
-        {/* Cena */}
         <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700 print:border-gray-300 print:bg-gray-50">
           <div className="flex items-center gap-2 mb-2 text-indigo-400 font-bold print:text-black">
             <Moon size={18} /> Cena Ligera
           </div>
           <p className="text-slate-300 text-sm print:text-gray-800">
-            Repite la opción del desayuno (Huevos/Batido) o algo ligero como:<br/>
-            Atún en agua con ensalada o Tostadas de pollo.<br/>
-            <span className="text-slate-500 italic print:text-gray-500 text-xs mt-1 block">Antojo: Gelatina light o Puñado de nueces.</span>
+            Repite desayuno o Atún con ensalada.<br/>
+            <span className="text-slate-500 italic print:text-gray-500 text-xs mt-1 block">Antojo: Gelatina o Nueces.</span>
           </p>
         </div>
       </div>
@@ -60,7 +52,6 @@ const QuickStrategyVisual = () => (
   </div>
 );
 
-// --- LISTA GENÉRICA ---
 const GenericShoppingList = () => (
   <div className="bg-white p-6 rounded-2xl shadow-xl border-t-4 border-indigo-500 print:border-0 print:shadow-none print:p-0 print:mt-6">
     <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -68,23 +59,21 @@ const GenericShoppingList = () => (
     </h3>
     <div className="grid md:grid-cols-2 gap-6 print:grid-cols-2 print:gap-4">
       <div>
-        <h4 className="font-bold text-teal-700 text-sm mb-2 uppercase tracking-wider">Proteínas (Base)</h4>
+        <h4 className="font-bold text-teal-700 text-sm mb-2 uppercase tracking-wider">Proteínas</h4>
         <ul className="space-y-2 text-sm text-slate-700">
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-teal-500"/> Huevos (30 pzas)</li>
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-teal-500"/> Atún en agua (5 latas)</li>
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-teal-500"/> Pechuga de Pollo (1 kg)</li>
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-teal-500"/> Carne Molida / Bistec (1 kg)</li>
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-teal-500"/> Proteína en Polvo (Sin azúcar)</li>
+          <li>• Huevos (30 pzas)</li>
+          <li>• Atún en agua (5 latas)</li>
+          <li>• Pechuga de Pollo / Carne (1 kg)</li>
+          <li>• Proteína en Polvo (Sin azúcar)</li>
         </ul>
       </div>
       <div>
         <h4 className="font-bold text-green-700 text-sm mb-2 uppercase tracking-wider">Vegetales y Grasas</h4>
         <ul className="space-y-2 text-sm text-slate-700">
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-green-500"/> Mix de Verduras Congeladas</li>
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-green-500"/> Espinacas y Nopales</li>
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-green-500"/> Aguacates (5-7 pzas)</li>
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-green-500"/> Nueces / Almendras</li>
-          <li className="flex items-center gap-2"><CheckCircle size={14} className="text-green-500"/> Aceite de Oliva / Ghee / Manteca</li>
+          <li>• Mix de Verduras Congeladas</li>
+          <li>• Espinacas, Nopales, Aguacates</li>
+          <li>• Nueces / Almendras</li>
+          <li>• Aceite de Oliva / Ghee</li>
         </ul>
       </div>
     </div>
@@ -97,6 +86,14 @@ export default function Planeador() {
   const [viewingRecipe, setViewingRecipe] = useState(null);
   const [selectedDaySlot, setSelectedDaySlot] = useState(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
+  
+  // ✅ NUEVO: Leemos la meta personalizada o usamos 90g por defecto
+  const [userGoal, setUserGoal] = useState(90);
+
+  useEffect(() => {
+    const savedGoal = localStorage.getItem('user_protein_goal');
+    if (savedGoal) setUserGoal(parseInt(savedGoal));
+  }, []);
 
   const RecipeSelectorModal = () => {
     if (!selectedDaySlot) return null;
@@ -126,11 +123,10 @@ export default function Planeador() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-full mx-auto pb-24 animate-in fade-in duration-500 print:p-8 print:bg-white">
+    <div className="p-4 md:p-8 max-w-full mx-auto pb-24 animate-in fade-in duration-500 print:p-0 print:bg-white">
       {selectedDaySlot && <RecipeSelectorModal />}
       {viewingRecipe && <RecipeDetailModal recipe={viewingRecipe} isOpen={true} onClose={() => setViewingRecipe(null)} />}
 
-      {/* HEADER - Oculto al imprimir */}
       <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-6 print:hidden">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Planeador Semanal</h1>
@@ -138,39 +134,52 @@ export default function Planeador() {
         </div>
         <div className="flex gap-3">
             <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 transition-colors">
-                <Printer className="w-4 h-4" /> Imprimir
+                <Printer className="w-4 h-4" /> Imprimir Menú
             </button>
             <div className="bg-slate-800 p-1 rounded-xl flex border border-slate-700">
-            <button onClick={() => setActiveTab('gusto')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'gusto' ? 'bg-teal-600 text-white' : 'text-slate-400'}`}>A mi Gusto</button>
-            <button onClick={() => setActiveTab('rapido')} className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 ${activeTab === 'rapido' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}> <Zap size={14}/> Modo Prisa</button>
+            <button onClick={() => setActiveTab('gusto')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'gusto' ? 'bg-teal-600 text-white' : 'text-slate-400'}`}>Planeador</button>
+            <button onClick={() => setActiveTab('rapido')} className={`px-4 py-2 rounded-lg text-sm font-bold ${activeTab === 'rapido' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}>Guía Rápida</button>
             </div>
         </div>
       </div>
 
-      {/* HEADER IMPRESIÓN */}
       <div className="hidden print:block mb-6 text-center border-b border-gray-200 pb-4">
         <h1 className="text-2xl font-bold text-black">Mi Plan Semanal - Reinicio Metabólico</h1>
         <p className="text-sm text-gray-600">Enfoque: 50% Vegetales | 25% Proteína | 25% Grasa</p>
       </div>
 
-      {/* --- MODO PRISA --- */}
       {activeTab === 'rapido' && (
         <div className="space-y-8">
-          {/* AQUÍ ESTÁ LA GUÍA VISUAL RESTAURADA */}
           <QuickStrategyVisual />
           <GenericShoppingList />
         </div>
       )}
 
-      {/* --- MODO A MI GUSTO --- */}
       {activeTab === 'gusto' && (
         <div className="space-y-8">
+          
+          {/* BARRA DE META PERSONALIZADA */}
+          <div className="bg-indigo-900/20 border border-indigo-500/30 p-4 rounded-xl flex flex-wrap gap-4 items-center justify-between print:hidden">
+            <div className="flex gap-4 items-center">
+                <div className="p-2 bg-indigo-500/20 rounded-lg text-emerald-400"><Dumbbell className="w-5 h-5" /></div>
+                <div>
+                    <h4 className="text-white font-bold text-sm">Meta Diaria: <span className="text-emerald-400">{userGoal}g Proteína</span></h4>
+                    <p className="text-indigo-200/80 text-xs">Mantén la barra llena para proteger tu músculo.</p>
+                </div>
+            </div>
+            <Link to="/plataforma/biblioteca" className="text-xs text-indigo-400 hover:text-white underline">
+                Recalcular mi meta →
+            </Link>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 print:grid-cols-7 print:gap-2 print:text-xs">
             {days.map((day) => {
               const dailyProtein = calculateDailyStats(day);
+              // Semáforo dinámico basado en la meta personal
+              const progress = Math.min((dailyProtein / userGoal) * 100, 100);
               let proteinColor = "bg-red-500";
-              if (dailyProtein > 60) proteinColor = "bg-yellow-500";
-              if (dailyProtein > 90) proteinColor = "bg-emerald-500";
+              if (progress > 60) proteinColor = "bg-yellow-500";
+              if (progress > 90) proteinColor = "bg-emerald-500";
 
               return (
                 <div key={day} className="min-w-[180px] lg:min-w-0 bg-slate-800/40 border border-slate-700 rounded-xl overflow-hidden flex flex-col print:bg-white print:border-gray-300 print:min-w-0">
@@ -197,6 +206,10 @@ export default function Planeador() {
                       );
                     })}
                   </div>
+                  {/* Barra de progreso de día */}
+                  <div className="h-1 w-full bg-slate-800 print:hidden">
+                    <div className={`h-full ${proteinColor}`} style={{ width: `${progress}%` }}></div>
+                  </div>
                 </div>
               );
             })}
@@ -213,6 +226,7 @@ export default function Planeador() {
                 <ShoppingList mealPlan={weekPlan} />
             </div>
           </div>
+
         </div>
       )}
     </div>
