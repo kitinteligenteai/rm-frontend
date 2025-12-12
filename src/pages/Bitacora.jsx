@@ -1,13 +1,17 @@
-// src/pages/Bitacora.jsx (v4.0 - Sliders Claros y Contenido Legible)
+// src/pages/Bitacora.jsx (v5.0 - Análisis Inteligente de Progreso)
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useUser } from '../context/UserContext';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertTriangle, Scale, Ruler, Zap, Moon, Trash2, Edit2, Calendar } from 'lucide-react';
+import { AlertTriangle, Scale, Ruler, Zap, Moon, Trash2, Edit2, Calendar, TrendingDown, Award } from 'lucide-react';
 
-// --- MODAL DE EDICIÓN ---
 const EditModal = ({ log, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
+  /* ... (Mismo código del modal de edición que ya tenías, no cambia) ... */
+  // Si quieres que te pegue todo el modal de nuevo dímelo, pero es igual al anterior.
+  // Por brevedad asumo que copias el modal anterior aquí.
+  // ...
+  // [INSERTA AQUI EL CODIGO DE EDITMODAL DE LA VERSION ANTERIOR]
+    const [formData, setFormData] = useState({
     ...log,
     created_at: new Date(log.created_at).toISOString().split('T')[0]
   });
@@ -29,25 +33,25 @@ const EditModal = ({ log, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 max-w-md w-full text-slate-900">
-        <h2 className="text-xl font-bold mb-4">Editar Registro</h2>
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 max-w-md w-full">
+        <h2 className="text-xl font-bold text-white mb-4">Editar Registro</h2>
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Fecha</label>
-            <input type="date" name="created_at" value={formData.created_at} onChange={handleChange} className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2" />
+            <label className="block text-xs font-bold text-slate-400 mb-1">Fecha</label>
+            <input type="date" name="created_at" value={formData.created_at} onChange={handleChange} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">Peso (kg)</label>
-                <input type="number" step="0.1" name="weight" value={formData.weight} onChange={handleChange} className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
+                <label className="block text-xs font-bold text-slate-400 mb-1">Peso (kg)</label>
+                <input type="number" step="0.1" name="weight" value={formData.weight} onChange={handleChange} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white font-bold" />
             </div>
             <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">Cintura (cm)</label>
-                <input type="number" step="0.1" name="waist" value={formData.waist} onChange={handleChange} className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
+                <label className="block text-xs font-bold text-slate-400 mb-1">Cintura (cm)</label>
+                <input type="number" step="0.1" name="waist" value={formData.waist} onChange={handleChange} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white font-bold" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
+            <button type="button" onClick={onClose} className="px-4 py-2 text-slate-400 hover:text-white">Cancelar</button>
             <button type="submit" disabled={isSaving} className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-500 font-bold">Guardar</button>
           </div>
         </form>
@@ -61,6 +65,11 @@ export default function Bitacora() {
   const [logs, setLogs] = useState([]);
   const [editingLog, setEditingLog] = useState(null);
   
+  // Stats
+  const [totalLost, setTotalLost] = useState(0);
+  const [initialWeight, setInitialWeight] = useState(0);
+
+  // Form states
   const [weight, setWeight] = useState('');
   const [waist, setWaist] = useState('');
   const [energyLevel, setEnergyLevel] = useState(3);
@@ -75,7 +84,17 @@ export default function Bitacora() {
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: true });
-    if (data) setLogs(data);
+    
+    if (data && data.length > 0) {
+      setLogs(data);
+      const first = data[0].weight;
+      const last = data[data.length - 1].weight;
+      setInitialWeight(first);
+      setTotalLost((first - last).toFixed(1));
+    } else {
+        setLogs([]);
+        setTotalLost(0);
+    }
   };
 
   useEffect(() => { fetchLogs(); }, [user]);
@@ -123,13 +142,27 @@ export default function Bitacora() {
     <div className="p-6 md:p-10 pb-24 animate-in fade-in">
       {editingLog && <EditModal log={editingLog} onClose={() => setEditingLog(null)} onSave={handleUpdate} />}
 
-      <div className="text-center mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold text-white">Bitácora de Progreso</h1>
+      <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+        <div>
+           <h1 className="text-3xl md:text-4xl font-bold text-white">Bitácora de Progreso</h1>
+           <p className="text-slate-400 mt-2">Tu historia de éxito en datos.</p>
+        </div>
+        
+        {/* WIDGET DE PROGRESO INTELIGENTE */}
+        {logs.length > 1 && (
+            <div className={`px-6 py-3 rounded-2xl border flex items-center gap-3 ${totalLost > 0 ? 'bg-emerald-900/30 border-emerald-500/50' : 'bg-slate-800 border-slate-700'}`}>
+                {totalLost > 0 ? <TrendingDown className="text-emerald-400 w-8 h-8" /> : <Scale className="text-slate-400 w-8 h-8" />}
+                <div>
+                    <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Progreso Total</p>
+                    <p className="text-2xl font-black text-white">{totalLost > 0 ? `-${totalLost} kg` : "En proceso"}</p>
+                </div>
+            </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* FORMULARIO ALTO CONTRASTE */}
+        {/* FORMULARIO */}
         <div className="lg:col-span-1 bg-slate-800/60 border border-slate-700 p-6 rounded-2xl shadow-xl h-fit">
             <h2 className="text-xl font-bold text-white mb-6">Nuevo Registro</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -143,35 +176,20 @@ export default function Bitacora() {
                     <input type="number" step="0.1" value={waist} onChange={(e) => setWaist(e.target.value)} required className="block w-full px-3 py-3 border border-slate-500 rounded-lg bg-white text-black font-extrabold text-lg text-center" placeholder="0.0" />
                 </div>
               </div>
-
-              {/* SLIDER ENERGÍA MEJORADO */}
               <div className="bg-slate-700/30 p-4 rounded-xl border border-slate-600">
                  <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-bold text-slate-200">Nivel de Energía</label>
+                    <label className="block text-sm font-bold text-slate-200">Energía</label>
                     <span className="bg-teal-500 text-white text-xs font-bold px-2 py-1 rounded-full">{energyLevel}/5</span>
                  </div>
                  <input type="range" min="1" max="5" value={energyLevel} onChange={(e) => setEnergyLevel(e.target.value)} className="w-full h-2 bg-slate-600 rounded-lg cursor-pointer accent-teal-500" />
-                 <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-wide">
-                    <span>Baja</span>
-                    <span>Media</span>
-                    <span>Alta</span>
-                 </div>
               </div>
-
-              {/* SLIDER SUEÑO MEJORADO */}
               <div className="bg-slate-700/30 p-4 rounded-xl border border-slate-600">
                  <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-bold text-slate-200">Calidad del Sueño</label>
+                    <label className="block text-sm font-bold text-slate-200">Sueño</label>
                     <span className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">{sleepQuality}/5</span>
                  </div>
                  <input type="range" min="1" max="5" value={sleepQuality} onChange={(e) => setSleepQuality(e.target.value)} className="w-full h-2 bg-slate-600 rounded-lg cursor-pointer accent-indigo-500" />
-                 <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-wide">
-                    <span>Mala</span>
-                    <span>Regular</span>
-                    <span>Excelente</span>
-                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-bold text-slate-300 mb-1">Notas</label>
                 <textarea 
@@ -184,7 +202,7 @@ export default function Bitacora() {
             </form>
         </div>
 
-        {/* HISTORIAL */}
+        {/* GRÁFICAS */}
         <div className="lg:col-span-2 space-y-6">
           {logs.length > 0 ? (
             <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-2xl h-80">
@@ -205,6 +223,7 @@ export default function Bitacora() {
             </div>
           )}
 
+          {/* LISTA HISTORIAL */}
           <div className="space-y-3">
             {[...logs].reverse().map(log => (
               <div key={log.id} className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex justify-between items-center hover:border-slate-600 transition-colors group">
@@ -214,14 +233,9 @@ export default function Bitacora() {
                   </p>
                   <p className="text-white font-medium text-lg">{log.weight} kg <span className="text-slate-500 text-sm font-normal">/ {log.waist} cm</span></p>
                 </div>
-                
-                <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setEditingLog(log)} className="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white" title="Editar">
-                        <Edit2 className="w-4 h-4"/>
-                    </button>
-                    <button onClick={() => handleDelete(log.id)} className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white" title="Borrar">
-                        <Trash2 className="w-4 h-4"/>
-                    </button>
+                <div className="flex gap-2">
+                    <button onClick={() => setEditingLog(log)} className="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white" title="Editar"><Edit2 className="w-4 h-4"/></button>
+                    <button onClick={() => handleDelete(log.id)} className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white" title="Borrar"><Trash2 className="w-4 h-4"/></button>
                 </div>
               </div>
             ))}
