@@ -1,5 +1,5 @@
 // src/components/dashboard/OnboardingModal.jsx
-// v2.0 - Fix: Sin recarga de página para evitar bucles
+// v3.0 - Fix Bucle: Pasa el nombre al padre sin recargar
 
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
@@ -16,20 +16,20 @@ export default function OnboardingModal({ user, onComplete }) {
     setLoading(true);
     
     try {
-      // 1. Guardar en metadata de Supabase Auth
+      // 1. Guardar en metadata de Supabase Auth (Backend)
       const { error } = await supabase.auth.updateUser({
         data: { full_name: name }
       });
 
       if (error) throw error;
 
-      // 2. ÉXITO: No recargamos. Solo avisamos al padre que terminamos.
-      // El UserContext detectará el cambio automáticamente.
-      onComplete(); 
+      // 2. ÉXITO: Pasamos el nombre al componente padre para que actualice la vista
+      // SIN recargar la página.
+      onComplete(name); 
 
     } catch (err) {
       console.error("Error al guardar nombre:", err);
-      alert("Hubo un pequeño error al guardar. Intenta de nuevo.");
+      alert("Hubo un pequeño error de conexión. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -58,7 +58,7 @@ export default function OnboardingModal({ user, onComplete }) {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-900 font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
           >
             {loading ? <Loader2 className="animate-spin" /> : 'Comenzar mi Transformación 🚀'}
           </button>

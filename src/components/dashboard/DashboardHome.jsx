@@ -1,20 +1,20 @@
 // src/components/dashboard/DashboardHome.jsx
-// v6.0 - Dashboard Completo con Check-in Semanal Integrado
+// v6.1 - Con botón para Editar Nombre
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
-  TrendingUp, ArrowRight, Zap, Activity, ClipboardCheck 
+  TrendingUp, ArrowRight, Zap, Activity, Edit2 // <--- Agregamos Edit2
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from "recharts";
 import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
-import WeeklyCheckin from './WeeklyCheckin'; // <--- NUEVO IMPORT
 
+// ... (StatCard, Achievement, QuickAction se quedan IGUAL) ...
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
     <div className={`absolute top-0 right-0 p-3 opacity-10 text-${color}-400`}>
@@ -58,21 +58,28 @@ const QuickAction = ({ icon: Icon, title, desc, to }) => (
 
 export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showCheckin, setShowCheckin] = useState(false); // Estado para el Check-in
   const [latestWeight, setLatestWeight] = useState(null);
   const [weightTrend, setWeightTrend] = useState([]);
   
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
+  // Estado local para el nombre
+  const [displayName, setDisplayName] = useState("Campeón");
 
   useEffect(() => {
-    const currentName = user?.user_metadata?.full_name;
-    if (!currentName || currentName === "Miembro Fundador") {
+    if (!user) return;
+
+    // 1. Determinar nombre inicial
+    const metaName = user.user_metadata?.full_name;
+    const emailName = user.email?.split('@')[0];
+    
+    if (!metaName || metaName === "Miembro Fundador") {
       setShowOnboarding(true);
+      setDisplayName(emailName || "Campeón");
+    } else {
+      setDisplayName(metaName);
     }
 
+    // 2. Traer datos
     const fetchData = async () => {
-      if (!user) return;
-      
       const { data, error } = await supabase
         .from('progress_logs')
         .select('weight, created_at')
@@ -93,39 +100,41 @@ export default function DashboardHome({ user }) {
 
   }, [user]);
 
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false);
-    window.location.reload();
+  const handleOnboardingComplete = (newName) => {
+    setDisplayName(newName); 
+    setShowOnboarding(false); 
   };
 
   return (
     <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 pb-20">
       
       {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
-      {showCheckin && <WeeklyCheckin onClose={() => setShowCheckin(false)} />}
       
-      {/* SALUDO */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            Hola, {displayName} <span className="animate-wave inline-block">👋</span>
-          </h1>
+          <div className="flex items-center gap-3">
+             <h1 className="text-3xl md:text-4xl font-bold text-white">
+                Hola, {displayName} <span className="animate-wave inline-block">👋</span>
+             </h1>
+             {/* BOTÓN EDITAR NOMBRE */}
+             <button 
+                onClick={() => setShowOnboarding(true)}
+                className="text-slate-500 hover:text-teal-400 transition-colors p-1 rounded-full hover:bg-slate-800"
+                title="Cambiar mi nombre"
+             >
+                <Edit2 size={18} />
+             </button>
+          </div>
           <p className="text-slate-400 mt-2 max-w-xl">
             Bienvenido a tu panel de control. Aquí tienes el pulso de tu transformación.
           </p>
         </div>
-        
-        {/* CHECK-IN BUTTON (NUEVO) */}
-        <button 
-            onClick={() => setShowCheckin(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform"
-        >
-          <ClipboardCheck size={18} />
-          Check-in Semanal
-        </button>
+        <div className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+          <Zap size={16} className="text-yellow-300" />
+          Fase 1: Desintoxicación
+        </div>
       </div>
 
-      {/* STATS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Días Activos" value="Día 1" subtext="Inicio Fuerte" icon={Calendar} color="teal" />
         <StatCard title="Peso Actual" value={latestWeight ? `${latestWeight} kg` : "--"} subtext={latestWeight ? "Último registro" : "Sin datos"} icon={TrendingUp} color="indigo" />
@@ -138,7 +147,7 @@ export default function DashboardHome({ user }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planificar Menú" desc="Genera tu menú semanal automático o personalízalo." />
           <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Ir al Gimnasio" desc="Rutinas de 20 minutos para acelerar tu metabolismo." />
-          <QuickAction to="/plataforma/bitacora" icon={Activity} title="Mi Bitácora" desc="Registra tu peso, medidas y sensaciones diarias." />
+          <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Mi Bitácora" desc="Registra tu peso, medidas y sensaciones diarias." />
         </div>
       </div>
       
@@ -198,7 +207,6 @@ export default function DashboardHome({ user }) {
         </div>
       </div>
       
-      {/* WIDGET DE DANTE AL FINAL */}
       <ChefDanteWidget />
     </div>
   );
