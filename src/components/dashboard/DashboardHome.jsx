@@ -1,12 +1,13 @@
 // src/components/dashboard/DashboardHome.jsx
-// v6.1 - Con botón para Editar Nombre
+// v6.2 - FIX: Import faltante BookHeart
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
-  TrendingUp, ArrowRight, Zap, Activity, Edit2 // <--- Agregamos Edit2
+  TrendingUp, ArrowRight, Zap, Activity, Edit2, 
+  BookHeart // <--- ✅ ESTE FALTABA Y CAUSABA LA PANTALLA NEGRA
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -14,7 +15,7 @@ import {
 import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
 
-// ... (StatCard, Achievement, QuickAction se quedan IGUAL) ...
+// --- COMPONENTES INTERNOS ---
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
     <div className={`absolute top-0 right-0 p-3 opacity-10 text-${color}-400`}>
@@ -116,7 +117,6 @@ export default function DashboardHome({ user }) {
              <h1 className="text-3xl md:text-4xl font-bold text-white">
                 Hola, {displayName} <span className="animate-wave inline-block">👋</span>
              </h1>
-             {/* BOTÓN EDITAR NOMBRE */}
              <button 
                 onClick={() => setShowOnboarding(true)}
                 className="text-slate-500 hover:text-teal-400 transition-colors p-1 rounded-full hover:bg-slate-800"
@@ -147,6 +147,7 @@ export default function DashboardHome({ user }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planificar Menú" desc="Genera tu menú semanal automático o personalízalo." />
           <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Ir al Gimnasio" desc="Rutinas de 20 minutos para acelerar tu metabolismo." />
+          {/* ✅ AQUÍ SE USA BOOKHEART */}
           <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Mi Bitácora" desc="Registra tu peso, medidas y sensaciones diarias." />
         </div>
       </div>
