@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v8.0 Final - Tracker 7 Días + SOS Correcto + Gráficas
+// v9.5 - Lógica Clínica RM: Hidratación x Peso + Electrolitos + Sin Límite de Días
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
   TrendingUp, ArrowRight, Activity, BookHeart,
-  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle
+  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -16,15 +16,16 @@ import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
 
-// --- PLAN DE 7 DÍAS (Textos Curados) ---
-const PLAN_7_DIAS = [
-  { dia: 1, fase: "Desintoxicación", titulo: "Adiós Inflamación", tareas: ["Vaso de agua con limón al despertar", "Eliminar azúcar y harinas blancas por completo", "Cena ligera (proteína+verde) antes de las 8 PM"] },
-  { dia: 2, fase: "Desintoxicación", titulo: "Hidratación Profunda", tareas: ["Meta: 3 litros de agua hoy", "Añadir pizca de sal marina al agua (electrolitos)", "Caminata de 15 min después de comer"] },
-  { dia: 3, fase: "Desintoxicación", titulo: "Descanso Digestivo", tareas: ["Ayuno nocturno de 12 horas mínimo", "Infusión relajante (sin cafeína) antes de dormir", "Dormir antes de las 10:30 PM"] },
-  { dia: 4, fase: "Reactivación", titulo: "Densidad Nutricional", tareas: ["Desayuno alto en proteínas (huevos/carne)", "Cero aceites vegetales (soya/canola/maíz)", "Grasas buenas: Aguacate, Aceite de Oliva, Ghee"] },
-  { dia: 5, fase: "Reactivación", titulo: "Movimiento Estratégico", tareas: ["Rutina de fuerza o resistencia (20 min)", "Ducha de contraste frío/calor (activación)", "Comer hasta la saciedad, no hasta reventar"] },
-  { dia: 6, fase: "Optimización", titulo: "Flexibilidad Metabólica", tareas: ["Ayuno de 14 horas (si te sientes bien)", "Primera comida: Baja en carbohidratos", "5 minutos de respiración consciente"] },
-  { dia: 7, fase: "Optimización", titulo: "Celebración", tareas: ["Planificar menú de la próxima semana", "Comida libre consciente (disfruta, no te atasques)", "Agradecer a tu cuerpo por el esfuerzo"] },
+// --- CONFIGURACIÓN DE FASES (CÍCLICAS/ESTILO DE VIDA) ---
+// No son días fijos que "terminan", son enfoques diarios.
+const GUIA_DIARIA = [
+  { fase: "Desintoxicación", titulo: "Adiós Inflamación", tareas: ["Agua + Pizca de sal al despertar", "Cero azúcar/harinas hoy", "Cena ligera (proteína+verde)"] },
+  { fase: "Desintoxicación", titulo: "Hidratación Profunda", tareas: ["Cumplir meta de agua (ver calculadora)", "Añadir minerales (sal/limón)", "Movimiento ligero 15 min"] },
+  { fase: "Desintoxicación", titulo: "Descanso Digestivo", tareas: ["Ayuno nocturno 12h mínimo", "Infusión relajante noche", "Dormir antes de las 10:30 PM"] },
+  { fase: "Reactivación", titulo: "Densidad Nutricional", tareas: ["Desayuno alto en proteína", "Grasas: Aguacate/Oliva/Ghee", "Cero aceites vegetales"] },
+  { fase: "Reactivación", titulo: "Movimiento Estratégico", tareas: ["Fuerza o Resistencia (20 min)", "Ducha contraste frío/calor", "Comer hasta saciedad (no reventar)"] },
+  { fase: "Optimización", titulo: "Flexibilidad Metabólica", tareas: ["Ayuno 14h (si hay energía)", "Primera comida baja en carbs", "Respiración consciente 5 min"] },
+  { fase: "Mantenimiento", titulo: "Estilo de Vida", tareas: ["Planificar menú semanal", "Comida libre consciente", "Agradecer a tu cuerpo"] },
 ];
 
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
@@ -72,13 +73,22 @@ export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showSOS, setShowSOS] = useState(false);
   
-  const [latestWeight, setLatestWeight] = useState(null);
+  const [latestWeight, setLatestWeight] = useState(70); // Default 70kg para cálculo inicial
   const [weightTrend, setWeightTrend] = useState([]);
+  
   const [diaActivo, setDiaActivo] = useState(1);
   const [trackerData, setTrackerData] = useState({ agua_vasos: 0, tareas_completadas: [] });
   
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
-  const infoDia = PLAN_7_DIAS.find(d => d.dia === diaActivo);
+  
+  // Seleccionar info del día (cíclico para que nunca se acabe el contenido)
+  const infoDia = GUIA_DIARIA[(diaActivo - 1) % GUIA_DIARIA.length];
+
+  // --- CÁLCULO DE HIDRATACIÓN RM (35ml x Kg) ---
+  const dailyMl = latestWeight * 35;
+  const glassSize = 250; // ml
+  const targetGlasses = Math.ceil(dailyMl / glassSize);
+  const liters = (dailyMl / 1000).toFixed(1);
 
   useEffect(() => {
     const currentName = user?.user_metadata?.full_name;
@@ -144,24 +154,20 @@ export default function DashboardHome({ user }) {
     updateTracker({ tareas_completadas: nuevaLista });
   };
 
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false);
-    window.location.reload();
-  };
-
   return (
-    <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 pb-24">
-      {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
+    <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 pb-40">
+      
+      {showOnboarding && <OnboardingModal user={user} onComplete={() => window.location.reload()} />}
       {showSOS && <SOSCenter onClose={() => setShowSOS(false)} />}
       
-      {/* HEADER + BOTÓN SOS CLARO */}
+      {/* HEADER + BOTÓN SOS */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             Hola, {displayName} <span className="animate-wave inline-block">👋</span>
           </h1>
           <p className="text-slate-400 mt-2">
-            Día {diaActivo}: <span className="text-teal-400 font-bold">{infoDia.fase}</span>
+            <span className="text-teal-400 font-bold">{infoDia.fase}</span> • Día {diaActivo}
           </p>
         </div>
         
@@ -174,26 +180,29 @@ export default function DashboardHome({ user }) {
         </button>
       </div>
 
-      {/* TRACKER */}
+      {/* TRACKER DIARIO */}
       <div className="space-y-6">
+        {/* Selector de Días (Infinito/Continuo) */}
         <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
-          {PLAN_7_DIAS.map((d) => (
+          {/* Mostramos una ventana de días, por ejemplo 1 al 30, o dinámico */}
+          {Array.from({ length: 30 }, (_, i) => i + 1).map((d) => (
             <button
-              key={d.dia}
-              onClick={() => setDiaActivo(d.dia)}
+              key={d}
+              onClick={() => setDiaActivo(d)}
               className={`flex-shrink-0 w-16 h-20 rounded-xl flex flex-col items-center justify-center transition-all border ${
-                diaActivo === d.dia
+                diaActivo === d
                   ? "bg-teal-600 border-teal-500 text-white shadow-lg scale-105"
                   : "bg-slate-800 border-slate-700 text-slate-500 hover:bg-slate-750"
               }`}
             >
               <span className="text-xs font-bold uppercase mb-1">DÍA</span>
-              <span className="text-2xl font-black">{d.dia}</span>
+              <span className="text-2xl font-black">{d}</span>
             </button>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Tareas del Protocolo */}
           <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5 text-white">
                 <Flame size={120} />
@@ -229,32 +238,56 @@ export default function DashboardHome({ user }) {
              </div>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center items-center text-center">
-            <div className="bg-blue-500/10 p-4 rounded-full mb-4">
-              <Droplets className="text-blue-400 w-10 h-10" />
-            </div>
-            <h3 className="text-white font-bold text-lg">Hidratación</h3>
-            <p className="text-slate-400 text-xs mb-4">Meta: 8 vasos</p>
-            <div className="text-4xl font-black text-white mb-6">
-              {trackerData.agua_vasos}<span className="text-lg text-slate-500 font-medium">/8</span>
-            </div>
-            <div className="flex gap-3 w-full">
-              <button 
-                onClick={() => updateTracker({ agua_vasos: Math.max(0, trackerData.agua_vasos - 1) })}
-                className="flex-1 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold"
-              >-</button>
-              <button 
-                onClick={() => updateTracker({ agua_vasos: trackerData.agua_vasos + 1 })}
-                className="flex-[2] py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg"
-              >+ Vaso</button>
+          {/* HIDRATACIÓN CLÍNICA RM */}
+          <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
+            
+            <div className="relative z-10 w-full">
+                <div className="flex justify-center items-center gap-2 mb-2">
+                    <div className="bg-blue-500/10 p-2 rounded-full">
+                        <Droplets className="text-blue-400 w-6 h-6" />
+                    </div>
+                    <h3 className="text-white font-bold text-lg">Hidratación RM</h3>
+                </div>
+                
+                <p className="text-slate-400 text-xs mb-4">
+                    Tu meta ({latestWeight}kg x 35ml): <br/>
+                    <span className="text-blue-300 font-bold text-base">{liters} Litros</span> al día
+                </p>
+
+                <div className="text-5xl font-black text-white mb-2">
+                {trackerData.agua_vasos}<span className="text-xl text-slate-500 font-medium">/{targetGlasses}</span>
+                </div>
+                <p className="text-xs text-slate-500 mb-6">Vasos de 250ml</p>
+
+                <div className="flex gap-3 w-full mb-4">
+                    <button 
+                        onClick={() => updateTracker({ agua_vasos: Math.max(0, trackerData.agua_vasos - 1) })}
+                        className="flex-1 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold transition-colors"
+                    >-</button>
+                    <button 
+                        onClick={() => updateTracker({ agua_vasos: trackerData.agua_vasos + 1 })}
+                        className="flex-[2] py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30 transition-colors"
+                    >+ Vaso</button>
+                </div>
+
+                {/* Recordatorio de Electrolitos */}
+                <div className="bg-yellow-900/20 border border-yellow-700/30 p-3 rounded-xl flex items-start gap-3 text-left">
+                    <Zap className="text-yellow-500 w-4 h-4 mt-0.5 shrink-0" />
+                    <div>
+                        <p className="text-yellow-200 text-xs font-bold">¡Ojo! Agua sola NO hidrata.</p>
+                        <p className="text-yellow-200/70 text-[10px] leading-snug">
+                            Si tienes dolor de cabeza o mareo, añade una pizca de sal marina o limón a tu vaso.
+                        </p>
+                    </div>
+                </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* RESTO DEL DASHBOARD */}
+      {/* ESTADÍSTICAS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Peso Inicial" value={latestWeight ? `${latestWeight} kg` : "--"} subtext="Inicio" icon={TrendingUp} color="indigo" />
+        <StatCard title="Peso Actual" value={latestWeight ? `${latestWeight} kg` : "--"} subtext="Base de cálculo" icon={TrendingUp} color="indigo" />
         <StatCard title="Recetas" value="61" subtext="Disponibles" icon={Utensils} color="orange" />
         <StatCard title="Nivel" value="Iniciado" subtext="Fundador" icon={Award} color="emerald" />
         <StatCard title="Estatus" value="Activo" subtext="Premium" icon={BookHeart} color="pink" />
