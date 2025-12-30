@@ -1,9 +1,8 @@
 // src/components/dashboard/SOSCenter.jsx
-// Módulo de Intervención de Crisis (Valor $75 USD)
+// Módulo de Intervención de Crisis - Texto Corregido
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, HeartCrack, BatteryWarning, Play, Pause, AlertTriangle } from 'lucide-react';
+import { X, Zap, HeartCrack, BatteryWarning, Play, Pause, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 const CRISIS_OPTIONS = [
   {
@@ -41,11 +40,13 @@ const SOSAudioPlayer = ({ text }) => {
       window.speechSynthesis.cancel();
       setPlaying(false);
     } else {
+      window.speechSynthesis.cancel(); // Cancelar previos
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'es-MX';
-      utterance.rate = 0.9; // Un poco más lento para calmar
-      utterance.pitch = 0.9; // Tono más grave/serio
+      utterance.rate = 0.9;
+      utterance.pitch = 0.9;
       utterance.onend = () => setPlaying(false);
+      utterance.onerror = () => setPlaying(false);
       window.speechSynthesis.speak(utterance);
       setPlaying(true);
     }
@@ -72,11 +73,11 @@ export default function SOSCenter({ onClose }) {
       <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* HEADER */}
-        <div className="p-6 bg-red-900/20 border-b border-red-500/20 flex justify-between items-center">
+        <div className="p-6 bg-red-900/20 border-b border-red-500/20 flex justify-between items-center shrink-0">
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <AlertTriangle className="text-red-500" /> Centro de Crisis
+            <AlertTriangle className="text-red-500" /> SOS: Antojos / Crisis
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-2 bg-slate-800 rounded-full">
+          <button onClick={() => { window.speechSynthesis.cancel(); onClose(); }} className="text-slate-400 hover:text-white p-2 bg-slate-800 rounded-full hover:bg-slate-700">
             <X size={20} />
           </button>
         </div>
@@ -104,9 +105,9 @@ export default function SOSCenter({ onClose }) {
             <div className="animate-in slide-in-from-right duration-300">
               <button 
                 onClick={() => { window.speechSynthesis.cancel(); setSelectedCrisis(null); }}
-                className="text-sm text-slate-400 hover:text-white mb-4 flex items-center gap-1"
+                className="text-sm text-slate-400 hover:text-white mb-4 flex items-center gap-2 font-medium"
               >
-                ← Volver al menú
+                <ArrowLeft size={16} /> Volver al menú
               </button>
 
               <div className="text-center mb-8">
@@ -117,14 +118,17 @@ export default function SOSCenter({ onClose }) {
               </div>
 
               {/* REPRODUCTOR DE AUDIO */}
-              <div className="mb-8">
+              <div className="mb-8 p-1 bg-slate-800 rounded-2xl">
                 <SOSAudioPlayer text={selectedCrisis.audioText} />
-                <p className="text-center text-xs text-slate-500 mt-2">Sube el volumen y cierra los ojos.</p>
+                <p className="text-center text-xs text-slate-500 mt-3 font-medium">Sube el volumen y cierra los ojos.</p>
               </div>
 
               {/* TARJETA DE ACCIÓN */}
-              <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-xl">
-                <h4 className="text-teal-400 font-bold uppercase tracking-wider text-xs mb-2">Protocolo de Acción Inmediata:</h4>
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-6 rounded-2xl">
+                <h4 className="text-teal-400 font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-2">
+                    <Zap size={14} />
+                    Protocolo de Acción Inmediata
+                </h4>
                 <p className="text-white text-lg leading-relaxed font-medium">
                   {selectedCrisis.action}
                 </p>

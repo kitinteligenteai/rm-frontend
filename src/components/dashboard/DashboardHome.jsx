@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v8.0 - Fusión: Dashboard v7 + Tracker Interactivo de 7 Días
+// v8.0 Final - Tracker 7 Días + SOS Correcto + Gráficas
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
   TrendingUp, ArrowRight, Activity, BookHeart,
-  LifeBuoy, CheckCircle, Circle, Droplets, Flame
+  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -16,18 +16,16 @@ import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
 
-// --- CONFIGURACIÓN DEL PLAN DE 7 DÍAS (Manual Maestro) ---
+// --- PLAN DE 7 DÍAS (Textos Curados) ---
 const PLAN_7_DIAS = [
-  { dia: 1, fase: "Desintoxicación", titulo: "Adiós Inflamación", tareas: ["Vaso de agua con limón al despertar", "Eliminar azúcar y harinas blancas", "Cena ligera antes de las 8 PM"] },
-  { dia: 2, fase: "Desintoxicación", titulo: "Hidratación Profunda", tareas: ["Beber 3 litros de agua hoy", "Añadir pizca de sal marina al agua", "Caminata de 15 min post-comida"] },
-  { dia: 3, fase: "Desintoxicación", titulo: "Descanso Digestivo", tareas: ["Ayuno nocturno de 12 horas", "Infusión relajante antes de dormir", "Dormir antes de las 10:30 PM"] },
-  { dia: 4, fase: "Reactivación", titulo: "Densidad Nutricional", tareas: ["Desayuno alto en proteínas", "Cero aceites vegetales hoy", "Consumir aguacate o aceite de oliva"] },
-  { dia: 5, fase: "Reactivación", titulo: "Movimiento Estratégico", tareas: ["Rutina de fuerza (20 min)", "Ducha de contraste frío/calor", "Comer hasta la saciedad, no reventar"] },
-  { dia: 6, fase: "Optimización", titulo: "Flexibilidad Metabólica", tareas: ["Ayuno de 14 horas (opcional)", "Primera comida baja en carbohidratos", "5 minutos de respiración consciente"] },
-  { dia: 7, fase: "Optimización", titulo: "Celebración", tareas: ["Planificar menú de la próxima semana", "Comida libre consciente", "Agradecer a tu cuerpo"] },
+  { dia: 1, fase: "Desintoxicación", titulo: "Adiós Inflamación", tareas: ["Vaso de agua con limón al despertar", "Eliminar azúcar y harinas blancas por completo", "Cena ligera (proteína+verde) antes de las 8 PM"] },
+  { dia: 2, fase: "Desintoxicación", titulo: "Hidratación Profunda", tareas: ["Meta: 3 litros de agua hoy", "Añadir pizca de sal marina al agua (electrolitos)", "Caminata de 15 min después de comer"] },
+  { dia: 3, fase: "Desintoxicación", titulo: "Descanso Digestivo", tareas: ["Ayuno nocturno de 12 horas mínimo", "Infusión relajante (sin cafeína) antes de dormir", "Dormir antes de las 10:30 PM"] },
+  { dia: 4, fase: "Reactivación", titulo: "Densidad Nutricional", tareas: ["Desayuno alto en proteínas (huevos/carne)", "Cero aceites vegetales (soya/canola/maíz)", "Grasas buenas: Aguacate, Aceite de Oliva, Ghee"] },
+  { dia: 5, fase: "Reactivación", titulo: "Movimiento Estratégico", tareas: ["Rutina de fuerza o resistencia (20 min)", "Ducha de contraste frío/calor (activación)", "Comer hasta la saciedad, no hasta reventar"] },
+  { dia: 6, fase: "Optimización", titulo: "Flexibilidad Metabólica", tareas: ["Ayuno de 14 horas (si te sientes bien)", "Primera comida: Baja en carbohidratos", "5 minutos de respiración consciente"] },
+  { dia: 7, fase: "Optimización", titulo: "Celebración", tareas: ["Planificar menú de la próxima semana", "Comida libre consciente (disfruta, no te atasques)", "Agradecer a tu cuerpo por el esfuerzo"] },
 ];
-
-// --- COMPONENTES VISUALES ---
 
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
@@ -46,6 +44,18 @@ const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   </div>
 );
 
+const Achievement = ({ title, desc, unlocked }) => (
+  <div className={`flex items-center gap-4 p-3 rounded-xl border ${unlocked ? 'bg-slate-800/60 border-teal-500/30' : 'bg-slate-900 border-slate-800 opacity-50'}`}>
+    <div className={`p-2 rounded-full ${unlocked ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20' : 'bg-slate-700 text-slate-500'}`}>
+      {unlocked ? <Award size={20} /> : <Award size={20} />}
+    </div>
+    <div>
+      <h4 className={`font-bold text-sm ${unlocked ? 'text-white' : 'text-slate-500'}`}>{title}</h4>
+      <p className="text-xs text-slate-400">{desc}</p>
+    </div>
+  </div>
+);
+
 const QuickAction = ({ icon: Icon, title, desc, to }) => (
   <Link to={to} className="group flex items-start gap-4 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800 hover:border-teal-500/30 transition-all">
     <div className="p-3 rounded-lg bg-teal-500/10 text-teal-400 group-hover:bg-teal-500 group-hover:text-white transition-colors">
@@ -58,38 +68,29 @@ const QuickAction = ({ icon: Icon, title, desc, to }) => (
   </Link>
 );
 
-// --- COMPONENTE PRINCIPAL ---
-
 export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showSOS, setShowSOS] = useState(false);
   
-  // Datos de Peso (Existente)
   const [latestWeight, setLatestWeight] = useState(null);
   const [weightTrend, setWeightTrend] = useState([]);
-
-  // Datos del Tracker de 7 Días (Nuevo)
   const [diaActivo, setDiaActivo] = useState(1);
   const [trackerData, setTrackerData] = useState({ agua_vasos: 0, tareas_completadas: [] });
-  const [loadingTracker, setLoadingTracker] = useState(false);
   
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
   const infoDia = PLAN_7_DIAS.find(d => d.dia === diaActivo);
 
   useEffect(() => {
-    // 1. Validar nombre (Onboarding)
     const currentName = user?.user_metadata?.full_name;
     if (!currentName || currentName === "Miembro Fundador") {
       setShowOnboarding(true);
     }
-
     if (user) {
       fetchWeightData();
       fetchTrackerData(diaActivo);
     }
   }, [user, diaActivo]);
 
-  // --- LOGICA DE PESO (Tu código original) ---
   const fetchWeightData = async () => {
     const { data, error } = await supabase
       .from('progress_logs')
@@ -108,9 +109,7 @@ export default function DashboardHome({ user }) {
     }
   };
 
-  // --- LOGICA DEL TRACKER (Nueva funcionalidad) ---
   const fetchTrackerData = async (dia) => {
-    setLoadingTracker(true);
     const { data } = await supabase
       .from('seguimiento_7dias')
       .select('*')
@@ -123,15 +122,11 @@ export default function DashboardHome({ user }) {
     } else {
       setTrackerData({ agua_vasos: 0, tareas_completadas: [] });
     }
-    setLoadingTracker(false);
   };
 
   const updateTracker = async (updates) => {
-    // Actualización optimista (UI instantánea)
     setTrackerData(prev => ({ ...prev, ...updates }));
-
-    // Guardar en DB
-    const { error } = await supabase
+    await supabase
       .from('seguimiento_7dias')
       .upsert({
         user_id: user.id,
@@ -139,8 +134,6 @@ export default function DashboardHome({ user }) {
         ...updates,
         updated_at: new Date()
       }, { onConflict: 'user_id, dia_numero' });
-
-    if (error) console.error("Error guardando tracker:", error);
   };
 
   const toggleTarea = (tarea) => {
@@ -158,34 +151,31 @@ export default function DashboardHome({ user }) {
 
   return (
     <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 pb-24">
-      
-      {/* MODALES */}
       {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
       {showSOS && <SOSCenter onClose={() => setShowSOS(false)} />}
       
-      {/* HEADER + BOTÓN SOS */}
+      {/* HEADER + BOTÓN SOS CLARO */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             Hola, {displayName} <span className="animate-wave inline-block">👋</span>
           </h1>
           <p className="text-slate-400 mt-2">
-            Día {diaActivo} del Reinicio: <span className="text-teal-400 font-bold">{infoDia.fase}</span>
+            Día {diaActivo}: <span className="text-teal-400 font-bold">{infoDia.fase}</span>
           </p>
         </div>
         
         <button 
           onClick={() => setShowSOS(true)}
-          className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/50 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-red-900/20"
+          className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/50 px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-red-900/20 animate-pulse hover:animate-none"
         >
-          <LifeBuoy size={18} />
-          SOS
+          <AlertTriangle size={18} />
+          SOS: Antojos / Crisis
         </button>
       </div>
 
-      {/* --- SECCIÓN NUEVA: TRACKER DE 7 DÍAS --- */}
+      {/* TRACKER */}
       <div className="space-y-6">
-        {/* Selector de Días */}
         <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
           {PLAN_7_DIAS.map((d) => (
             <button
@@ -203,21 +193,16 @@ export default function DashboardHome({ user }) {
           ))}
         </div>
 
-        {/* Panel Interactivo del Día */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Columna Izquierda: Tareas */}
           <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5 text-white">
                 <Flame size={120} />
              </div>
-             
              <div className="relative z-10">
                 <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                  <Activity className="text-teal-400" /> 
-                  {infoDia.titulo}
+                  <Activity className="text-teal-400" /> {infoDia.titulo}
                 </h3>
-                <p className="text-slate-400 text-sm mb-6">Objetivos críticos para hoy:</p>
-                
+                <p className="text-slate-400 text-sm mb-6">Objetivos del día:</p>
                 <div className="space-y-3">
                   {infoDia.tareas.map((tarea, idx) => {
                     const isDone = (trackerData.tareas_completadas || []).includes(tarea);
@@ -244,77 +229,83 @@ export default function DashboardHome({ user }) {
              </div>
           </div>
 
-          {/* Columna Derecha: Hidratación */}
           <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center items-center text-center">
             <div className="bg-blue-500/10 p-4 rounded-full mb-4">
               <Droplets className="text-blue-400 w-10 h-10" />
             </div>
             <h3 className="text-white font-bold text-lg">Hidratación</h3>
-            <p className="text-slate-400 text-xs mb-4">Meta diaria: 8 vasos</p>
-            
+            <p className="text-slate-400 text-xs mb-4">Meta: 8 vasos</p>
             <div className="text-4xl font-black text-white mb-6">
               {trackerData.agua_vasos}<span className="text-lg text-slate-500 font-medium">/8</span>
             </div>
-
             <div className="flex gap-3 w-full">
               <button 
                 onClick={() => updateTracker({ agua_vasos: Math.max(0, trackerData.agua_vasos - 1) })}
-                className="flex-1 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold transition-colors"
+                className="flex-1 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold"
               >-</button>
               <button 
                 onClick={() => updateTracker({ agua_vasos: trackerData.agua_vasos + 1 })}
-                className="flex-[2] py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30 transition-colors"
-              >+ Beber Vaso</button>
+                className="flex-[2] py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg"
+              >+ Vaso</button>
             </div>
           </div>
         </div>
       </div>
-      {/* --- FIN SECCIÓN TRACKER --- */}
 
-
-      {/* STATS GENERALES (Tu diseño original) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-        <StatCard title="Peso Inicial" value={latestWeight ? `${latestWeight} kg` : "--"} subtext="Tu punto de partida" icon={TrendingUp} color="indigo" />
-        <StatCard title="Fase Actual" value={infoDia.fase} subtext={`Día ${diaActivo}`} icon={Activity} color="teal" />
+      {/* RESTO DEL DASHBOARD */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Peso Inicial" value={latestWeight ? `${latestWeight} kg` : "--"} subtext="Inicio" icon={TrendingUp} color="indigo" />
         <StatCard title="Recetas" value="61" subtext="Disponibles" icon={Utensils} color="orange" />
         <StatCard title="Nivel" value="Iniciado" subtext="Fundador" icon={Award} color="emerald" />
+        <StatCard title="Estatus" value="Activo" subtext="Premium" icon={BookHeart} color="pink" />
       </div>
 
-      {/* ACCESOS RÁPIDOS */}
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Herramientas Rápidas</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">Accesos Rápidos</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planificar Menú" desc="Genera tu menú semanal automático." />
-          <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio Digital" desc="Rutinas de 20 minutos en video." />
-          <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Bitácora" desc="Registra tus cambios y medidas." />
+          <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio" desc="Rutinas en video." />
+          <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Bitácora" desc="Registra medidas." />
         </div>
       </div>
-      
-      {/* GRÁFICA DE PESO (Tu diseño original) */}
-      <div className="bg-slate-800/40 border border-slate-700 p-6 rounded-2xl flex flex-col h-80">
-        <h3 className="text-lg font-bold text-white mb-4">Tu Evolución</h3>
-        <div className="flex-1 w-full min-h-0 relative">
-          {weightTrend.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weightTrend}>
-                <defs>
-                  <linearGradient id="colorPeso" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                <XAxis dataKey="day" stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
-                <YAxis domain={['auto', 'auto']} stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f1f5f9' }} />
-                <Area type="monotone" dataKey="peso" stroke="#14b8a6" strokeWidth={3} fillOpacity={1} fill="url(#colorPeso)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-sm border-2 border-dashed border-slate-700 rounded-xl">
-              <p>Registra tu peso en la Bitácora para ver tu gráfica.</p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-slate-800/40 border border-slate-700 p-6 rounded-2xl flex flex-col h-80">
+            <h3 className="text-lg font-bold text-white mb-4">Tu Evolución</h3>
+            <div className="flex-1 w-full min-h-0 relative">
+                {weightTrend.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={weightTrend}>
+                    <defs><linearGradient id="colorPeso" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3}/><stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/></linearGradient></defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                    <XAxis dataKey="day" stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
+                    <YAxis domain={['auto', 'auto']} stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f1f5f9' }} />
+                    <Area type="monotone" dataKey="peso" stroke="#14b8a6" strokeWidth={3} fillOpacity={1} fill="url(#colorPeso)" />
+                    </AreaChart>
+                </ResponsiveContainer>
+                ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-sm border-2 border-dashed border-slate-700 rounded-xl">
+                    <p>Registra tu peso en la Bitácora.</p>
+                </div>
+                )}
             </div>
-          )}
+        </div>
+        
+        <div className="space-y-4">
+            <div className="bg-slate-800/40 border border-slate-700 p-6 rounded-2xl">
+                <h3 className="text-lg font-bold text-white mb-4"><Award size={20} className="inline mr-2 text-yellow-400" /> Logros</h3>
+                <div className="space-y-3">
+                  <Achievement title="Fundador" desc="Te uniste al programa." unlocked={true} />
+                  <Achievement title="Primer Paso" desc="Registraste tu peso." unlocked={latestWeight !== null} />
+                </div>
+            </div>
+            <Link to="/plataforma/biblioteca" className="block bg-gradient-to-r from-teal-600 to-emerald-600 p-5 rounded-2xl shadow-lg hover:shadow-teal-500/20 transition-all group">
+                <div className="flex justify-between items-center">
+                <div><p className="text-teal-100 text-xs font-bold uppercase tracking-wider mb-1">Educación</p><h3 className="text-white font-bold text-lg">Guía de Inicio</h3></div>
+                <ArrowRight className="text-white group-hover:translate-x-1 transition-transform" />
+                </div>
+            </Link>
         </div>
       </div>
       

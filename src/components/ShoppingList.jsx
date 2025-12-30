@@ -1,16 +1,55 @@
-// src/components/ShoppingList.jsx (v4.0 - Con WhatsApp Export)
 import React, { useMemo, useState } from 'react';
-import { ShoppingCart, Check, Trash2, Leaf, Drumstick, Milk, Archive, Share2, MessageCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ShoppingCart, Check, MessageCircle, Leaf, Drumstick, Milk, Archive, Circle } from 'lucide-react';
 
-const PANTRY_KEYWORDS = ['aceite', 'sal', 'pimienta', 'vinagre', 'endulzante', 'polvo para hornear', 'canela', 'vainilla', 'ghee', 'mantequilla', 'mayonesa', 'mostaza', 'especias', 'cacao', 'harina', 'ajo'];
+// --- DICCIONARIO DE NORMALIZACIÓN ---
+const normalizeIngredient = (rawName) => {
+  let name = rawName.toLowerCase();
+  
+  // 1. Eliminar paréntesis y palabras basura
+  name = name.replace(/\(.*\)/g, "").trim();
+  const stopWords = ["picad[oa]s?", "finamente", "en cubos", "en rodajas", "filetead[oa]", "cocid[oa]", "asado", "pelad[oa]", "desvenad[oa]", "sin semillas", "a temperatura ambiente", "refrigerad[oa]", "con cáscara", "sin hueso", "partido", "a la mitad", "trozo", "para guisar", "bistecs", "medallones", "fresca", "fresco"];
+  const regex = new RegExp(`\\b(${stopWords.join("|")})\\b`, "gi");
+  name = name.replace(regex, "").trim();
 
-const categoryIcons = {
-  'Frutas y Verduras': <Leaf size={20} className="text-green-600" />,
+  // 2. Unificación Maestra (Tus reglas)
+  if (name.includes("huevo") || name.includes("yema") || name.includes("clara")) return "Huevos (Tapa de 30)";
+  if (name.includes("cebolla")) return "Cebollas (blanca/morada)";
+  if (name.includes("jitomate") || name.includes("tomate")) return "Jitomates / Tomates";
+  if (name.includes("aguacate")) return "Aguacates";
+  if (name.includes("chile") || name.includes("jalapeño") || name.includes("serrano")) return "Chiles frescos (Serrano/Jalapeño)";
+  if (name.includes("cilantro") || name.includes("perejil") || name.includes("albahaca")) return "Hierbas frescas (Cilantro/Perejil/Albahaca)";
+  if (name.includes("limón") || name.includes("limon")) return "Limones";
+  if (name.includes("ajo")) return "Cabezas de Ajo";
+  
+  // Agrupación de Grasas
+  if (name.includes("ghee") || name.includes("mantequilla") || name.includes("manteca") || name.includes("aceite de coco")) return "Grasas para cocinar (Ghee, Mantequilla, Manteca)";
+  if (name.includes("aceite de oliva")) return "Aceite de Oliva Extra Virgen";
+
+  // Agrupación de Básicos
+  if (name.includes("sal") && !name.includes("salmón")) return "Sal de Mar / Himalaya";
+  if (name.includes("pimienta")) return "Pimienta Negra";
+  if (name.includes("endulzante") || name.includes("monje") || name.includes("stevia")) return "Endulzante (Fruto del Monje / Stevia)";
+  if (name.includes("atún")) return "Atún (Lomo/Medallón o Lata en Agua/Oliva)";
+
+  // Capitalizar
+  return name.charAt(0).toUpperCase() + name.slice(1).replace(/\s+/g, ' ').trim();
+};
+
+const CATEGORY_ICONS = {
+  'Frutas y Verduras': <Leaf size={20} className="text-green-500" />,
   'Carnes y Pescados': <Drumstick size={20} className="text-red-500" />,
   'Lácteos y Huevos': <Milk size={20} className="text-blue-500" />,
-  'Despensa y Básicos': <Archive size={20} className="text-amber-600" />,
-  'Otros': <ShoppingCart size={20} className="text-neutral-500" />,
+  'Despensa y Básicos': <Archive size={20} className="text-amber-500" />,
+  'Otros': <ShoppingCart size={20} className="text-slate-400" />,
+};
+
+const getCategory = (item) => {
+  const lower = item.toLowerCase();
+  if (lower.includes("carne") || lower.includes("pollo") || lower.includes("pescado") || lower.includes("atún") || lower.includes("camaron") || lower.includes("chorizo") || lower.includes("hígado")) return "Carnes y Pescados";
+  if (lower.includes("cebolla") || lower.includes("tomate") || lower.includes("aguacate") || lower.includes("cilantro") || lower.includes("chile") || lower.includes("nopales") || lower.includes("verdura") || lower.includes("fruta") || lower.includes("limón")) return "Frutas y Verduras";
+  if (lower.includes("queso") || lower.includes("crema") || lower.includes("leche") || lower.includes("yogur") || lower.includes("huevo")) return "Lácteos y Huevos";
+  if (lower.includes("sal") || lower.includes("pimienta") || lower.includes("aceite") || lower.includes("grasas") || lower.includes("vinagre") || lower.includes("endulzante") || lower.includes("especia") || lower.includes("harina") || lower.includes("polvo") || lower.includes("ajo")) return "Despensa y Básicos";
+  return "Otros";
 };
 
 const ShoppingList = ({ mealPlan }) => {
@@ -18,142 +57,93 @@ const ShoppingList = ({ mealPlan }) => {
 
   const processedList = useMemo(() => {
     if (!mealPlan) return {};
-    const list = {
-      'Carnes y Pescados': {},
-      'Frutas y Verduras': {},
-      'Lácteos y Huevos': {},
-      'Despensa y Básicos': {},
-      'Otros': {}
-    };
+    const map = new Map();
 
     Object.values(mealPlan).forEach(dayMeals => {
       if (!dayMeals) return;
       Object.values(dayMeals).forEach(recipe => {
         if (recipe && recipe.ingredients) {
           recipe.ingredients.forEach(ing => {
-            let nameLower = ing.name.toLowerCase();
-            let category = ing.category || 'Otros';
-            let cleanName = ing.name;
-
-            // 1. UNIFICAR HUEVOS
-            if (nameLower.includes('huevo') || nameLower.includes('yema') || nameLower.includes('clara')) {
-                cleanName = "Huevos";
-                category = 'Lácteos y Huevos';
-            }
-
-            // 2. Mover a Despensa si es básico
-            if (PANTRY_KEYWORDS.some(k => nameLower.includes(k)) && category !== 'Lácteos y Huevos') {
-              category = 'Despensa y Básicos';
-            }
-
-            if (!list[category]) list[category] = {};
-
-            if (!list[category][cleanName]) {
-              list[category][cleanName] = { count: 1 };
+            const cleanName = normalizeIngredient(ing.name || ing);
+            if (map.has(cleanName)) {
+              const current = map.get(cleanName);
+              map.set(cleanName, { ...current, count: current.count + 1 });
             } else {
-              list[category][cleanName].count += 1;
+              map.set(cleanName, { name: cleanName, count: 1, category: getCategory(cleanName) });
             }
           });
         }
       });
     });
 
-    const finalGrouped = {};
-    Object.keys(list).forEach(cat => {
-      const items = Object.entries(list[cat]).map(([name, data]) => {
-        let label = `Usado en ${data.count} recetas`;
-
-        if (name === "Huevos") {
-           const totalHuevos = data.count * 2; 
-           label = totalHuevos > 15 ? "Compra una tapa de 30" : "Compra una docena (12-18 pzas)";
-        }
-        else if (cat === 'Carnes y Pescados') {
-             label = `Total aprox: ${data.count * 200}g`;
-        }
-        else if (cat === 'Despensa y Básicos') {
-            label = "Verificar existencias";
-        }
-
-        return { name, label };
-      });
-      
-      if (items.length > 0) finalGrouped[cat] = items;
+    const grouped = { 'Carnes y Pescados': [], 'Frutas y Verduras': [], 'Lácteos y Huevos': [], 'Despensa y Básicos': [], 'Otros': [] };
+    
+    Array.from(map.values()).forEach(item => {
+      if (grouped[item.category]) grouped[item.category].push(item);
+      else grouped['Otros'].push(item);
     });
 
-    return finalGrouped;
+    return grouped;
   }, [mealPlan]);
 
   const toggleItem = (name) => setCheckedItems(prev => ({ ...prev, [name]: !prev[name] }));
 
   const sendToWhatsapp = () => {
     let text = `🛒 *Mi Lista de Súper - Reinicio Metabólico*\n\n`;
-    
-    Object.keys(processedList).forEach(cat => {
-        if (cat === 'Despensa y Básicos') return; // Opcional: No mandar básicos si no se quiere
+    Object.entries(processedList).forEach(([cat, items]) => {
+      if (items.length > 0) {
         text += `*${cat.toUpperCase()}*\n`;
-        processedList[cat].forEach(item => {
-            if (!checkedItems[item.name]) { // Solo mandar lo que no está marcado
-                text += `⬜ ${item.name} (${item.label})\n`;
-            }
+        items.forEach(item => {
+           if (!checkedItems[item.name]) text += `⬜ ${item.name}\n`;
         });
         text += `\n`;
+      }
     });
-
-    text += `\n🚀 _Generado por mi Planeador Inteligente_`;
-    
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
-    <div className="p-4 md:p-8 bg-slate-50 rounded-3xl">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <ShoppingCart className="w-6 h-6 text-teal-600" />
-            Lista de Compras
+    <div className="p-4 md:p-6 bg-slate-900 border border-slate-700 rounded-2xl">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-slate-800 pb-4">
+        <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <ShoppingCart className="w-6 h-6 text-teal-400" /> Lista Inteligente
             </h2>
-            <p className="text-slate-500 text-sm mt-1">Marca lo que ya tienes en casa.</p>
+            <p className="text-slate-400 text-xs mt-1">Ingredientes agrupados y limpios.</p>
         </div>
-        
-        <button 
-            onClick={sendToWhatsapp}
-            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-green-500/20 flex items-center gap-2 transition-all transform hover:scale-105"
-        >
-            <MessageCircle className="w-5 h-5" /> Enviar a WhatsApp
+        <button onClick={sendToWhatsapp} className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 text-sm transition-all">
+            <MessageCircle size={18} /> Enviar a WhatsApp
         </button>
       </div>
 
-      <div className="grid gap-6">
-        {Object.keys(processedList).map((category) => (
-          <div key={category} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-            <h3 className="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">
-              {categoryIcons[category]} {category}
-            </h3>
-            <ul className="space-y-2">
-              {processedList[category].map((item, idx) => (
-                <li 
-                  key={idx} 
-                  onClick={() => toggleItem(item.name)}
-                  className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${
-                    checkedItems[item.name] ? 'bg-slate-100 opacity-50' : 'hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-                      checkedItems[item.name] ? 'bg-slate-400 border-slate-400' : 'border-slate-300 bg-white'
-                    }`}>
-                      {checkedItems[item.name] && <Check className="w-3 h-3 text-white" />}
+      <div className="space-y-6">
+        {Object.entries(processedList).map(([category, items]) => (
+          items.length > 0 && (
+            <div key={category} className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+              <h3 className="text-sm font-bold text-teal-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                {CATEGORY_ICONS[category]} {category}
+              </h3>
+              <ul className="space-y-2">
+                {items.map((item, idx) => (
+                  <li key={idx} onClick={() => toggleItem(item.name)}
+                      className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${checkedItems[item.name] ? 'opacity-40' : 'hover:bg-slate-800'}`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`transition-colors ${checkedItems[item.name] ? 'text-teal-500' : 'text-slate-600'}`}>
+                        {checkedItems[item.name] ? <Check size={18} /> : <Circle size={18} />}
+                      </div>
+                      <span className={`text-sm ${checkedItems[item.name] ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+                        {item.name}
+                      </span>
                     </div>
-                    <span className={`font-medium ${checkedItems[item.name] ? 'line-through text-slate-400' : 'text-slate-800'}`}>
-                      {item.name}
-                    </span>
-                  </div>
-                  <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-1 rounded">{item.label}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
         ))}
+        {Object.values(processedList).every(arr => arr.length === 0) && (
+            <p className="text-center text-slate-500 py-8 text-sm">Selecciona recetas en el Planeador para generar tu lista.</p>
+        )}
       </div>
     </div>
   );
