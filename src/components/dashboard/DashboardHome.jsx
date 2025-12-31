@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v9.5 - Lógica Clínica RM: Hidratación x Peso + Electrolitos + Sin Límite de Días
+// v12.0 - Sistema Infinito (Sin límites de tiempo) + Protocolo Diario
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
   TrendingUp, ArrowRight, Activity, BookHeart,
-  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap
+  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Map, Sun
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -16,17 +16,42 @@ import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
 
-// --- CONFIGURACIÓN DE FASES (CÍCLICAS/ESTILO DE VIDA) ---
-// No son días fijos que "terminan", son enfoques diarios.
-const GUIA_DIARIA = [
-  { fase: "Desintoxicación", titulo: "Adiós Inflamación", tareas: ["Agua + Pizca de sal al despertar", "Cero azúcar/harinas hoy", "Cena ligera (proteína+verde)"] },
-  { fase: "Desintoxicación", titulo: "Hidratación Profunda", tareas: ["Cumplir meta de agua (ver calculadora)", "Añadir minerales (sal/limón)", "Movimiento ligero 15 min"] },
-  { fase: "Desintoxicación", titulo: "Descanso Digestivo", tareas: ["Ayuno nocturno 12h mínimo", "Infusión relajante noche", "Dormir antes de las 10:30 PM"] },
-  { fase: "Reactivación", titulo: "Densidad Nutricional", tareas: ["Desayuno alto en proteína", "Grasas: Aguacate/Oliva/Ghee", "Cero aceites vegetales"] },
-  { fase: "Reactivación", titulo: "Movimiento Estratégico", tareas: ["Fuerza o Resistencia (20 min)", "Ducha contraste frío/calor", "Comer hasta saciedad (no reventar)"] },
-  { fase: "Optimización", titulo: "Flexibilidad Metabólica", tareas: ["Ayuno 14h (si hay energía)", "Primera comida baja en carbs", "Respiración consciente 5 min"] },
-  { fase: "Mantenimiento", titulo: "Estilo de Vida", tareas: ["Planificar menú semanal", "Comida libre consciente", "Agradecer a tu cuerpo"] },
-];
+// --- GENERADOR DE PROTOCOLO INFINITO ---
+const getProtocoloDelDia = (dia) => {
+  // Lógica: Los primeros 7 días son de "Inmersión", el resto es "Estilo de Vida"
+  if (dia <= 3) {
+    return {
+      fase: "Desintoxicación",
+      titulo: "Limpieza Inicial",
+      tareas: [
+        "Vaso de agua con sal/limón al despertar",
+        "Cero azúcar y cero harinas hoy",
+        "Cena ligera (Proteína + Vegetales) 3h antes de dormir"
+      ]
+    };
+  } else if (dia <= 7) {
+    return {
+      fase: "Adaptación",
+      titulo: "Ajuste Metabólico",
+      tareas: [
+        "Cumplir meta de hidratación (ver calculadora)",
+        "Añadir grasas saludables (Aguacate/Aceite Oliva)",
+        "Movimiento suave (Caminata 20 min)"
+      ]
+    };
+  } else {
+    // Del día 8 al infinito: Los innegociables del estilo de vida
+    return {
+      fase: "Estilo de Vida RM",
+      titulo: "Mantenimiento Activo",
+      tareas: [
+        "Ayuno nocturno de 12-14 horas",
+        "Prioridad Proteína en el desayuno",
+        "Gestión de estrés (Respiración/Pausa)"
+      ]
+    };
+  }
+};
 
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
@@ -73,7 +98,7 @@ export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showSOS, setShowSOS] = useState(false);
   
-  const [latestWeight, setLatestWeight] = useState(70); // Default 70kg para cálculo inicial
+  const [latestWeight, setLatestWeight] = useState(70);
   const [weightTrend, setWeightTrend] = useState([]);
   
   const [diaActivo, setDiaActivo] = useState(1);
@@ -81,14 +106,15 @@ export default function DashboardHome({ user }) {
   
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
   
-  // Seleccionar info del día (cíclico para que nunca se acabe el contenido)
-  const infoDia = GUIA_DIARIA[(diaActivo - 1) % GUIA_DIARIA.length];
+  // Obtenemos el protocolo dinámicamente según el número de día
+  const infoDia = getProtocoloDelDia(diaActivo);
 
-  // --- CÁLCULO DE HIDRATACIÓN RM (35ml x Kg) ---
   const dailyMl = latestWeight * 35;
-  const glassSize = 250; // ml
-  const targetGlasses = Math.ceil(dailyMl / glassSize);
+  const targetGlasses = Math.ceil(dailyMl / 250);
   const liters = (dailyMl / 1000).toFixed(1);
+
+  // Generamos una "ventana" de días infinita (ej: del 1 al 60 por ahora, pero se siente infinito)
+  const diasVisuales = Array.from({ length: 60 }, (_, i) => i + 1);
 
   useEffect(() => {
     const currentName = user?.user_metadata?.full_name;
@@ -160,14 +186,15 @@ export default function DashboardHome({ user }) {
       {showOnboarding && <OnboardingModal user={user} onComplete={() => window.location.reload()} />}
       {showSOS && <SOSCenter onClose={() => setShowSOS(false)} />}
       
-      {/* HEADER + BOTÓN SOS */}
+      {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             Hola, {displayName} <span className="animate-wave inline-block">👋</span>
           </h1>
-          <p className="text-slate-400 mt-2">
-            <span className="text-teal-400 font-bold">{infoDia.fase}</span> • Día {diaActivo}
+          <p className="text-slate-400 mt-2 flex items-center gap-2">
+            <Sun size={16} className="text-yellow-500" />
+            Día {diaActivo}: <span className="text-teal-400 font-bold">{infoDia.fase}</span>
           </p>
         </div>
         
@@ -180,29 +207,27 @@ export default function DashboardHome({ user }) {
         </button>
       </div>
 
-      {/* TRACKER DIARIO */}
+      {/* TIMELINE INFINITO */}
       <div className="space-y-6">
-        {/* Selector de Días (Infinito/Continuo) */}
         <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
-          {/* Mostramos una ventana de días, por ejemplo 1 al 30, o dinámico */}
-          {Array.from({ length: 30 }, (_, i) => i + 1).map((d) => (
+          {diasVisuales.map((d) => (
             <button
               key={d}
               onClick={() => setDiaActivo(d)}
-              className={`flex-shrink-0 w-16 h-20 rounded-xl flex flex-col items-center justify-center transition-all border ${
+              className={`flex-shrink-0 w-14 h-20 rounded-xl flex flex-col items-center justify-center transition-all border ${
                 diaActivo === d
                   ? "bg-teal-600 border-teal-500 text-white shadow-lg scale-105"
                   : "bg-slate-800 border-slate-700 text-slate-500 hover:bg-slate-750"
               }`}
             >
-              <span className="text-xs font-bold uppercase mb-1">DÍA</span>
+              <span className="text-[10px] font-bold uppercase mb-1 text-slate-300">DÍA</span>
               <span className="text-2xl font-black">{d}</span>
             </button>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Tareas del Protocolo */}
+          {/* Tareas del Día (Sin fecha de caducidad) */}
           <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5 text-white">
                 <Flame size={120} />
@@ -211,7 +236,7 @@ export default function DashboardHome({ user }) {
                 <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
                   <Activity className="text-teal-400" /> {infoDia.titulo}
                 </h3>
-                <p className="text-slate-400 text-sm mb-6">Objetivos del día:</p>
+                <p className="text-slate-400 text-sm mb-6">Innegociables de hoy:</p>
                 <div className="space-y-3">
                   {infoDia.tareas.map((tarea, idx) => {
                     const isDone = (trackerData.tareas_completadas || []).includes(tarea);
@@ -240,7 +265,6 @@ export default function DashboardHome({ user }) {
 
           {/* HIDRATACIÓN CLÍNICA RM */}
           <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
-            
             <div className="relative z-10 w-full">
                 <div className="flex justify-center items-center gap-2 mb-2">
                     <div className="bg-blue-500/10 p-2 rounded-full">
@@ -274,9 +298,9 @@ export default function DashboardHome({ user }) {
                 <div className="bg-yellow-900/20 border border-yellow-700/30 p-3 rounded-xl flex items-start gap-3 text-left">
                     <Zap className="text-yellow-500 w-4 h-4 mt-0.5 shrink-0" />
                     <div>
-                        <p className="text-yellow-200 text-xs font-bold">¡Ojo! Agua sola NO hidrata.</p>
+                        <p className="text-yellow-200 text-xs font-bold">¡Agua sola NO hidrata!</p>
                         <p className="text-yellow-200/70 text-[10px] leading-snug">
-                            Si tienes dolor de cabeza o mareo, añade una pizca de sal marina o limón a tu vaso.
+                            Si sientes mareo o dolor de cabeza, añade sal marina y limón a tu agua.
                         </p>
                     </div>
                 </div>
@@ -285,18 +309,18 @@ export default function DashboardHome({ user }) {
         </div>
       </div>
 
-      {/* ESTADÍSTICAS */}
+      {/* SECCIÓN INFERIOR */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Peso Actual" value={latestWeight ? `${latestWeight} kg` : "--"} subtext="Base de cálculo" icon={TrendingUp} color="indigo" />
+        <StatCard title="Peso Inicial" value={latestWeight ? `${latestWeight} kg` : "--"} subtext="Inicio" icon={TrendingUp} color="indigo" />
+        <StatCard title="Estado" value="Activo" subtext="En proceso" icon={Activity} color="teal" />
         <StatCard title="Recetas" value="61" subtext="Disponibles" icon={Utensils} color="orange" />
-        <StatCard title="Nivel" value="Iniciado" subtext="Fundador" icon={Award} color="emerald" />
-        <StatCard title="Estatus" value="Activo" subtext="Premium" icon={BookHeart} color="pink" />
+        <StatCard title="Nivel" value="Miembro" subtext="Premium" icon={Award} color="emerald" />
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Accesos Rápidos</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">Herramientas</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planificar Menú" desc="Genera tu menú semanal automático." />
+          <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planeador" desc="Tu menú semanal." />
           <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio" desc="Rutinas en video." />
           <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Bitácora" desc="Registra medidas." />
         </div>
@@ -329,8 +353,8 @@ export default function DashboardHome({ user }) {
             <div className="bg-slate-800/40 border border-slate-700 p-6 rounded-2xl">
                 <h3 className="text-lg font-bold text-white mb-4"><Award size={20} className="inline mr-2 text-yellow-400" /> Logros</h3>
                 <div className="space-y-3">
-                  <Achievement title="Fundador" desc="Te uniste al programa." unlocked={true} />
-                  <Achievement title="Primer Paso" desc="Registraste tu peso." unlocked={latestWeight !== null} />
+                  <Achievement title="Decisión" desc="Te uniste al programa." unlocked={true} />
+                  <Achievement title="Compromiso" desc="Registraste tu peso." unlocked={latestWeight !== null} />
                 </div>
             </div>
             <Link to="/plataforma/biblioteca" className="block bg-gradient-to-r from-teal-600 to-emerald-600 p-5 rounded-2xl shadow-lg hover:shadow-teal-500/20 transition-all group">
