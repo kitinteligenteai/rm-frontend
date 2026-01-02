@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { ShoppingCart, Check, MessageCircle, Leaf, Drumstick, Milk, Archive, Circle, HelpCircle, Share2, Printer } from 'lucide-react';
+// CORRECCIÓN: Agregué 'Droplets' a los imports que faltaba
+import { ShoppingCart, Check, MessageCircle, Leaf, Drumstick, Milk, Archive, Circle, HelpCircle, Share2, Droplets } from 'lucide-react';
 
 // --- 1. NORMALIZADOR (Limpieza de Texto) ---
 const normalizeIngredient = (rawName) => {
@@ -8,7 +9,7 @@ const normalizeIngredient = (rawName) => {
   // Quitar paréntesis y contenido extra
   name = name.replace(/\(.*\)/g, "").trim();
   
-  // Palabras a ignorar para poder agrupar
+  // Palabras a ignorar
   const stopWords = [
     "picad[oa]s?", "finamente", "en cubos", "en rodajas", "filetead[oa]", 
     "cocid[oa]", "asado", "pelad[oa]", "desvenad[oa]", "sin semillas", 
@@ -19,7 +20,7 @@ const normalizeIngredient = (rawName) => {
   const regex = new RegExp(`\\b(${stopWords.join("|")})\\b`, "gi");
   name = name.replace(regex, "").trim();
 
-  // Mapeos de Ingredientes Comunes
+  // Mapeos Directos
   if (name.includes("huevo") || name.includes("yema")) return "Huevos";
   if (name.includes("cebolla")) return "Cebollas (Blanca/Morada)";
   if (name.includes("jitomate") || name.includes("tomate")) return "Jitomates / Tomates";
@@ -56,7 +57,6 @@ const normalizeIngredient = (rawName) => {
   if (name.includes("vinagre")) return "Vinagres (Manzana/Balsámico)";
   if (name.includes("cacao") || name.includes("cocoa")) return "Cacao en Polvo";
 
-  // Capitalizar lo que no cayó en reglas
   return name.charAt(0).toUpperCase() + name.slice(1).replace(/\s+/g, ' ').trim();
 };
 
@@ -64,52 +64,51 @@ const normalizeIngredient = (rawName) => {
 const getCategory = (cleanName) => {
   const lower = cleanName.toLowerCase();
   
-  if (lower.includes("res") || lower.includes("pollo") || lower.includes("cerdo") || lower.includes("pescado") || lower.includes("atún") || lower.includes("camaron") || lower.includes("tofu") || lower.includes("carne")) return "Carnes y Pescados";
-  
-  if (lower.includes("cebolla") || lower.includes("tomate") || lower.includes("aguacate") || lower.includes("hierba") || lower.includes("chile") || lower.includes("nopal") || lower.includes("limon") || lower.includes("ajo") || lower.includes("calabacita") || lower.includes("chayote") || lower.includes("ejote") || lower.includes("champiñon") || lower.includes("hojas verdes") || lower.includes("frutos rojos")) return "Frutas y Verduras";
-  
-  if (lower.includes("huevo") || lower.includes("queso") || lower.includes("crema") || lower.includes("leche") || lower.includes("yogur")) return "Lácteos y Huevos";
-  
-  if (lower.includes("aceite") || lower.includes("grasa") || lower.includes("manteca") || lower.includes("mantequilla") || lower.includes("ghee")) return "Aceites y Grasas";
-  
-  if (lower.includes("sal") || lower.includes("pimienta") || lower.includes("vinagre") || lower.includes("endulzante") || lower.includes("harina") || lower.includes("polvo") || lower.includes("cacao") || lower.includes("semilla") || lower.includes("nuez") || lower.includes("vainilla") || lower.includes("tártaro")) return "Despensa y Básicos";
+  const VERDURAS = ["cebolla", "tomate", "jitomate", "aguacate", "cilantro", "perejil", "chile", "nopal", "verdura", "fruta", "limón", "limon", "ajo", "calabacita", "chayote", "ejote", "champiñon", "pimiento", "lechuga", "espinaca", "acelga", "coliflor", "brocoli", "frutos rojos", "berries", "fresa", "albahaca", "hierbas"];
+  if (VERDURAS.some(k => lower.includes(k))) return "Frutas y Verduras";
+
+  const PROTEINAS = ["carne", "pollo", "pescado", "atún", "atun", "camaron", "chorizo", "tocino", "hígado", "higado", "costilla", "chamorro", "chicharrón", "bistec", "res", "cerdo", "pavo", "lomo", "pierna", "muslo", "milanesa", "tofu", "salmon", "salmón"];
+  if (/\bres\b/.test(lower) || PROTEINAS.some(k => lower.includes(k))) return "Carnes y Pescados";
+
+  const GRASAS = ["aceite", "mantequilla", "ghee", "manteca", "grasa"];
+  if (GRASAS.some(k => lower.includes(k))) return "Aceites y Grasas";
+
+  const LACTEOS = ["huevo", "queso", "crema", "leche", "yogur", "yoghurt"];
+  if (LACTEOS.some(k => lower.includes(k))) return "Lácteos y Huevos";
+
+  const DESPENSA = ["sal ", "pimienta", "vinagre", "endulzante", "especia", "harina", "polvo", "cacao", "chia", "chía", "linaza", "nueces", "almendras", "vainilla", "tártaro", "crémor", "curcuma", "cúrcuma"];
+  if (DESPENSA.some(k => lower.includes(k))) return "Despensa y Básicos";
   
   return "Otros (Revisar)";
 };
 
-// --- 3. CALCULADORA DE CANTIDADES (Lógica Humana) ---
+// --- 3. CALCULADORA REALISTA ---
 const estimateQuantity = (name, count) => {
   const lower = name.toLowerCase();
 
-  // Huevos: Regla simple
   if (lower.includes("huevo")) {
-    const total = count * 2; // Promedio 2 huevos por uso
+    const total = count * 2; 
     if (total <= 12) return "1 Docena";
     if (total <= 18) return "1 Paquete (18 pzas)";
     return "1 Tapa (30 pzas)";
   }
 
-  // Proteínas: 150-200g por receta
   if (lower.includes("carne") || lower.includes("pollo") || lower.includes("cerdo") || lower.includes("pescado") || lower.includes("res")) {
     return `Aprox: ${(count * 0.15).toFixed(1)} - ${(count * 0.2).toFixed(1)} kg`;
   }
 
-  // Verduras de Uso Rudo (Cebolla, Tomate) -> 1 pieza cada 2-3 recetas
   if (lower.includes("cebolla") || lower.includes("aguacate") || lower.includes("calabacita")) {
-    const piezas = Math.ceil(count * 0.5); // Media pieza por receta
+    const piezas = Math.ceil(count * 0.5); 
     return `Aprox: ${piezas} piezas`;
   }
   
-  // Verduras de Uso Diario (Tomate)
   if (lower.includes("tomate") || lower.includes("jitomate") || lower.includes("limon")) {
-    return `Aprox: ${count} piezas`; // 1 pieza por receta
+    return `Aprox: ${count} piezas`; 
   }
 
-  // Ajos y Hierbas (Rendidores)
   if (lower.includes("ajo")) return "1-2 Cabezas";
   if (lower.includes("hierba") || lower.includes("cilantro")) return "1-2 Manojos";
 
-  // Básicos (Aceites, Especias)
   if (lower.includes("aceite") || lower.includes("sal") || lower.includes("pimienta") || lower.includes("grasa") || lower.includes("vinagre") || lower.includes("endulzante")) {
     return "Verificar alacena";
   }
@@ -173,8 +172,8 @@ const ShoppingList = ({ mealPlan }) => {
 
   const toggleItem = (name) => setCheckedItems(prev => ({ ...prev, [name]: !prev[name] }));
 
-  const copyToClipboard = () => {
-    let text = `🛒 *Lista Reinicio Metabólico*\n\n`;
+  const sendToWhatsapp = () => {
+    let text = `🛒 *Mi Lista Inteligente - Reinicio Metabólico*\n\n`;
     Object.keys(CATEGORY_CONFIG).sort((a, b) => CATEGORY_CONFIG[a].order - CATEGORY_CONFIG[b].order).forEach((cat) => {
       const items = processedList[cat];
       if (items && items.length > 0) {
@@ -187,27 +186,24 @@ const ShoppingList = ({ mealPlan }) => {
         text += `\n`;
       }
     });
-    navigator.clipboard.writeText(text);
-    alert("Lista copiada al portapapeles");
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
     <div className="bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden">
-      <div className="p-4 md:p-6 bg-slate-950 border-b border-slate-800 flex justify-between items-center gap-4">
+      <div className="p-4 md:p-6 bg-slate-950 border-b border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <ShoppingCart className="text-teal-400" /> Lista de Compras
             </h2>
-            <p className="text-slate-400 text-xs mt-1">Basada en tu selección actual.</p>
+            <p className="text-slate-400 text-xs mt-1">Calculada según tus recetas seleccionadas.</p>
         </div>
-        <div className="flex gap-2">
-            <button onClick={copyToClipboard} className="p-2 bg-slate-800 hover:bg-slate-700 text-teal-400 rounded-lg transition-colors">
-                <Share2 size={20} />
-            </button>
-        </div>
+        <button onClick={sendToWhatsapp} className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 text-sm transition-all shadow-lg shadow-green-900/20">
+            <MessageCircle size={18} /> Enviar a WhatsApp
+        </button>
       </div>
 
-      <div className="p-4 md:p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-8">
         {Object.keys(CATEGORY_CONFIG)
             .sort((a, b) => CATEGORY_CONFIG[a].order - CATEGORY_CONFIG[b].order)
             .map((category) => {
@@ -216,28 +212,32 @@ const ShoppingList = ({ mealPlan }) => {
 
                 return (
                     <div key={category}>
-                    <h3 className="text-xs font-bold text-teal-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-teal-500 uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-slate-800 pb-2">
                         {CATEGORY_CONFIG[category].icon} {category}
                     </h3>
-                    <div className="space-y-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {items.map((item, idx) => (
                         <div key={idx} 
                             onClick={() => toggleItem(item.name)}
-                            className={`flex items-center justify-between p-2 rounded-lg cursor-pointer group transition-all ${
-                                checkedItems[item.name] ? 'opacity-30' : 'hover:bg-slate-800'
+                            className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                                checkedItems[item.name] 
+                                ? 'bg-slate-900/50 border-slate-800 opacity-50' 
+                                : 'bg-slate-800 border-slate-700 hover:border-slate-500'
                             }`}
                         >
                             <div className="flex items-center gap-3">
-                                <div className={`transition-colors ${checkedItems[item.name] ? 'text-teal-500' : 'text-slate-600 group-hover:text-slate-400'}`}>
-                                    {checkedItems[item.name] ? <CheckCircle size={18} /> : <Circle size={18} />}
+                                <div className={`transition-colors ${checkedItems[item.name] ? 'text-teal-500' : 'text-slate-500'}`}>
+                                    {checkedItems[item.name] ? <CheckCircle size={20} /> : <Circle size={20} />}
                                 </div>
-                                <span className={`text-sm ${checkedItems[item.name] ? 'line-through text-slate-500' : 'text-slate-200'}`}>
-                                    {item.name}
-                                </span>
+                                <div>
+                                    <span className={`block font-medium ${checkedItems[item.name] ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+                                        {item.name}
+                                    </span>
+                                    <span className="text-xs text-teal-400/80 font-mono">
+                                        {item.quantityLabel}
+                                    </span>
+                                </div>
                             </div>
-                            <span className="text-xs text-slate-500 font-mono">
-                                {item.quantityLabel}
-                            </span>
                         </div>
                         ))}
                     </div>
@@ -248,7 +248,7 @@ const ShoppingList = ({ mealPlan }) => {
         {Object.values(processedList).every(arr => (!arr || arr.length === 0)) && (
             <div className="text-center text-slate-500 py-10">
                 <p>Tu lista está vacía.</p>
-                <p className="text-sm mt-2">Ve al Planeador para agregar recetas.</p>
+                <p className="text-sm mt-2">Agrega recetas al Planeador Semanal primero.</p>
             </div>
         )}
       </div>
