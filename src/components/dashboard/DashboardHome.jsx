@@ -1,6 +1,3 @@
-// src/components/dashboard/DashboardHome.jsx
-// v13.0 - FIX LOOP + UI LIMPIA (Sin tira de días gigante al inicio)
-
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
@@ -16,39 +13,15 @@ import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
 
-// --- PROTOCOLO DIARIO (Enfoque Infinito) ---
-const getProtocoloDelDia = (dia) => {
-  if (dia <= 3) {
-    return {
-      fase: "Desintoxicación",
-      titulo: "Limpieza Inicial",
-      tareas: [
-        "Vaso de agua con sal/limón al despertar",
-        "Cero azúcar y cero harinas hoy",
-        "Cena ligera (Proteína + Vegetales) 3h antes de dormir"
-      ]
-    };
-  } else if (dia <= 7) {
-    return {
-      fase: "Adaptación",
-      titulo: "Ajuste Metabólico",
-      tareas: [
-        "Cumplir meta de hidratación",
-        "Añadir grasas saludables (Aguacate/Aceite Oliva)",
-        "Movimiento suave (Caminata 20 min)"
-      ]
-    };
-  } else {
-    return {
-      fase: "Estilo de Vida RM",
-      titulo: "Mantenimiento Activo",
-      tareas: [
-        "Ayuno nocturno de 12-14 horas",
-        "Prioridad Proteína en el desayuno",
-        "Gestión de estrés (Respiración/Pausa)"
-      ]
-    };
-  }
+// --- TEXTOS GENÉRICOS PROFESIONALES (Sin "hambre" ni "limpieza") ---
+const PROTOCOLO_BASE = {
+  fase: "Fase de Adaptación",
+  titulo: "Protocolo Diario",
+  tareas: [
+    "Hidratación correcta (Agua + Electrolitos)",
+    "Consumo de Proteína en cada comida",
+    "Gestión de carbohidratos según el plan"
+  ]
 };
 
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
@@ -94,7 +67,7 @@ const QuickAction = ({ icon: Icon, title, desc, to }) => (
 
 export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [localName, setLocalName] = useState(""); // Para actualizar nombre al instante
+  const [localName, setLocalName] = useState(""); 
   const [showSOS, setShowSOS] = useState(false);
   
   const [latestWeight, setLatestWeight] = useState(70);
@@ -103,22 +76,21 @@ export default function DashboardHome({ user }) {
   const [diaActivo, setDiaActivo] = useState(1);
   const [trackerData, setTrackerData] = useState({ agua_vasos: 0, tareas_completadas: [] });
   
+  // Nombre: Prioridad Local -> Metadata -> Email
   const displayName = localName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
   
-  const infoDia = getProtocoloDelDia(diaActivo);
-
-  // Cálculo Hidratación
+  // Cálculo Hidratación (35ml x Kg)
   const dailyMl = latestWeight * 35;
   const targetGlasses = Math.ceil(dailyMl / 250);
   const liters = (dailyMl / 1000).toFixed(1);
+  const percentHydration = Math.min(100, Math.round((trackerData.agua_vasos / targetGlasses) * 100));
 
-  // Generador de días (1 al 60)
-  const diasVisuales = Array.from({ length: 60 }, (_, i) => i + 1);
+  const diasVisuales = Array.from({ length: 30 }, (_, i) => i + 1);
 
   useEffect(() => {
-    // Check de Nombre (Solo si no tiene nombre Y no hemos actualizado localmente)
-    const currentName = user?.user_metadata?.full_name;
-    if (!currentName && !localName && currentName !== "Miembro Fundador") {
+    // --- FIX BUG REFRESH ---
+    // Solo mostramos el modal si YA tenemos usuario cargado y NO tiene nombre en metadata
+    if (user && !user.user_metadata?.full_name && !localName) {
       setShowOnboarding(true);
     }
 
@@ -129,8 +101,8 @@ export default function DashboardHome({ user }) {
   }, [user, diaActivo, localName]);
 
   const handleOnboardingComplete = (newName) => {
-    setLocalName(newName); // Actualiza visualmente inmediato
-    setShowOnboarding(false); // Cierra modal sin refresh
+    setLocalName(newName);
+    setShowOnboarding(false);
   };
 
   const fetchWeightData = async () => {
@@ -159,11 +131,8 @@ export default function DashboardHome({ user }) {
       .eq('dia_numero', dia)
       .single();
 
-    if (data) {
-      setTrackerData(data);
-    } else {
-      setTrackerData({ agua_vasos: 0, tareas_completadas: [] });
-    }
+    if (data) setTrackerData(data);
+    else setTrackerData({ agua_vasos: 0, tareas_completadas: [] });
   };
 
   const updateTracker = async (updates) => {
@@ -192,15 +161,15 @@ export default function DashboardHome({ user }) {
       {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
       {showSOS && <SOSCenter onClose={() => setShowSOS(false)} />}
       
-      {/* HEADER + BOTÓN SOS */}
+      {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             Hola, {displayName} <span className="animate-wave inline-block">👋</span>
           </h1>
           <p className="text-slate-400 mt-2 flex items-center gap-2">
-            <Sun size={16} className="text-yellow-500" />
-            Hoy es tu Día {diaActivo}: <span className="text-teal-400 font-bold">{infoDia.fase}</span>
+            <Activity size={16} className="text-teal-400" />
+            Panel de Control • Día {diaActivo}
           </p>
         </div>
         
@@ -213,20 +182,21 @@ export default function DashboardHome({ user }) {
         </button>
       </div>
 
-      {/* PANEL PRINCIPAL: TAREAS E HIDRATACIÓN (Lo primero que se ve) */}
+      {/* DASHBOARD CENTRAL */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Tareas del Día */}
+          
+          {/* Tareas (Neutrales) */}
           <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5 text-white">
                 <Flame size={120} />
              </div>
              <div className="relative z-10">
                 <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                  <Activity className="text-teal-400" /> {infoDia.titulo}
+                  <Activity className="text-teal-400" /> {PROTOCOLO_BASE.titulo}
                 </h3>
                 <p className="text-slate-400 text-sm mb-6">Tus innegociables de hoy:</p>
                 <div className="space-y-3">
-                  {infoDia.tareas.map((tarea, idx) => {
+                  {PROTOCOLO_BASE.tareas.map((tarea, idx) => {
                     const isDone = (trackerData.tareas_completadas || []).includes(tarea);
                     return (
                       <div 
@@ -251,45 +221,49 @@ export default function DashboardHome({ user }) {
              </div>
           </div>
 
-          {/* Hidratación (Calculada) */}
-          <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
+          {/* HIDRATACIÓN PREMIUM (Barra de Progreso) */}
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden">
             <div className="relative z-10 w-full">
-                <div className="flex justify-center items-center gap-2 mb-2">
-                    <div className="bg-blue-500/10 p-2 rounded-full">
-                        <Droplets className="text-blue-400 w-6 h-6" />
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                        <Droplets className="text-blue-400" /> Hidratación
+                    </h3>
+                    <span className="text-blue-300 font-bold text-sm">{liters}L Meta</span>
+                </div>
+
+                {/* Barra de Progreso Visual */}
+                <div className="w-full bg-slate-800 h-6 rounded-full overflow-hidden mb-2 relative">
+                    <div 
+                        className="bg-blue-500 h-full transition-all duration-500 ease-out" 
+                        style={{ width: `${percentHydration}%` }}
+                    ></div>
+                    <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-md">
+                        {percentHydration}%
                     </div>
-                    <h3 className="text-white font-bold text-lg">Hidratación RM</h3>
                 </div>
                 
-                <p className="text-slate-400 text-xs mb-4">
-                    Tu meta ({latestWeight}kg): <br/>
-                    <span className="text-blue-300 font-bold text-base">{liters} Litros</span> al día
-                </p>
-
-                <div className="text-5xl font-black text-white mb-2">
-                {trackerData.agua_vasos}<span className="text-xl text-slate-500 font-medium">/{targetGlasses}</span>
+                <div className="flex justify-between text-slate-500 text-xs mb-6">
+                    <span>0L</span>
+                    <span>{trackerData.agua_vasos} de {targetGlasses} vasos</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-6">Vasos (250ml)</p>
 
                 <div className="flex gap-3 w-full mb-4">
                     <button 
                         onClick={() => updateTracker({ agua_vasos: Math.max(0, trackerData.agua_vasos - 1) })}
-                        className="flex-1 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold transition-colors"
+                        className="w-12 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold transition-colors border border-slate-700"
                     >-</button>
                     <button 
                         onClick={() => updateTracker({ agua_vasos: trackerData.agua_vasos + 1 })}
-                        className="flex-[2] py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30 transition-colors"
-                    >+ Vaso</button>
+                        className="flex-1 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30 transition-colors"
+                    >+ Registrar Vaso</button>
                 </div>
 
-                <div className="bg-yellow-900/20 border border-yellow-700/30 p-3 rounded-xl flex items-start gap-3 text-left">
-                    <Zap className="text-yellow-500 w-4 h-4 mt-0.5 shrink-0" />
-                    <div>
-                        <p className="text-yellow-200 text-xs font-bold">¡Tip!</p>
-                        <p className="text-yellow-200/70 text-[10px] leading-snug">
-                            Si sientes mareo, añade sal marina y limón a tu agua.
-                        </p>
-                    </div>
+                {/* Nota de Electrolitos (Elegante) */}
+                <div className="bg-blue-900/20 border border-blue-800/30 p-3 rounded-xl flex items-start gap-3">
+                    <Zap className="text-blue-400 w-4 h-4 mt-0.5 shrink-0" />
+                    <p className="text-blue-200/80 text-[11px] leading-snug">
+                        Recuerda: El agua sin minerales no hidrata igual. Añade una pizca de sal de mar o limón si sientes sed constante.
+                    </p>
                 </div>
             </div>
           </div>
@@ -298,11 +272,11 @@ export default function DashboardHome({ user }) {
       {/* HERRAMIENTAS Y ACCESOS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planeador" desc="Tu menú semanal." />
-          <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio" desc="Rutinas en video." />
+          <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio" desc="Rutinas digitales." />
           <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Bitácora" desc="Registra medidas." />
       </div>
 
-      {/* ESTADÍSTICAS Y GRÁFICAS */}
+      {/* ESTADÍSTICAS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-slate-800/40 border border-slate-700 p-6 rounded-2xl flex flex-col h-80">
             <h3 className="text-lg font-bold text-white mb-4">Tu Evolución</h3>
@@ -331,33 +305,32 @@ export default function DashboardHome({ user }) {
                 <h3 className="text-lg font-bold text-white mb-4"><Award size={20} className="inline mr-2 text-yellow-400" /> Logros</h3>
                 <div className="space-y-3">
                   <Achievement title="Fundador" desc="Te uniste al programa." unlocked={true} />
-                  <Achievement title="Compromiso" desc="Registraste tu peso." unlocked={latestWeight !== null} />
+                  <Achievement title="Primer Paso" desc="Registraste tu peso." unlocked={latestWeight !== null} />
                 </div>
             </div>
         </div>
       </div>
-
-      {/* NAVEGACIÓN HISTÓRICA (MOVIDA AL FINAL) */}
-      <div className="pt-8 border-t border-slate-800">
-        <p className="text-slate-500 text-xs uppercase tracking-widest font-bold mb-4">Historial de Días</p>
-        <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide opacity-60 hover:opacity-100 transition-opacity">
+      
+      {/* Selector de Días (Discreto al final) */}
+      <div className="pt-8 border-t border-slate-800 opacity-50 hover:opacity-100 transition-opacity">
+        <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Historial</p>
+        <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
           {diasVisuales.map((d) => (
             <button
               key={d}
               onClick={() => setDiaActivo(d)}
-              className={`flex-shrink-0 w-12 h-14 rounded-lg flex flex-col items-center justify-center transition-all border ${
+              className={`flex-shrink-0 w-10 h-10 rounded-lg flex flex-col items-center justify-center transition-all border ${
                 diaActivo === d
-                  ? "bg-teal-900 border-teal-500 text-white"
+                  ? "bg-teal-600/20 border-teal-500/50 text-teal-400"
                   : "bg-slate-900 border-slate-800 text-slate-600 hover:bg-slate-800"
               }`}
             >
-              <span className="text-[10px] font-bold">DÍA</span>
-              <span className="text-lg font-bold">{d}</span>
+              <span className="text-sm font-bold">{d}</span>
             </button>
           ))}
         </div>
       </div>
-      
+
       <ChefDanteWidget />
     </div>
   );

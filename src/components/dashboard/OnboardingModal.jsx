@@ -19,19 +19,18 @@ export default function OnboardingModal({ user, onComplete }) {
 
       if (error) throw error;
 
-      // 2. Avisar al Dashboard que terminamos
+      // 2. Ejecutar callback para actualizar UI sin recargar
       onComplete(name); 
 
     } catch (error) {
       console.error('Error al guardar nombre:', error);
-      alert('Hubo un error al guardar. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
       <div className="bg-slate-900 border border-slate-700 w-full max-w-md p-8 rounded-3xl shadow-2xl">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">¡Bienvenido!</h2>
@@ -54,7 +53,7 @@ export default function OnboardingModal({ user, onComplete }) {
           <button
             type="submit"
             disabled={loading || !name.trim()}
-            className="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-teal-900/20"
           >
             {loading ? (
               <Loader2 className="animate-spin" />
