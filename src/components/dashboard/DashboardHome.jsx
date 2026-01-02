@@ -1,10 +1,13 @@
+// src/components/dashboard/DashboardHome.jsx
+// v16.0 - El Puente: Del PDF a la Automatización Premium
+
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
   TrendingUp, ArrowRight, Activity, BookHeart,
-  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Sun, Target
+  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Sun, Target, Map, Cpu
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -13,10 +16,10 @@ import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
 
-// --- ENFOQUE DE FASES (NO DÍAS) ---
+// --- PROTOCOLO DE ESTILO DE VIDA ---
 const PROTOCOLO_ACTUAL = {
-  titulo: "Fase de Limpieza",
-  subtitulo: "Objetivos de hoy para sanar:",
+  titulo: "Fase de Estilo de Vida",
+  subtitulo: "Tus innegociables de hoy:",
   tareas: [
     "Hidratación con minerales (Agua + Sal)",
     "Nutrición densa (Prioriza Proteína)",
@@ -58,24 +61,74 @@ const QuickAction = ({ icon: Icon, title, desc, to, buttonText }) => (
   </Link>
 );
 
+// --- COMPONENTE "PUENTE" (Onboarding Premium) ---
+const WelcomeMission = () => (
+  <div className="col-span-1 lg:col-span-3 bg-gradient-to-r from-indigo-950 to-slate-900 border border-indigo-500/30 rounded-3xl p-8 relative overflow-hidden shadow-2xl">
+    <div className="absolute top-0 right-0 p-10 opacity-5 text-white">
+      <Cpu size={250} />
+    </div>
+    
+    <div className="relative z-10 max-w-3xl">
+      <h2 className="text-3xl font-bold text-white mb-2">Bienvenido al Nivel Pro 🚀</h2>
+      <p className="text-indigo-200 mb-6 text-lg leading-relaxed">
+        Ya conoces la teoría del PDF. Ahora vamos a <span className="font-bold text-white">automatizar tu éxito</span>. 
+        Esta plataforma ajusta las porciones, menús y rutinas a TUS datos reales.
+      </p>
+      
+      <p className="text-sm text-slate-400 uppercase tracking-widest font-bold mb-4">Configuración del Sistema:</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link to="/plataforma/bitacora" className="flex flex-col p-4 bg-slate-800/80 hover:bg-indigo-900/50 border border-indigo-500/30 rounded-xl transition-all group">
+          <div className="flex items-center justify-between mb-3">
+             <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold">1</div>
+             <Activity size={20} className="text-indigo-400" />
+          </div>
+          <h4 className="text-white font-bold mb-1">Calibra tu Metabolismo</h4>
+          <p className="text-slate-400 text-xs">Registra tu peso para que el sistema calcule tu hidratación exacta.</p>
+        </Link>
+
+        <Link to="/plataforma/planeador" className="flex flex-col p-4 bg-slate-800/80 hover:bg-teal-900/50 border border-slate-700 hover:border-teal-500/30 rounded-xl transition-all group">
+          <div className="flex items-center justify-between mb-3">
+             <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">2</div>
+             <Calendar size={20} className="text-teal-400" />
+          </div>
+          <h4 className="text-white font-bold mb-1">Automatiza tu Menú</h4>
+          <p className="text-slate-400 text-xs">Olvídate del menú fijo del PDF. Genera uno nuevo cada semana según tus gustos.</p>
+        </Link>
+
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex flex-col p-4 bg-slate-800/80 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/30 rounded-xl transition-all text-left">
+          <div className="flex items-center justify-between mb-3">
+             <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">3</div>
+             <LifeBuoy size={20} className="text-red-400" />
+          </div>
+          <h4 className="text-white font-bold mb-1">Ubica tu "Escudo"</h4>
+          <p className="text-slate-400 text-xs">Arriba a la derecha tienes el botón SOS. Úsalo si sientes ansiedad.</p>
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [localName, setLocalName] = useState(""); 
   const [showSOS, setShowSOS] = useState(false);
   
-  const [latestWeight, setLatestWeight] = useState(70);
+  const [latestWeight, setLatestWeight] = useState(null);
   const [weightTrend, setWeightTrend] = useState([]);
   const [trackerData, setTrackerData] = useState({ agua_vasos: 0, tareas_completadas: [] });
   
   const displayName = localName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
   
   // Cálculo Hidratación
-  const dailyMl = latestWeight * 35;
+  const calculationWeight = latestWeight || 70;
+  const dailyMl = calculationWeight * 35;
   const targetGlasses = Math.ceil(dailyMl / 250);
   const liters = (dailyMl / 1000).toFixed(1);
   const percentHydration = Math.min(100, Math.round((trackerData.agua_vasos / targetGlasses) * 100));
 
   useEffect(() => {
+    // Check nombre
     if (user && !user.user_metadata?.full_name && !localName) {
       setShowOnboarding(true);
     }
@@ -105,11 +158,12 @@ export default function DashboardHome({ user }) {
         peso: log.weight
       }));
       setWeightTrend(graphData);
+    } else {
+      setLatestWeight(null); 
     }
   };
 
   const fetchTrackerData = async () => {
-    // Usamos día 1 como "Hoy" genérico para mantenerlo simple y eterno
     const { data } = await supabase
       .from('seguimiento_7dias')
       .select('*')
@@ -154,7 +208,11 @@ export default function DashboardHome({ user }) {
             Hola, {displayName} <span className="animate-wave inline-block">👋</span>
           </h1>
           <p className="text-slate-400 mt-1 flex items-center gap-2 text-lg">
-             Estás en <span className="text-teal-400 font-bold">Modo Reinicio</span>
+             {latestWeight ? (
+                <>Estás en <span className="text-teal-400 font-bold">Modo Reinicio</span></>
+             ) : (
+                <span className="text-indigo-400 font-bold">Configurando tu Sistema...</span>
+             )}
           </p>
         </div>
         
@@ -167,91 +225,93 @@ export default function DashboardHome({ user }) {
         </button>
       </div>
 
-      {/* SECCIÓN PRINCIPAL: OBJETIVOS E HIDRATACIÓN */}
+      {/* --- LÓGICA MAESTRA: ONBOARDING VS DASHBOARD --- */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Tareas del Día */}
-          <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-6 opacity-5 text-white">
-                <Target size={140} />
-             </div>
-             <div className="relative z-10">
-                <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-                    <Activity className="text-teal-400" /> {PROTOCOLO_ACTUAL.titulo}
-                    </h3>
-                    <p className="text-slate-400 text-sm">{PROTOCOLO_ACTUAL.subtitulo}</p>
+          {latestWeight === null ? (
+            // VISTA DE BIENVENIDA (Usuario Nuevo)
+            <WelcomeMission />
+          ) : (
+            // VISTA DE DASHBOARD COMPLETO (Usuario Activo)
+            <>
+              {/* Tareas del Día */}
+              <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-6 opacity-5 text-white">
+                    <Target size={140} />
                 </div>
-                
-                <div className="space-y-4">
-                  {PROTOCOLO_ACTUAL.tareas.map((tarea, idx) => {
-                    const isDone = (trackerData.tareas_completadas || []).includes(tarea);
-                    return (
-                      <div 
-                        key={idx} 
-                        onClick={() => toggleTarea(tarea)}
-                        className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                          isDone 
-                            ? "bg-teal-500/10 border-teal-500/40" 
-                            : "bg-slate-950/40 border-slate-700/50 hover:border-slate-600"
-                        }`}
-                      >
-                        <div className={`transition-transform ${isDone ? "text-teal-400 scale-110" : "text-slate-600"}`}>
-                          {isDone ? <CheckCircle className="fill-current" size={24} /> : <Circle size={24} />}
-                        </div>
-                        <span className={`flex-1 font-medium text-lg ${isDone ? "text-teal-100 line-through decoration-teal-500/50" : "text-slate-200"}`}>
-                          {tarea}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-             </div>
-          </div>
-
-          {/* HIDRATACIÓN PREMIUM */}
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden">
-            <div className="relative z-10 w-full h-full flex flex-col">
-                <div className="flex justify-between items-start mb-6">
-                    <div>
-                        <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                            <Droplets className="text-blue-400" /> Hidratación
+                <div className="relative z-10">
+                    <div className="mb-6">
+                        <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+                        <Activity className="text-teal-400" /> {PROTOCOLO_ACTUAL.titulo}
                         </h3>
-                        <p className="text-slate-400 text-xs mt-1">Calculada para tu peso</p>
+                        <p className="text-slate-400 text-sm">{PROTOCOLO_ACTUAL.subtitulo}</p>
                     </div>
-                    <div className="text-right">
-                        <span className="text-blue-300 font-bold text-2xl">{liters}L</span>
+                    
+                    <div className="space-y-4">
+                      {PROTOCOLO_ACTUAL.tareas.map((tarea, idx) => {
+                        const isDone = (trackerData.tareas_completadas || []).includes(tarea);
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => toggleTarea(tarea)}
+                            className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${
+                              isDone 
+                                ? "bg-teal-500/10 border-teal-500/40" 
+                                : "bg-slate-950/40 border-slate-700/50 hover:border-slate-600"
+                            }`}
+                          >
+                            <div className={`transition-transform ${isDone ? "text-teal-400 scale-110" : "text-slate-600"}`}>
+                              {isDone ? <CheckCircle className="fill-current" size={24} /> : <Circle size={24} />}
+                            </div>
+                            <span className={`flex-1 font-medium text-lg ${isDone ? "text-teal-100 line-through decoration-teal-500/50" : "text-slate-200"}`}>
+                              {tarea}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                 </div>
+              </div>
 
-                <div className="flex-1 flex flex-col justify-center items-center my-4">
-                    <div className="text-6xl font-black text-white mb-2 tracking-tighter">
-                        {trackerData.agua_vasos}
-                        <span className="text-2xl text-slate-600 font-medium">/{targetGlasses}</span>
+              {/* HIDRATACIÓN PREMIUM */}
+              <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden">
+                <div className="relative z-10 w-full h-full flex flex-col">
+                    <div className="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                                <Droplets className="text-blue-400" /> Hidratación
+                            </h3>
+                            <p className="text-slate-400 text-xs mt-1">Calculada para tus {latestWeight}kg</p>
+                        </div>
+                        <div className="text-right">
+                            <span className="text-blue-300 font-bold text-2xl">{liters}L</span>
+                        </div>
                     </div>
-                    <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">Vasos Registrados</p>
-                </div>
 
-                {/* Barra */}
-                <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-6">
-                    <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${percentHydration}%` }}></div>
-                </div>
+                    <div className="flex-1 flex flex-col justify-center items-center my-4">
+                        <div className="text-6xl font-black text-white mb-2 tracking-tighter">
+                            {trackerData.agua_vasos}
+                            <span className="text-2xl text-slate-600 font-medium">/{targetGlasses}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">Vasos Registrados</p>
+                    </div>
 
-                <div className="flex gap-3 w-full">
-                    <button 
-                        onClick={() => updateTracker({ agua_vasos: Math.max(0, trackerData.agua_vasos - 1) })}
-                        className="w-14 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition-colors border border-slate-700"
-                    >-</button>
-                    <button 
-                        onClick={() => updateTracker({ agua_vasos: trackerData.agua_vasos + 1 })}
-                        className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30 transition-colors"
-                    >+ Registrar Vaso</button>
+                    <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-6">
+                        <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${percentHydration}%` }}></div>
+                    </div>
+
+                    <div className="flex gap-3 w-full">
+                        <button onClick={() => updateTracker({ agua_vasos: Math.max(0, trackerData.agua_vasos - 1) })} className="w-14 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700">-</button>
+                        <button onClick={() => updateTracker({ agua_vasos: trackerData.agua_vasos + 1 })} className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30">+ Registrar Vaso</button>
+                    </div>
                 </div>
-            </div>
-          </div>
+              </div>
+            </>
+          )}
       </div>
 
-      {/* ACCESOS DIRECTOS (Corregidos) */}
+      {/* ACCESOS DIRECTOS */}
       <div>
         <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <Zap className="text-yellow-400" /> Herramientas de Poder
@@ -269,7 +329,7 @@ export default function DashboardHome({ user }) {
             icon={Dumbbell} 
             title="Entrenamiento" 
             desc="Rutinas de fuerza y cardio adaptadas a ti." 
-            buttonText="Ir a Entrenar" // <-- Corregido: Ya no dice "Ver video"
+            buttonText="Ir a Entrenar"
           />
           <QuickAction 
             to="/plataforma/bitacora" 
@@ -281,7 +341,8 @@ export default function DashboardHome({ user }) {
         </div>
       </div>
 
-      {/* GRÁFICA EVOLUCIÓN */}
+      {/* GRÁFICA EVOLUCIÓN (Solo si hay datos) */}
+      {latestWeight !== null && (
       <div className="bg-slate-800/40 border border-slate-700 p-8 rounded-3xl flex flex-col h-96 relative overflow-hidden">
         <div className="flex justify-between items-center mb-6 z-10">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -305,14 +366,12 @@ export default function DashboardHome({ user }) {
             ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-base border-2 border-dashed border-slate-700 rounded-2xl bg-slate-900/50">
                 <Activity size={40} className="mb-3 opacity-50" />
-                <p>Aún no tenemos datos suficientes.</p>
-                <Link to="/plataforma/bitacora" className="text-teal-400 mt-2 hover:underline font-bold">
-                   + Registrar peso inicial
-                </Link>
+                <p>Registra tu primer peso para ver la magia.</p>
             </div>
             )}
         </div>
       </div>
+      )}
       
       <ChefDanteWidget />
     </div>
