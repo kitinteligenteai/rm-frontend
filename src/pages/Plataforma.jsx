@@ -18,11 +18,19 @@ import GuiaSocial from './GuiaSocial';
 export default function Plataforma() {
   const { user, signOut } = useUser();
   const location = useLocation();
-  const navigate = useNavigate(); // <--- 1. IMPORTANTE: Hook de navegación
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await signOut();
-    navigate("/auth"); // <--- 2. CORRECCIÓN: Redirección suave (adiós al refresh)
+    try {
+      // Intentamos avisar a Supabase
+      await signOut(); 
+    } catch (error) {
+      console.warn("Error de red al salir (no importa, forzamos salida):", error);
+    } finally {
+      // PASE LO QUE PASE, borramos rastros locales y redirigimos
+      localStorage.removeItem('sb-mgjzlohapnepvrqlxmpo-auth-token'); // Limpieza profunda (ajusta si tu key es distinta, pero esto ayuda)
+      navigate("/auth", { replace: true });
+    }
   };
 
   const NavItem = ({ to, icon: Icon, label }) => {
@@ -44,7 +52,7 @@ export default function Plataforma() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex text-slate-100 font-sans print:bg-white print:text-black">
-      {/* SIDEBAR - Oculto al imprimir */}
+      {/* SIDEBAR */}
       <aside className="w-72 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col sticky top-0 h-screen print:hidden">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-8">
@@ -71,7 +79,6 @@ export default function Plataforma() {
 
       {/* MAIN CONTENT */}
       <main className="flex-1 min-w-0 bg-slate-950 overflow-y-auto print:bg-white print:overflow-visible">
-        {/* Header Movil - Oculto al imprimir */}
         <header className="md:hidden h-16 border-b border-slate-800 flex items-center justify-between px-4 bg-slate-900 sticky top-0 z-20 print:hidden">
           <span className="font-bold text-white">Reinicio M.</span>
           <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-white"><LogOut className="w-5 h-5" /></button>
@@ -89,7 +96,6 @@ export default function Plataforma() {
           <Route path="*" element={<Navigate to="/plataforma/panel-de-control" replace />} />
         </Routes>
 
-        {/* FOOTER */}
         <footer className="w-full border-t border-slate-800 bg-slate-950 py-8 px-6 print:hidden">
             <div className="max-w-5xl mx-auto text-center space-y-4">
             <div className="p-4 bg-slate-900/50 rounded-xl border border-slate-800 text-xs text-slate-500 leading-relaxed text-justify">
