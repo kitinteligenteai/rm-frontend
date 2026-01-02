@@ -1,6 +1,5 @@
-// src/pages/Plataforma.jsx (v6.0 - Soporte Modo Impresión)
 import React from 'react';
-import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext'; 
 import { 
   LayoutDashboard, BookOpen, Dumbbell, LogOut, 
@@ -19,10 +18,11 @@ import GuiaSocial from './GuiaSocial';
 export default function Plataforma() {
   const { user, signOut } = useUser();
   const location = useLocation();
+  const navigate = useNavigate(); // <--- 1. IMPORTANTE: Hook de navegación
 
   const handleLogout = async () => {
     await signOut();
-    window.location.href = "/auth";
+    navigate("/auth"); // <--- 2. CORRECCIÓN: Redirección suave (adiós al refresh)
   };
 
   const NavItem = ({ to, icon: Icon, label }) => {
@@ -89,7 +89,7 @@ export default function Plataforma() {
           <Route path="*" element={<Navigate to="/plataforma/panel-de-control" replace />} />
         </Routes>
 
-        {/* FOOTER - Oculto al imprimir */}
+        {/* FOOTER */}
         <footer className="w-full border-t border-slate-800 bg-slate-950 py-8 px-6 print:hidden">
             <div className="max-w-5xl mx-auto text-center space-y-4">
             <div className="p-4 bg-slate-900/50 rounded-xl border border-slate-800 text-xs text-slate-500 leading-relaxed text-justify">
