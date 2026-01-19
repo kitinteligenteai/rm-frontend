@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useUser } from '../context/UserContext';
+// CORRECCIÓN: Agregado 'BookHeart' a la lista de imports
 import { 
   Save, Trash2, Edit2, TrendingDown, Activity, 
-  Scale, Ruler, Zap, Moon, Calendar, ArrowDownRight 
+  Scale, Ruler, Zap, Moon, Calendar, ArrowDownRight, BookHeart 
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -14,7 +15,6 @@ export default function Bitacora() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Estado del formulario
   const [formData, setFormData] = useState({
     weight: '',
     waist: '',
@@ -57,7 +57,7 @@ export default function Bitacora() {
         energy_level: formData.energy_level,
         sleep_quality: formData.sleep_quality,
         notes: formData.notes,
-        created_at: new Date().toISOString() // Para ordenar correctamente hoy
+        created_at: new Date().toISOString()
       };
 
       if (editingId) {
@@ -66,7 +66,6 @@ export default function Bitacora() {
         await supabase.from('progress_logs').insert(payload);
       }
 
-      // Reset
       setFormData({ weight: '', waist: '', energy_level: 3, sleep_quality: 3, notes: '' });
       setEditingId(null);
       fetchLogs();
@@ -96,7 +95,6 @@ export default function Bitacora() {
     fetchLogs();
   };
 
-  // Cálculos para la gráfica y resumen
   const chartData = [...logs].reverse().map(log => ({
     date: new Date(log.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
     weight: log.weight
@@ -142,7 +140,6 @@ export default function Bitacora() {
             </h3>
 
             <div className="space-y-5">
-              {/* Peso y Cintura */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 mb-2 uppercase flex items-center gap-1">
@@ -170,7 +167,6 @@ export default function Bitacora() {
                 </div>
               </div>
 
-              {/* Sliders Energía y Sueño */}
               <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
                 <div className="mb-4">
                   <div className="flex justify-between mb-2">
@@ -199,14 +195,13 @@ export default function Bitacora() {
                 </div>
               </div>
 
-              {/* Notas */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-2 uppercase">Notas del día</label>
                 <textarea 
                   rows="3"
                   value={formData.notes}
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  placeholder="¿Cómo te sentiste hoy? ¿Tuviste ansiedad?"
+                  placeholder="¿Cómo te sentiste hoy?"
                   className="w-full bg-slate-800 border border-slate-600 text-white p-3 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm resize-none"
                 />
               </div>
@@ -223,13 +218,10 @@ export default function Bitacora() {
 
         {/* COLUMNA DER: GRÁFICA E HISTORIAL */}
         <div className="lg:col-span-8 space-y-6">
-          
-          {/* GRÁFICA */}
           <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-lg h-80 flex flex-col">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <Activity className="text-teal-400" size={20} /> Tendencia de Peso
             </h3>
-            
             <div className="flex-1 w-full min-h-0">
               {chartData.length > 1 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -255,7 +247,6 @@ export default function Bitacora() {
             </div>
           </div>
 
-          {/* LISTA DE REGISTROS (HISTORIAL) */}
           <div className="space-y-3">
              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest px-2">Historial Reciente</h3>
              {logs.length === 0 && <p className="text-slate-500 px-2">No hay registros aún.</p>}
