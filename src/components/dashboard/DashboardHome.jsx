@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v16.0 - El Puente: Del PDF a la Automatización Premium
+// v17.1 - FIX: Re-integración del Botón Check-in Semanal (Morado)
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
   TrendingUp, ArrowRight, Activity, BookHeart,
-  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Sun, Target, Map, Cpu
+  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Target, Cpu, ClipboardCheck
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -15,8 +15,8 @@ import {
 import OnboardingModal from './OnboardingModal';
 import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
+import WeeklyCheckin from './WeeklyCheckin'; 
 
-// --- PROTOCOLO DE ESTILO DE VIDA ---
 const PROTOCOLO_ACTUAL = {
   titulo: "Fase de Estilo de Vida",
   subtitulo: "Tus innegociables de hoy:",
@@ -71,7 +71,7 @@ const WelcomeMission = () => (
     <div className="relative z-10 max-w-3xl">
       <h2 className="text-3xl font-bold text-white mb-2">Bienvenido al Nivel Pro 🚀</h2>
       <p className="text-indigo-200 mb-6 text-lg leading-relaxed">
-        Ya conoces la teoría del PDF. Ahora vamos a <span className="font-bold text-white">automatizar tu éxito</span>. 
+        Ya conoces la teoría. Ahora vamos a <span className="font-bold text-white">automatizar tu éxito</span>. 
         Esta plataforma ajusta las porciones, menús y rutinas a TUS datos reales.
       </p>
       
@@ -93,7 +93,7 @@ const WelcomeMission = () => (
              <Calendar size={20} className="text-teal-400" />
           </div>
           <h4 className="text-white font-bold mb-1">Automatiza tu Menú</h4>
-          <p className="text-slate-400 text-xs">Olvídate del menú fijo del PDF. Genera uno nuevo cada semana según tus gustos.</p>
+          <p className="text-slate-400 text-xs">Genera uno nuevo cada semana según tus gustos.</p>
         </Link>
 
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex flex-col p-4 bg-slate-800/80 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/30 rounded-xl transition-all text-left">
@@ -113,14 +113,15 @@ export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [localName, setLocalName] = useState(""); 
   const [showSOS, setShowSOS] = useState(false);
+  const [showCheckin, setShowCheckin] = useState(false); // Estado del modal Check-in
   
   const [latestWeight, setLatestWeight] = useState(null);
   const [weightTrend, setWeightTrend] = useState([]);
   const [trackerData, setTrackerData] = useState({ agua_vasos: 0, tareas_completadas: [] });
   
-  const displayName = localName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Campeón";
+  const cleanName = localName || user?.user_metadata?.full_name;
+  const displayName = (cleanName && cleanName.trim() !== "") ? cleanName : "Campeón";
   
-  // Cálculo Hidratación
   const calculationWeight = latestWeight || 70;
   const dailyMl = calculationWeight * 35;
   const targetGlasses = Math.ceil(dailyMl / 250);
@@ -128,7 +129,6 @@ export default function DashboardHome({ user }) {
   const percentHydration = Math.min(100, Math.round((trackerData.agua_vasos / targetGlasses) * 100));
 
   useEffect(() => {
-    // Check nombre
     if (user && !user.user_metadata?.full_name && !localName) {
       setShowOnboarding(true);
     }
@@ -169,7 +169,7 @@ export default function DashboardHome({ user }) {
       .select('*')
       .eq('user_id', user.id)
       .eq('dia_numero', 1) 
-      .single();
+      .maybeSingle(); 
 
     if (data) setTrackerData(data);
     else setTrackerData({ agua_vasos: 0, tareas_completadas: [] });
@@ -200,6 +200,7 @@ export default function DashboardHome({ user }) {
       
       {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
       {showSOS && <SOSCenter onClose={() => setShowSOS(false)} />}
+      {showCheckin && <WeeklyCheckin user={user} onClose={() => setShowCheckin(false)} />}
       
       {/* HEADER + BOTÓN SOS */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -207,7 +208,7 @@ export default function DashboardHome({ user }) {
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             Hola, {displayName} <span className="animate-wave inline-block">👋</span>
           </h1>
-          <p className="text-slate-400 mt-1 flex items-center gap-2 text-lg">
+          <p className="text-slate-400 mt-2 text-lg">
              {latestWeight ? (
                 <>Estás en <span className="text-teal-400 font-bold">Modo Reinicio</span></>
              ) : (
@@ -224,16 +225,12 @@ export default function DashboardHome({ user }) {
           SOS: Antojos / Crisis
         </button>
       </div>
-
-      {/* --- LÓGICA MAESTRA: ONBOARDING VS DASHBOARD --- */}
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {latestWeight === null ? (
-            // VISTA DE BIENVENIDA (Usuario Nuevo)
             <WelcomeMission />
           ) : (
-            // VISTA DE DASHBOARD COMPLETO (Usuario Activo)
             <>
               {/* Tareas del Día */}
               <div className="lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-3xl p-8 shadow-xl relative overflow-hidden">
@@ -316,32 +313,52 @@ export default function DashboardHome({ user }) {
         <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <Zap className="text-yellow-400" /> Herramientas de Poder
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <QuickAction 
             to="/plataforma/planeador" 
             icon={Calendar} 
-            title="Planeador Semanal" 
-            desc="Genera tu menú inteligente y lista de compras." 
-            buttonText="Ver mi Menú"
+            title="Planeador" 
+            desc="Tu menú semanal." 
+            buttonText="Ver Menú"
           />
           <QuickAction 
             to="/plataforma/gimnasio" 
             icon={Dumbbell} 
-            title="Entrenamiento" 
-            desc="Rutinas de fuerza y cardio adaptadas a ti." 
-            buttonText="Ir a Entrenar"
+            title="Gimnasio" 
+            desc="Rutinas digitales." 
+            buttonText="Entrenar"
           />
+          
+          {/* ✅ EL BOTÓN MORADO ESTÁ AQUÍ 👇 */}
+          <button 
+            onClick={() => setShowCheckin(true)}
+            className="group flex flex-col justify-between p-5 rounded-2xl bg-indigo-900/20 border border-indigo-500/30 hover:bg-indigo-900/40 hover:border-indigo-400 transition-all h-full text-left"
+          >
+            <div className="flex items-start gap-4 mb-4">
+                <div className="p-3 rounded-xl bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                  <ClipboardCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-white font-bold text-lg group-hover:text-indigo-300 transition-colors">Check-in Semanal</h4>
+                  <p className="text-sm text-slate-400 leading-snug mt-1">Evalúa tu progreso con Dante.</p>
+                </div>
+            </div>
+            <div className="flex items-center text-xs font-bold text-indigo-400 uppercase tracking-wider group-hover:underline">
+                Iniciar Consulta <ArrowRight size={14} className="ml-1" />
+            </div>
+          </button>
+
           <QuickAction 
             to="/plataforma/bitacora" 
             icon={BookHeart} 
-            title="Bitácora de Progreso" 
-            desc="Registra tu peso, medidas y victorias." 
-            buttonText="Registrar Hoy"
+            title="Bitácora" 
+            desc="Registra medidas." 
+            buttonText="Registrar"
           />
         </div>
       </div>
 
-      {/* GRÁFICA EVOLUCIÓN (Solo si hay datos) */}
+      {/* GRÁFICA EVOLUCIÓN */}
       {latestWeight !== null && (
       <div className="bg-slate-800/40 border border-slate-700 p-8 rounded-3xl flex flex-col h-96 relative overflow-hidden">
         <div className="flex justify-between items-center mb-6 z-10">
