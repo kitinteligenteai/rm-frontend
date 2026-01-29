@@ -1,24 +1,33 @@
-// src/pages/Biblioteca.jsx (v6.0 - Audio Learning)
-import React, { useState } from 'react';
-import { Disclosure } from '@headlessui/react';
-import { ChevronUp, BookOpen, Zap, Brain, Compass, Volume2, StopCircle } from 'lucide-react';
+// src/pages/Biblioteca.jsx
+// v7.0 - Diseño Revista Digital "Masterclass"
 
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  BookOpen, Zap, Brain, Compass, Volume2, StopCircle, 
+  X, ChevronRight, GraduationCap, FileText, Search 
+} from 'lucide-react';
+
+// Importamos tus datos existentes
 import { philosophyContent, survivalGuides, scienceReferences } from '../data/educationalContent';
 import { principles } from '../data/principlesData';
 import AsesorProteico from '../components/tools/AsesorProteico';
 
-const AudioPlayer = ({ text }) => {
+// --- COMPONENTE DE AUDIO (Integrado y Elegante) ---
+const AudioBtn = ({ text, title }) => {
   const [speaking, setSpeaking] = useState(false);
 
   const handleSpeak = (e) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Evita abrir el artículo al dar click en audio
+    
     if (speaking) {
       window.speechSynthesis.cancel();
       setSpeaking(false);
     } else {
-      const cleanText = text.replace(/<[^>]+>/g, '');
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.lang = 'es-MX'; // Voz español latino
+      window.speechSynthesis.cancel(); // Cancelar previos
+      const cleanText = text.replace(/<[^>]+>/g, ''); // Quitar HTML
+      const utterance = new SpeechSynthesisUtterance(`${title}. ${cleanText}`);
+      utterance.lang = 'es-MX';
       utterance.rate = 1.0;
       utterance.onend = () => setSpeaking(false);
       window.speechSynthesis.speak(utterance);
@@ -29,119 +38,215 @@ const AudioPlayer = ({ text }) => {
   return (
     <button 
       onClick={handleSpeak}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${speaking ? 'bg-red-500/20 text-red-400 border-red-500/50' : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600 hover:text-white'}`}
+      className={`p-2 rounded-full transition-all ${
+        speaking 
+          ? 'bg-teal-500 text-white animate-pulse' 
+          : 'bg-slate-800 text-slate-400 hover:bg-teal-500/20 hover:text-teal-400'
+      }`}
+      title={speaking ? "Detener audio" : "Escuchar artículo"}
     >
-      {speaking ? <StopCircle size={14} /> : <Volume2 size={14} />}
-      {speaking ? 'Detener' : 'Escuchar'}
+      {speaking ? <StopCircle size={18} /> : <Volume2 size={18} />}
     </button>
   );
 };
 
-const Biblioteca = () => {
+// --- MODAL DE LECTURA (Tipo Medium/Kindle) ---
+const ArticleModal = ({ article, onClose }) => {
+  if (!article) return null;
+
   return (
-    <div className="p-6 md:p-10 animate-in fade-in duration-500 pb-24">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-          Academia Metabólica
-        </h1>
-        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-          Lee o escucha para aprender a dominar tu metabolismo.
-        </p>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="w-full lg:w-2/3 space-y-12">
-          
-          <section>
-            <div className="flex items-center gap-2 mb-6"><Zap className="w-6 h-6 text-teal-400" /><h2 className="text-2xl font-bold text-white">Filosofía</h2></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {philosophyContent.map((item) => (
-                <div key={item.id} className="bg-slate-800/50 border border-slate-700 p-5 rounded-xl">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="text-2xl">{item.icon}</div>
-                    <AudioPlayer text={item.content} />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-200 mb-2">{item.title}</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">{item.content}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <div className="flex items-center gap-2 mb-6"><Brain className="w-6 h-6 text-indigo-400" /><h2 className="text-2xl font-bold text-white">Ciencia Profunda</h2></div>
-            <div className="space-y-3">
-              {principles.map((principio) => (
-                <Disclosure as="div" key={principio.id} className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-                  {({ open }) => (
-                    <>
-                      <Disclosure.Button className="flex w-full justify-between items-center px-6 py-4 text-left hover:bg-slate-700 transition-colors">
-                        <span className="text-slate-200 font-medium">{principio.title}</span>
-                        <div className="flex items-center gap-4">
-                             <AudioPlayer text={principio.content} />
-                             <ChevronUp className={`${open ? 'rotate-180' : ''} h-5 w-5 text-slate-500`} />
-                        </div>
-                      </Disclosure.Button>
-                      <Disclosure.Panel className="px-6 pb-6 pt-4 bg-slate-800 border-t border-slate-700">
-                        <p className="text-indigo-300 italic mb-4 text-sm">{principio.subtitle}</p>
-                        <div className="prose prose-invert prose-sm max-w-none text-slate-400" dangerouslySetInnerHTML={{ __html: principio.content }} />
-                      </Disclosure.Panel>
-                    </>
-                  )}
-                </Disclosure>
-              ))}
-            </div>
-          </section>
-          
-          <section>
-            <div className="flex items-center gap-2 mb-6"><Compass className="w-6 h-6 text-orange-400" /><h2 className="text-2xl font-bold text-white">Guías Prácticas</h2></div>
-            <div className="grid grid-cols-1 gap-4">
-              {survivalGuides.map((guide) => (
-                <Disclosure as="div" key={guide.id} className="bg-slate-800/80 border border-slate-600 rounded-xl overflow-hidden">
-                  {({ open }) => (
-                    <>
-                      <Disclosure.Button className="flex w-full justify-between items-center p-5 text-left hover:bg-slate-700 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <span className="text-3xl">{guide.icon}</span>
-                          <div>
-                            <h3 className="font-bold text-white text-lg">{guide.title}</h3>
-                            <span className="text-xs font-bold text-teal-400 uppercase tracking-wider bg-teal-900/30 px-2 py-1 rounded">{guide.category}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <AudioPlayer text={guide.content} />
-                            <ChevronUp className={`${open ? 'rotate-180' : ''} h-6 w-6 text-slate-400 transition-transform`} />
-                        </div>
-                      </Disclosure.Button>
-                      <Disclosure.Panel className="px-6 pb-6 pt-2 bg-slate-900/50 border-t border-slate-600">
-                        <div className="prose prose-invert prose-p:text-slate-300 max-w-none mt-4" dangerouslySetInnerHTML={{ __html: guide.content }} />
-                      </Disclosure.Panel>
-                    </>
-                  )}
-                </Disclosure>
-              ))}
-            </div>
-          </section>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className="bg-slate-900 border border-slate-700 w-full max-w-3xl h-full md:h-[85vh] rounded-3xl shadow-2xl relative flex flex-col overflow-hidden">
+        
+        {/* Barra Superior */}
+        <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-slate-900 shrink-0">
+          <div className="flex items-center gap-3">
+             <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                <BookOpen size={20} />
+             </div>
+             <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Lectura</span>
+          </div>
+          <button onClick={() => { window.speechSynthesis.cancel(); onClose(); }} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors">
+            <X size={24} />
+          </button>
         </div>
 
-        <div className="w-full lg:w-1/3">
-          <div className="sticky top-6 space-y-6">
-            <div className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
-              <div className="bg-teal-600 p-3 text-center font-bold text-white">Herramienta Exclusiva</div>
-              <div className="bg-white"><AsesorProteico /></div>
+        {/* Contenido Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-12 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+            {article.title}
+          </h2>
+          
+          <div className="flex items-center gap-4 mb-8 pb-8 border-b border-slate-800">
+            <AudioBtn text={article.content} title={article.title} />
+            <span className="text-slate-500 text-sm">Escuchar narración</span>
+          </div>
+
+          <div 
+            className="prose prose-invert prose-lg max-w-none text-slate-300 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+// --- TARJETA DE ARTÍCULO ---
+const ArticleCard = ({ item, onClick, categoryColor = "indigo" }) => {
+  // Extraer un resumen corto del contenido HTML
+  const summary = item.content.replace(/<[^>]+>/g, '').substring(0, 100) + "...";
+
+  return (
+    <div 
+      onClick={() => onClick(item)}
+      className="group bg-slate-900 border border-slate-800 hover:border-slate-600 p-6 rounded-2xl cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
+    >
+      <div className="flex justify-between items-start mb-4">
+        <div className={`p-3 rounded-xl bg-${categoryColor}-500/10 text-${categoryColor}-400 text-2xl`}>
+          {item.icon || <FileText size={24} />}
+        </div>
+        <AudioBtn text={item.content} title={item.title} />
+      </div>
+      
+      <h3 className="text-lg font-bold text-white mb-2 leading-snug group-hover:text-teal-400 transition-colors">
+        {item.title}
+      </h3>
+      
+      <p className="text-sm text-slate-400 mb-4 flex-1">
+        {item.subtitle || summary}
+      </p>
+
+      <div className="flex items-center text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-white transition-colors mt-auto pt-4 border-t border-slate-800">
+        Leer Artículo <ChevronRight size={14} className="ml-1" />
+      </div>
+    </div>
+  );
+};
+
+// --- PÁGINA PRINCIPAL ---
+const Biblioteca = () => {
+  const [activeTab, setActiveTab] = useState('todo');
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Unificar todo el contenido en una sola lista maestra con categorías
+  const allContent = [
+    ...principles.map(i => ({ ...i, type: 'ciencia', icon: <Brain /> })),
+    ...philosophyContent.map(i => ({ ...i, type: 'filosofia', icon: <Zap /> })),
+    ...survivalGuides.map(i => ({ ...i, type: 'guias', icon: <Compass /> })),
+    ...scienceReferences.map(i => ({ ...i, type: 'referencias', icon: <GraduationCap /> }))
+  ];
+
+  // Filtrado
+  const filteredContent = allContent.filter(item => {
+    const matchesTab = activeTab === 'todo' || item.type === activeTab;
+    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
+
+  const tabs = [
+    { id: 'todo', label: 'Todo' },
+    { id: 'filosofia', label: 'Mentalidad' },
+    { id: 'ciencia', label: 'Ciencia' },
+    { id: 'guias', label: 'Guías Prácticas' },
+  ];
+
+  return (
+    <div className="p-6 md:p-10 min-h-screen bg-slate-950 pb-24 animate-in fade-in duration-500">
+      
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6 border-b border-slate-800 pb-8">
+        <div>
+          <h1 className="text-4xl font-extrabold text-white mb-2 flex items-center gap-3">
+            <BookOpen className="text-teal-500" size={36} /> Academia
+          </h1>
+          <p className="text-slate-400 text-lg">Tu centro de conocimiento metabólico.</p>
+        </div>
+
+        {/* Buscador */}
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+          <input 
+            type="text" 
+            placeholder="Buscar tema..." 
+            className="w-full bg-slate-900 border border-slate-700 text-white pl-10 pr-4 py-3 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none placeholder:text-slate-600"
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* PESTAÑAS DE NAVEGACIÓN */}
+      <div className="flex overflow-x-auto gap-2 pb-6 mb-4 scrollbar-hide">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
+              activeTab === tab.id 
+                ? 'bg-teal-600 text-white shadow-lg shadow-teal-900/40' 
+                : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* CONTENIDO PRINCIPAL */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* GRID DE ARTÍCULOS (2 Columnas en Desktop) */}
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredContent.length > 0 ? (
+            filteredContent.map((item, idx) => (
+              <ArticleCard 
+                key={idx} 
+                item={item} 
+                onClick={setSelectedArticle}
+                categoryColor={item.type === 'ciencia' ? 'indigo' : item.type === 'guias' ? 'orange' : 'teal'} 
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-20 text-slate-500">
+              <p>No encontramos artículos sobre ese tema.</p>
             </div>
-            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
-                <h4 className="text-white font-bold mb-4 flex items-center gap-2">🧬 Referencias Médicas</h4>
-                {scienceReferences?.map((ref) => (
-                    <div key={ref.id} className="mb-6 last:mb-0">
-                        <h5 className="text-teal-400 text-sm font-bold mb-1">{ref.title}</h5>
-                        <div className="text-xs text-slate-400" dangerouslySetInnerHTML={{ __html: ref.content }} />
-                    </div>
-                ))}
+          )}
+        </div>
+
+        {/* SIDEBAR DE HERRAMIENTAS (1 Columna derecha) */}
+        <div className="space-y-6">
+          <div className="sticky top-6">
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl mb-6">
+              <div className="bg-teal-600/20 p-4 border-b border-teal-500/20 flex items-center gap-2">
+                <Zap size={18} className="text-teal-400" />
+                <h3 className="font-bold text-teal-100 text-sm uppercase tracking-wide">Herramienta Exclusiva</h3>
+              </div>
+              <div className="p-4 bg-white"> {/* AsesorProteico necesita fondo claro o adaptar su CSS */}
+                 <AsesorProteico />
+              </div>
+            </div>
+
+            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+                <h4 className="text-white font-bold mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                  <GraduationCap size={16} className="text-indigo-400"/> Referencias Médicas
+                </h4>
+                <div className="space-y-4 text-xs text-slate-400">
+                  <p>Basado en los protocolos clínicos del Dr. Jason Fung y Virta Health.</p>
+                  <p>Toda la información es educativa. Consulta a tu médico antes de cambios drásticos.</p>
+                </div>
             </div>
           </div>
         </div>
+
       </div>
+
+      {/* MODAL DE LECTURA */}
+      {selectedArticle && (
+        <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} />
+      )}
+
     </div>
   );
 };
