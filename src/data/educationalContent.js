@@ -1,25 +1,54 @@
 // src/data/educationalContent.js
-// REPOSITORIO DE FILOSOFÍA, GUÍAS Y CIENCIA (v5.0 - COMPLETO)
+// v5.5 - Contenido Mentalidad Expandido (Formato Artículo)
 
-// 1. FILOSOFÍA (Tarjetas Superiores)
+// 1. FILOSOFÍA (Ahora son Artículos Completos, no frases)
 export const philosophyContent = [
   {
     id: 'manifesto',
-    title: 'Calidad sobre Cantidad',
-    content: "No somos una calculadora. Tu cuerpo es un laboratorio químico complejo. 100 calorías de brócoli le dan instrucciones de sanación a tu ADN; 100 calorías de azúcar le dan instrucciones de enfermedad. Enfócate en nutrir.",
-    icon: '💎'
+    title: 'Tu Cuerpo es un Laboratorio, no una Calculadora',
+    icon: '💎',
+    subtitle: 'Por qué contar calorías ha fallado y qué hacer en su lugar.',
+    content: `
+      <p>Durante décadas nos han dicho que el peso es una simple ecuación de "Calorías que entran menos calorías que salen". Si esto fuera cierto, comer 100 calorías de azúcar tendría el mismo efecto que comer 100 calorías de brócoli. Sabemos que no es así.</p>
+      
+      <p><strong>El cambio de paradigma:</strong></p>
+      <p>Tu cuerpo no es una cuenta de banco donde depositas monedas. Es un laboratorio químico complejo gobernado por hormonas. Cada vez que comes, envías un "código" a tu ADN:</p>
+      <ul class="list-disc pl-5 my-4 space-y-2">
+        <li>El azúcar envía el código: <em>"Almacena grasa y apaga la quema de energía".</em></li>
+        <li>La proteína envía el código: <em>"Construye músculo y sacia el apetito".</em></li>
+        <li>Las grasas saludables envían el código: <em>"Hay energía estable, no tengas ansiedad".</em></li>
+      </ul>
+      <p>En el Reinicio Metabólico, dejamos de obsesionarnos con la <em>cantidad</em> (calorías) y nos enfocamos obsesivamente en la <em>calidad</em> (información). Cuando corriges la señal química (bajando la insulina), el peso se corrige como consecuencia natural, no como una lucha matemática.</p>
+    `
   },
   {
     id: 'sustainability',
-    title: 'Progreso, no Perfección',
-    content: "La vida es para disfrutarse. Si te sales del plan en una comida, no te castigues. Simplemente retoma en la siguiente. La constancia vence a la intensidad.",
-    icon: '🌱'
+    title: 'La Falacia de la Perfección: La Regla del 80/20',
+    icon: '🌱',
+    subtitle: 'La constancia siempre vence a la intensidad.',
+    content: `
+      <p>La razón #1 por la que la gente abandona es el pensamiento de "Todo o Nada". Comienzan el lunes al 100%, pero el miércoles comen una galleta y piensan: <em>"Ya lo eché a perder, mejor empiezo el otro lunes"</em>. Y así pasan los años.</p>
+      <p><strong>El Reinicio no es una cárcel:</strong></p>
+      <p>Si en una comida te sales del plan, no te castigues. No hagas 3 horas de cardio para "quemarlo". Tu cuerpo tiene la capacidad de manejalo si es la excepción y no la regla.</p>
+      <p>Simplemente pregúntate: <em>"¿Qué desencadenó esto? ¿Fue estrés? ¿Fue falta de planeación?"</em>. Aprende del dato y asegúrate de que tu <strong>siguiente comida</strong> sea proteína y vegetales.</p>
+      <p>Un estilo de vida saludable se construye con lo que haces el 80% del tiempo. Si eres constante en lo básico (agua, proteína, sueño), tienes margen para disfrutar la vida el otro 20% sin culpa. La culpa libera cortisol, y el cortisol te hace engordar. Suelta la culpa, retoma el control.</p>
+    `
   },
   {
     id: 'listening',
-    title: 'Escucha a tu Cuerpo',
-    content: "Tu cuerpo es sabio. Si tienes hambre real, come proteínas y grasas. Si estás cansado, descansa. Aprender a distinguir entre hambre real y ansiedad emocional es tu superpoder.",
-    icon: '👂'
+    title: 'El Arte de Escuchar a tu Cuerpo (Biofeedback)',
+    icon: '👂',
+    subtitle: 'Cómo distinguir el hambre real de la ansiedad emocional.',
+    content: `
+      <p>Hemos olvidado cómo se siente el hambre real. Comemos por hora, por aburrimiento, por tristeza o por "sed". Recuperar la conexión con tus señales internas es tu superpoder más grande.</p>
+      <h4 class="font-bold text-teal-400 mt-4">La Prueba del Bistec y el Brócoli:</h4>
+      <p>Cuando sientas un "antojo" urgente, hazte esta pregunta: <em>"¿Me comería un plato de bistec con brócoli ahora mismo?"</em></p>
+      <ul class="list-disc pl-5 my-4 space-y-2">
+        <li><strong>Si la respuesta es SÍ:</strong> Es hambre real (fisiológica). Tu cuerpo pide nutrientes. Come.</li>
+        <li><strong>Si la respuesta es NO (pero quiero una galleta):</strong> Es hambre emocional o sed. Tu cerebro pide dopamina, no comida.</li>
+      </ul>
+      <p>Si es emocional, la solución no está en el refrigerador. Bebe un vaso grande de agua con sal, sal a caminar 5 minutos o respira profundo. Aprender a pausar en ese momento es donde ocurre la verdadera transformación.</p>
+    `
   }
 ];
 
@@ -115,7 +144,7 @@ export const survivalGuides = [
   }
 ];
 
-// 3. CIENCIA Y REFERENCIAS (La pieza que faltaba)
+// 3. CIENCIA Y REFERENCIAS
 export const scienceReferences = [
   {
     id: 'ciencia-1',
@@ -149,5 +178,4 @@ export const scienceReferences = [
   }
 ];
 
-// Se mantiene vacío por compatibilidad
 export const toolsContent = [];
