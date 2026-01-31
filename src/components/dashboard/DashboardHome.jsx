@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v23.1 - FIX: Código completo y cerrado correctamente para evitar error de Build
+// v23.2 - FIX: Agregado import ClipboardCheck para evitar pantalla negra
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from 'react-router-dom';
@@ -7,7 +7,8 @@ import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
   TrendingUp, ArrowRight, Activity, BookHeart,
-  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Target, Lock, Map, Star, Unlock, Brain, PlayCircle, StopCircle, X
+  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Target, Lock, Map, Star, Unlock, Brain, PlayCircle, StopCircle, X,
+  ClipboardCheck // <--- ¡AQUÍ ESTÁ LA CORRECCIÓN!
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -17,7 +18,7 @@ import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
 import WeeklyCheckin from './WeeklyCheckin'; 
 
-// --- CONTENIDO EXCLUSIVO POR FASE (LO QUE SE DESBLOQUEA) ---
+// --- CONTENIDO EXCLUSIVO POR FASE ---
 const FASE_CONTENT = {
   2: {
     title: "Nivel 2: Neuro-Reprogramación",
@@ -53,7 +54,6 @@ const FASE_CONTENT = {
   }
 };
 
-// Componente Mini-Audio para los Modales de Fase
 const PhaseAudioPlayer = ({ text, title }) => {
   const [playing, setPlaying] = useState(false);
   const toggle = () => {
@@ -79,7 +79,6 @@ const PhaseAudioPlayer = ({ text, title }) => {
   );
 };
 
-// MODAL DE DETALLE DE FASE
 const PhaseModal = ({ phaseId, onClose }) => {
   const content = FASE_CONTENT[phaseId];
   if (!content) return null;
@@ -95,7 +94,6 @@ const PhaseModal = ({ phaseId, onClose }) => {
         </div>
         <div className="p-6 space-y-6">
           <p className="text-slate-300 leading-relaxed">{content.description}</p>
-          
           <div className="space-y-4">
              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Herramientas Desbloqueadas</h4>
              {content.tools.map((tool, idx) => (
@@ -159,7 +157,8 @@ const WelcomeMission = () => (
     <div className="relative z-10 max-w-3xl">
       <h2 className="text-3xl font-bold text-white mb-2">Bienvenido al Nivel Pro 🚀</h2>
       <p className="text-indigo-200 mb-6 text-lg leading-relaxed">
-        Ya conoces la teoría. Ahora vamos a <span className="font-bold text-white">automatizar tu éxito</span>.
+        Ya conoces la teoría. Ahora vamos a <span className="font-bold text-white">automatizar tu éxito</span>. 
+        Esta plataforma ajusta las porciones, menús y rutinas a TUS datos reales.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link to="/plataforma/bitacora" className="flex flex-col p-4 bg-slate-800/80 hover:bg-indigo-900/50 border border-indigo-500/30 rounded-xl transition-all group">
@@ -174,7 +173,6 @@ const WelcomeMission = () => (
     </div>
   </div>
 );
-
 
 export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -201,7 +199,6 @@ export default function DashboardHome({ user }) {
 
   const [diaActivo, setDiaActivo] = useState(daysSinceJoin);
 
-  // --- PROTOCOLO DINÁMICO ---
   const protocoloDia = useMemo(() => {
     if (diaActivo <= 14) {
       return { 
@@ -224,7 +221,6 @@ export default function DashboardHome({ user }) {
     }
   }, [diaActivo]);
 
-  // --- FASES INTERACTIVAS ---
   const fasesSistema = [
     { id: 1, nombre: "Fase 1: Inmersión", dias: "Días 1-14", status: "active", objetivo: "Desinflamación y adaptación." },
     { 
@@ -304,7 +300,7 @@ export default function DashboardHome({ user }) {
   return (
     <div className="p-6 md:p-10 space-y-10 animate-in fade-in duration-500 pb-40">
       
-      {showOnboarding && <OnboardingModal user={user} onComplete={() => window.location.reload()} />}
+      {showOnboarding && <OnboardingModal user={user} onComplete={handleOnboardingComplete} />}
       {showSOS && <SOSCenter onClose={() => setShowSOS(false)} />}
       {showCheckin && <WeeklyCheckin user={user} onClose={() => setShowCheckin(false)} />}
       {showPhaseModal && <PhaseModal phaseId={showPhaseModal} onClose={() => setShowPhaseModal(null)} />}
@@ -386,7 +382,7 @@ export default function DashboardHome({ user }) {
             <WelcomeMission />
           ) : (
             <>
-              {/* Tareas del Día (Dinámicas según Fase) */}
+              {/* Tareas del Día */}
               <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 relative overflow-hidden">
                 <div className="relative z-10">
                     <div className="mb-6">
