@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v23.0 - Dashboard Interactivo: Fases con Contenido Desbloqueable (Neuro + AMPK)
+// v23.1 - FIX: Código completo y cerrado correctamente para evitar error de Build
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from 'react-router-dom';
@@ -117,7 +117,6 @@ const PhaseModal = ({ phaseId, onClose }) => {
   );
 };
 
-// ... (StatCard y QuickAction se mantienen igual, los omito para brevedad, pero en el archivo final deben estar) ...
 const StatCard = ({ title, value, subtext, icon: Icon, color = "teal" }) => (
   <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group hover:border-slate-600 transition-all">
     <div className={`absolute top-0 right-0 p-3 opacity-10 text-${color}-400 group-hover:scale-110 transition-transform`}>
@@ -182,7 +181,7 @@ export default function DashboardHome({ user }) {
   const [localName, setLocalName] = useState(""); 
   const [showSOS, setShowSOS] = useState(false);
   const [showCheckin, setShowCheckin] = useState(false);
-  const [showPhaseModal, setShowPhaseModal] = useState(null); // Nuevo estado
+  const [showPhaseModal, setShowPhaseModal] = useState(null);
   
   const [latestWeight, setLatestWeight] = useState(null);
   const [weightTrend, setWeightTrend] = useState([]);
@@ -249,12 +248,11 @@ export default function DashboardHome({ user }) {
   const handlePhaseClick = (fase) => {
     if (fase.status === 'locked') {
         alert(`🔒 Esta fase se desbloquea en el día ${fase.dias.split('-')[0].replace(/\D/g,'')}. ¡Sigue avanzando!`);
-    } else if (fase.id > 1) { // Fase 1 es la default, no necesita modal
+    } else if (fase.id > 1) { 
         setShowPhaseModal(fase.id);
     }
   };
 
-  // Cálculo Hidratación y Fetching igual que antes...
   const calculationWeight = latestWeight || 70;
   const dailyMl = calculationWeight * 35;
   const targetGlasses = Math.ceil(dailyMl / 250);
@@ -435,4 +433,97 @@ export default function DashboardHome({ user }) {
                             </h3>
                             <p className="text-slate-400 text-xs mt-1">Calculada para tus {latestWeight}kg</p>
                         </div>
-                        <div className="text
+                        <div className="text-right">
+                            <span className="text-blue-300 font-bold text-2xl">{liters}L</span>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-center items-center my-4">
+                        <div className="text-6xl font-black text-white mb-2 tracking-tighter">
+                            {trackerData.agua_vasos}
+                            <span className="text-2xl text-slate-600 font-medium">/{targetGlasses}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">Vasos Registrados</p>
+                    </div>
+
+                    <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-6">
+                        <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${percentHydration}%` }}></div>
+                    </div>
+
+                    <div className="flex gap-3 w-full">
+                        <button onClick={() => updateTracker({ agua_vasos: Math.max(0, trackerData.agua_vasos - 1) })} className="w-14 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700">-</button>
+                        <button onClick={() => updateTracker({ agua_vasos: trackerData.agua_vasos + 1 })} className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30">+ Registrar Vaso</button>
+                    </div>
+                </div>
+              </div>
+            </>
+          )}
+      </div>
+
+      {/* ACCESOS DIRECTOS */}
+      <div>
+        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <Zap className="text-yellow-400" /> Herramientas de Poder
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planeador" desc="Tu menú semanal." buttonText="Ver Menú" />
+          <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio" desc="Rutinas digitales." buttonText="Entrenar" />
+          
+          <button 
+            onClick={() => setShowCheckin(true)}
+            className="group flex flex-col justify-between p-5 rounded-2xl bg-indigo-900/20 border border-indigo-500/30 hover:bg-indigo-900/40 hover:border-indigo-400 transition-all h-full text-left"
+          >
+            <div className="flex items-start gap-4 mb-4">
+                <div className="p-3 rounded-xl bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                  <ClipboardCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-white font-bold text-lg group-hover:text-indigo-300 transition-colors">Consulta Semanal</h4>
+                  <p className="text-sm text-slate-400 leading-snug mt-1">Dante analizará tu progreso.</p>
+                </div>
+            </div>
+            <div className="flex items-center text-xs font-bold text-indigo-400 uppercase tracking-wider group-hover:underline">
+                Iniciar Consulta <ArrowRight size={14} className="ml-1" />
+            </div>
+          </button>
+
+          <QuickAction to="/plataforma/bitacora" icon={BookHeart} title="Bitácora" desc="Registra medidas." buttonText="Registrar" />
+        </div>
+      </div>
+
+      {/* GRÁFICA EVOLUCIÓN */}
+      {latestWeight !== null && (
+      <div className="bg-slate-800/40 border border-slate-700 p-8 rounded-3xl flex flex-col h-96 relative overflow-hidden">
+        <div className="flex justify-between items-center mb-6 z-10">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <TrendingUp className="text-teal-400" /> Tu Transformación
+            </h3>
+            <span className="text-sm text-slate-400 bg-slate-800 px-3 py-1 rounded-full">Últimos 7 registros</span>
+        </div>
+
+        <div className="flex-1 w-full min-h-0 relative z-10">
+            {weightTrend.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={weightTrend}>
+                <defs><linearGradient id="colorPeso" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3}/><stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/></linearGradient></defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <XAxis dataKey="day" stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
+                <YAxis domain={['auto', 'auto']} stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f1f5f9', borderRadius: '12px' }} />
+                <Area type="monotone" dataKey="peso" stroke="#14b8a6" strokeWidth={3} fillOpacity={1} fill="url(#colorPeso)" />
+                </AreaChart>
+            </ResponsiveContainer>
+            ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-base border-2 border-dashed border-slate-700 rounded-2xl bg-slate-900/50">
+                <Activity size={40} className="mb-3 opacity-50" />
+                <p>Registra tu primer peso para ver la magia.</p>
+            </div>
+            )}
+        </div>
+      </div>
+      )}
+      
+      <ChefDanteWidget />
+    </div>
+  );
+}
