@@ -1,5 +1,5 @@
 // src/pages/Biblioteca.jsx
-// v9.0 - Diseño NETFLIX (Filas Horizontales + Imágenes Variadas)
+// v10.0 - Diseño Netflix: Ciencia Primero + Imágenes Limpias
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,31 +13,28 @@ import { philosophyContent, survivalGuides, scienceReferences } from '../data/ed
 import { principles } from '../data/principlesData';
 import AsesorProteico from '../components/tools/AsesorProteico';
 
-// --- BANCO DE IMÁGENES (Variedad para evitar repetición) ---
+// --- BANCO DE IMÁGENES (Curado: Sin calaveras, estilo Clean/Bio) ---
 const getArticleImage = (category, index) => {
-  // Bancos de imágenes por tema
   const scienceImages = [
-    "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&q=80&w=600"
+    "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=600", // Lab clean
+    "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=600", // Molecular
+    "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&q=80&w=600", // DNA
+    "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=600", // Lab blue
+    "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&q=80&w=600"  // Microscopio
   ];
 
   const philosophyImages = [
-    "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1544367563-12123d815d19?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&q=80&w=600"
+    "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=600", // Zen
+    "https://images.unsplash.com/photo-1544367563-12123d815d19?auto=format&fit=crop&q=80&w=600", // Books
+    "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=600", // Focus
+    "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&q=80&w=600"  // Sunrise
   ];
 
   const guideImages = [
-    "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1543333995-a09abd19380b?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1493770348161-369560ae357d?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&q=80&w=600"
+    "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=600", // Healthy Food
+    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=600", // Veggies
+    "https://images.unsplash.com/photo-1543333995-a09abd19380b?auto=format&fit=crop&q=80&w=600", // Meal Prep
+    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=600", // Salad
   ];
 
   if (category === 'ciencia') return scienceImages[index % scienceImages.length];
@@ -45,7 +42,6 @@ const getArticleImage = (category, index) => {
   return guideImages[index % guideImages.length];
 };
 
-// --- COMPONENTE DE AUDIO ---
 const AudioBtn = ({ text, title }) => {
   const [speaking, setSpeaking] = useState(false);
 
@@ -80,7 +76,6 @@ const AudioBtn = ({ text, title }) => {
   );
 };
 
-// --- COMPONENTE: ROW TIPO NETFLIX (Horizontal Scroll) ---
 const NetflixRow = ({ title, icon: Icon, items, type, onSelect }) => (
   <div className="mb-10">
     <div className="flex items-center gap-2 mb-4 px-6 md:px-10">
@@ -99,7 +94,6 @@ const NetflixRow = ({ title, icon: Icon, items, type, onSelect }) => (
             onClick={() => onSelect(item)}
             className="flex-shrink-0 w-72 md:w-80 snap-start bg-slate-900 border border-slate-800 rounded-xl overflow-hidden cursor-pointer group hover:scale-105 hover:shadow-2xl hover:border-slate-600 transition-all duration-300 relative"
           >
-            {/* Imagen Cover */}
             <div className="h-40 relative">
               <img src={image} alt={item.title} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80" />
@@ -108,7 +102,6 @@ const NetflixRow = ({ title, icon: Icon, items, type, onSelect }) => (
               </div>
             </div>
 
-            {/* Contenido Card */}
             <div className="p-4">
               <div className="flex justify-between items-center mb-2">
                  <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">{type}</span>
@@ -128,10 +121,42 @@ const NetflixRow = ({ title, icon: Icon, items, type, onSelect }) => (
   </div>
 );
 
-// --- MODAL DE LECTURA ---
+const HeroArticle = ({ article, onClick }) => {
+  // Hero Image Específica para Ciencia
+  const image = "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=1200"; 
+  
+  return (
+    <div 
+      onClick={() => onClick(article)}
+      className="px-6 md:px-10 mb-12"
+    >
+      <div className="relative h-[350px] rounded-3xl overflow-hidden cursor-pointer group border border-slate-800 shadow-2xl">
+        <img src={image} alt="Hero" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent" />
+        
+        <div className="absolute bottom-0 left-0 p-8 md:p-12 max-w-xl">
+          <span className="bg-teal-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">
+            Ciencia del Reinicio
+          </span>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
+            {article.title}
+          </h2>
+          <p className="text-slate-300 text-lg mb-6 line-clamp-2">
+            {article.subtitle}
+          </p>
+          
+          <div className="flex items-center gap-4 text-white font-bold group-hover:text-teal-400 transition-colors">
+              Leer Artículo <ChevronRight />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ArticleModal = ({ article, onClose }) => {
   if (!article) return null;
-  const image = getArticleImage(article.type, 0); // Usa una imagen consistente
+  const image = getArticleImage(article.type, 0);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={onClose}>
@@ -155,6 +180,10 @@ const ArticleModal = ({ article, onClose }) => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-thin scrollbar-thumb-slate-700">
+          <div className="flex items-center gap-4 mb-6">
+             <AudioBtn text={article.content} title={article.title} />
+             <span className="text-slate-400 text-sm">Escuchar artículo</span>
+          </div>
           <div 
             className="prose prose-invert prose-lg max-w-none text-slate-300 leading-relaxed marker:text-teal-500"
             dangerouslySetInnerHTML={{ __html: article.content }}
@@ -165,111 +194,65 @@ const ArticleModal = ({ article, onClose }) => {
   );
 };
 
-// --- PÁGINA PRINCIPAL ---
 const Biblioteca = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 1. Datos Organizados
-  const manifesto = philosophyContent.find(i => i.id === 'manifesto');
-  
-  // Filtrar si hay búsqueda, si no, mostrar por filas
-  const filterContent = (list) => {
-    if (!searchTerm) return list;
-    return list.filter(i => i.title.toLowerCase().includes(searchTerm.toLowerCase()));
-  };
+  // 1. Organizar Datos: Ciencia Primero
+  const ciencia = principles.map(i => ({ ...i, type: 'ciencia' }));
+  const heroArticle = ciencia[0]; // El primer artículo de ciencia es el Hero
+  const cienciaResto = ciencia.slice(1); // El resto va en la fila 1
 
-  const filosofia = filterContent(philosophyContent.filter(i => i.id !== 'manifesto'));
-  const ciencia = filterContent(principles);
-  const guias = filterContent(survivalGuides);
+  const filosofia = philosophyContent.map(i => ({ ...i, type: 'filosofia' }));
+  const guias = survivalGuides.map(i => ({ ...i, type: 'guias' }));
 
   return (
     <div className="min-h-screen bg-slate-950 pb-24 animate-in fade-in duration-500">
       
-      {/* HEADER + BUSCADOR */}
+      {/* HEADER */}
       <div className="px-6 md:px-10 pt-8 mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">Academia</h1>
-          <p className="text-slate-400">Domina la ciencia de tu metabolismo.</p>
-        </div>
-        <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-          <input 
-            type="text" 
-            placeholder="Buscar..." 
-            className="w-full bg-slate-900 border border-slate-800 text-white pl-10 pr-4 py-3 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <p className="text-slate-400">Tu maestría metabólica.</p>
         </div>
       </div>
 
-      {/* HERO SECTION (EL MANIFIESTO) - Solo si no hay búsqueda activa */}
-      {!searchTerm && manifesto && (
-        <div className="px-6 md:px-10 mb-12">
-          <div 
-            onClick={() => setSelectedArticle({...manifesto, type: 'filosofia'})}
-            className="relative h-[350px] rounded-3xl overflow-hidden cursor-pointer group border border-slate-800 shadow-2xl"
-          >
-            <img src="https://images.unsplash.com/photo-1544367563-12123d815d19?auto=format&fit=crop&q=80&w=1200" alt="Hero" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/40 to-transparent" />
-            
-            <div className="absolute bottom-0 left-0 p-8 md:p-12 max-w-xl">
-              <span className="bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">
-                Lectura Obligatoria
-              </span>
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
-                {manifesto.title}
-              </h2>
-              <p className="text-slate-300 text-lg mb-6 line-clamp-2">
-                {manifesto.subtitle}
-              </p>
-              <div className="flex items-center gap-4 text-white font-bold group-hover:text-teal-400 transition-colors">
-                 Leer Artículo <ChevronRight />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* HERO SECTION (CIENCIA) */}
+      <HeroArticle article={heroArticle} onClick={setSelectedArticle} />
 
-      {/* FILAS ESTILO NETFLIX */}
+      {/* FILAS NETFLIX */}
       
-      {/* 1. MENTALIDAD (Filosofía) */}
-      {filosofia.length > 0 && (
-        <NetflixRow 
-          title="Mentalidad y Estrategia" 
-          icon={Zap} 
-          items={filosofia} 
-          type="filosofia" 
-          onSelect={(item) => setSelectedArticle({...item, type: 'filosofia'})} 
-        />
-      )}
+      {/* 1. CIENCIA (Core) */}
+      <NetflixRow 
+        title="La Ciencia del Reinicio" 
+        icon={Brain} 
+        items={cienciaResto} 
+        type="ciencia" 
+        onSelect={(item) => setSelectedArticle({...item, type: 'ciencia'})} 
+      />
 
-      {/* 2. CIENCIA PROFUNDA */}
-      {ciencia.length > 0 && (
-        <NetflixRow 
-          title="La Ciencia del Reinicio" 
-          icon={Brain} 
-          items={ciencia} 
-          type="ciencia" 
-          onSelect={(item) => setSelectedArticle({...item, type: 'ciencia'})} 
-        />
-      )}
+      {/* 2. MENTALIDAD */}
+      <NetflixRow 
+        title="Estrategia Mental" 
+        icon={Zap} 
+        items={filosofia} 
+        type="filosofia" 
+        onSelect={(item) => setSelectedArticle({...item, type: 'filosofia'})} 
+      />
 
       {/* 3. GUÍAS PRÁCTICAS */}
-      {guias.length > 0 && (
-        <NetflixRow 
-          title="Guías de Supervivencia" 
-          icon={Compass} 
-          items={guias} 
-          type="guias" 
-          onSelect={(item) => setSelectedArticle({...item, type: 'guias'})} 
-        />
-      )}
+      <NetflixRow 
+        title="Guías de Implementación" 
+        icon={Compass} 
+        items={guias} 
+        type="guias" 
+        onSelect={(item) => setSelectedArticle({...item, type: 'guias'})} 
+      />
 
-      {/* FOOTER - REFERENCIAS */}
-      <div className="px-6 md:px-10 mt-12 border-t border-slate-800 pt-10">
+      {/* FOOTER */}
+      <div className="px-6 md:px-10 mt-12 border-t border-slate-800 pt-10 pb-10">
          <h4 className="text-slate-500 font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-           <GraduationCap size={16} /> Fuentes Clínicas
+           <GraduationCap size={16} /> Respaldo Clínico
          </h4>
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60">
             {scienceReferences.map((ref, i) => (

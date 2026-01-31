@@ -1,12 +1,15 @@
+// src/pages/Gimnasio.jsx
+// v12.0 - Diseño Netflix Rows (Semanas)
+
 import React, { useState, useEffect, useRef } from 'react';
 import { trainingProgram } from '../data/trainingProgram.js';
 import EquipmentModal from '../components/gimnasio/EquipmentModal.jsx';
-import { Info, Play, Pause, RotateCcw, CheckCircle2, Dumbbell } from 'lucide-react';
+import { Info, Play, Pause, RotateCcw, CheckCircle2, Dumbbell, Settings2, Timer, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const EQUIPMENT_OPTIONS = [
-  { id: 'cuerpo', name: 'Solo mi Cuerpo', description: 'Ejercicios sin equipo.' },
-  { id: 'mancuernas', name: 'Tengo Mancuernas', description: 'Rutinas con peso.' },
+  { id: 'cuerpo', name: 'Sin Equipo (Peso Corporal)', description: 'Ejercicios efectivos usando tu propio peso.' },
+  { id: 'mancuernas', name: 'Con Mancuernas', description: 'Rutinas de fuerza con peso libre.' },
 ];
 
 const ExerciseTimer = ({ duration, onComplete }) => {
@@ -28,8 +31,8 @@ const ExerciseTimer = ({ duration, onComplete }) => {
   const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
   return (
-    <div className="flex flex-col items-center mt-4 bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-      <div className="w-full h-1 bg-slate-700 rounded-full mb-3 overflow-hidden">
+    <div className="flex flex-col items-center mt-3 bg-black/30 p-3 rounded-xl border border-white/10">
+      <div className="w-full h-1 bg-white/10 rounded-full mb-3 overflow-hidden">
         <motion.div 
           className="bg-teal-500 h-full" 
           initial={{ width: '100%' }} 
@@ -38,47 +41,55 @@ const ExerciseTimer = ({ duration, onComplete }) => {
         />
       </div>
       <div className="flex items-center gap-4">
-        <button onClick={() => setIsRunning(!isRunning)} className="p-2 rounded-full bg-teal-600 hover:bg-teal-500 text-white">
-          {isRunning ? <Pause size={20} /> : <Play size={20} />}
+        <button onClick={() => setIsRunning(!isRunning)} className="p-2 rounded-full bg-white/10 text-white hover:bg-teal-500 transition-colors">
+          {isRunning ? <Pause size={16} /> : <Play size={16} />}
         </button>
-        <span className="text-2xl font-mono font-bold text-white">{formatTime(timeLeft)}</span>
-        <button onClick={() => { setIsRunning(false); setTimeLeft(duration); }} className="p-2 text-slate-400 hover:text-white">
-          <RotateCcw size={20} />
+        <span className="text-xl font-mono font-bold text-white">{formatTime(timeLeft)}</span>
+        <button onClick={() => { setIsRunning(false); setTimeLeft(duration); }} className="text-slate-400 hover:text-white">
+          <RotateCcw size={16} />
         </button>
       </div>
     </div>
   );
 };
 
+// Tarjeta de Ejercicio (Horizontal para Netflix Row)
 const ExerciseCard = ({ exercise, slotTitle, isCompleted, onToggleComplete }) => {
-  const [showInfo, setShowInfo] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
 
-  if (!exercise) return null;
-
   return (
-    <div className={`relative p-5 rounded-xl border transition-all ${isCompleted ? 'bg-emerald-900/20 border-emerald-500/30 opacity-80' : 'bg-slate-800 border-slate-700'}`}>
-      <div className="flex justify-between items-start mb-3">
-        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">{slotTitle}</span>
-        <button onClick={() => setShowInfo(!showInfo)} className="text-slate-500 hover:text-teal-400"><Info size={16} /></button>
-      </div>
-      <h4 className="font-bold text-white text-lg mb-3">{exercise.name}</h4>
-      <div className="bg-slate-900/50 rounded-lg p-6 mb-3 border border-slate-700 flex items-center justify-center gap-4">
-        <div className="bg-teal-500/10 p-3 rounded-full text-teal-400"><Dumbbell size={32} /></div>
-        <p className="text-xs text-slate-400 leading-relaxed flex-1 border-l border-slate-700 pl-4">{exercise.description}</p>
-      </div>
-      <div className="mt-4 pt-3 border-t border-slate-700 flex justify-between items-center">
-        <span className="text-xs font-mono text-slate-500">45s ON / 15s OFF</span>
-        <div className="flex gap-3">
-            <button onClick={() => setShowTimer(!showTimer)} className={`text-xs font-bold flex items-center gap-1 px-3 py-1.5 rounded-full transition-colors ${showTimer ? 'bg-slate-700 text-white' : 'bg-slate-900 text-teal-400 border border-teal-500/30'}`}>
-              {showTimer ? 'Cerrar' : 'Timer'} <Play size={10} />
+    <div className={`flex-shrink-0 w-80 snap-start bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden relative flex flex-col transition-all ${isCompleted ? 'opacity-60 border-emerald-500/30' : ''}`}>
+      <div className="p-5 flex-1">
+         <div className="flex justify-between items-start mb-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded">
+               {slotTitle}
+            </span>
+            <button onClick={(e) => { e.stopPropagation(); onToggleComplete(); }} className={`text-slate-600 hover:text-emerald-500 transition-colors ${isCompleted ? 'text-emerald-500' : ''}`}>
+               {isCompleted ? <CheckCircle2 size={24} /> : <Circle size={24} />}
             </button>
-            <button onClick={(e) => { e.stopPropagation(); onToggleComplete(); }} className={`p-1.5 rounded-full border transition-all ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-600 text-slate-600 hover:text-slate-400'}`}>
-                <CheckCircle2 size={18} />
-            </button>
-        </div>
+         </div>
+         
+         <h3 className="text-lg font-bold text-white mb-2 leading-snug">{exercise.name}</h3>
+         <p className="text-xs text-slate-400 leading-relaxed line-clamp-3">
+           {exercise.description}
+         </p>
       </div>
-      {showTimer && <div className="mt-4 pt-4 border-t border-slate-700"><ExerciseTimer duration={45} onComplete={() => {}} /></div>}
+
+      <div className="bg-slate-950 p-4 border-t border-slate-800">
+         {!showTimer ? (
+             <button onClick={() => setShowTimer(true)} className="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-300 hover:text-white py-2 rounded-lg hover:bg-white/5 transition-colors">
+                <Timer size={14} /> Iniciar Timer (45s)
+             </button>
+         ) : (
+             <div className="animate-in fade-in slide-in-from-bottom-2">
+                 <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] text-slate-500 uppercase">Timer Activo</span>
+                    <button onClick={() => setShowTimer(false)} className="text-slate-500 hover:text-white"><X size={14}/></button>
+                 </div>
+                 <ExerciseTimer duration={45} onComplete={() => {}} />
+             </div>
+         )}
+      </div>
     </div>
   );
 };
@@ -86,9 +97,9 @@ const ExerciseCard = ({ exercise, slotTitle, isCompleted, onToggleComplete }) =>
 export default function Gimnasio() {
   const [userEquipment, setUserEquipment] = useState(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('userTrainingEquipment');
-    return null;
+    return 'cuerpo'; 
   });
-  const [showModal, setShowModal] = useState(!userEquipment);
+  const [showModal, setShowModal] = useState(false);
   const [completed, setCompleted] = useState({});
 
   const handleSelect = (id) => {
@@ -98,34 +109,63 @@ export default function Gimnasio() {
   };
 
   return (
-    <div className="p-6 md:p-10 pb-24 min-h-screen bg-slate-950 text-white animate-in fade-in duration-500">
-      {showModal && <EquipmentModal onSelect={handleSelect} availableEquipment={EQUIPMENT_OPTIONS} onClose={() => userEquipment && setShowModal(false)} />}
-      <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+    <div className="min-h-screen bg-slate-950 pb-24 animate-in fade-in duration-500">
+      
+      {showModal && (
+        <EquipmentModal onSelect={handleSelect} availableEquipment={EQUIPMENT_OPTIONS} onClose={() => setShowModal(false)} />
+      )}
+
+      {/* HEADER */}
+      <div className="px-6 md:px-10 pt-8 mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Gimnasio Digital</h1>
-          <p className="text-slate-400 max-w-xl">Entrena inteligente. <span className="text-teal-400 font-bold">{userEquipment === 'cuerpo' ? 'Peso Corporal' : 'Mancuernas'}</span>.</p>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">Gimnasio</h1>
+          <p className="text-slate-400">Entrenamiento metabólico inteligente.</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="text-xs bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 hover:border-teal-500 transition-colors">Cambiar Equipo</button>
+        
+        <button 
+            onClick={() => setShowModal(true)} 
+            className="flex items-center gap-2 text-sm bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl border border-slate-700 transition-all"
+        >
+            <Settings2 size={16} /> Configurar Equipo
+        </button>
       </div>
+
+      {/* FILAS POR SEMANA (ESTILO NETFLIX) */}
       <div className="space-y-12">
-        {trainingProgram?.weeks?.map(week => (
-          <div key={week.week} className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-teal-500/10 rounded-lg flex items-center justify-center text-teal-400 font-bold text-lg">{week.week}</div>
-              <h2 className="text-2xl font-bold text-white">{week.title}</h2>
-            </div>
-            <div className="space-y-8">
-              {week.days.map(day => (
-                <div key={day.day} className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-6 border-l-4 border-indigo-500 pl-3">Día {day.day}: {day.title}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {day.routine.map((slot, idx) => (
-                      <ExerciseCard key={idx} slotTitle={slot.slot} exercise={slot.variants[userEquipment]} isCompleted={completed[`${week.week}-${day.day}-${idx}`]} onToggleComplete={() => setCompleted(prev => ({...prev, [`${week.week}-${day.day}-${idx}`]: !prev[`${week.week}-${day.day}-${idx}`]}))} />
-                    ))}
-                  </div>
+        {trainingProgram?.weeks?.map((week, wIdx) => (
+          <div key={wIdx} className="border-t border-slate-900 pt-8 first:border-0 first:pt-0">
+             
+             {/* Título de la Semana */}
+             <div className="px-6 md:px-10 mb-6 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-500 font-bold text-sm">
+                    {week.week}
                 </div>
-              ))}
-            </div>
+                <h2 className="text-xl md:text-2xl font-bold text-white">{week.title}</h2>
+             </div>
+
+             {/* Días dentro de la semana */}
+             <div className="space-y-8">
+                {week.days.map((day, dIdx) => (
+                    <div key={dIdx}>
+                        <h3 className="px-6 md:px-10 text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                           <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Día {day.day}: {day.title}
+                        </h3>
+                        
+                        {/* Scroll Horizontal de Ejercicios */}
+                        <div className="flex overflow-x-auto gap-4 px-6 md:px-10 pb-6 scrollbar-hide snap-x">
+                            {day.routine.map((slot, idx) => (
+                                <ExerciseCard 
+                                    key={idx} 
+                                    slotTitle={slot.slot} 
+                                    exercise={slot.variants[userEquipment]} 
+                                    isCompleted={completed[`${week.week}-${day.day}-${idx}`]} 
+                                    onToggleComplete={() => setCompleted(prev => ({...prev, [`${week.week}-${day.day}-${idx}`]: !prev[`${week.week}-${day.day}-${idx}`]}))} 
+                                />
+                            ))}
+                        </div>
+                    </div>
+                ))}
+             </div>
           </div>
         ))}
       </div>
