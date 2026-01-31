@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v22.0 - Ajuste Clínico: Fases de 14 días para mayor adherencia
+// v17.2 - FIX: Agregado import ClipboardCheck para evitar pantalla blanca
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from 'react-router-dom';
@@ -7,7 +7,8 @@ import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
   TrendingUp, ArrowRight, Activity, BookHeart,
-  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Target, Lock, Map, Star, Unlock
+  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Target, Lock, Map, Star, Unlock, Cpu,
+  ClipboardCheck // <--- ¡AQUÍ ESTABA EL ERROR! Faltaba este ícono.
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -54,7 +55,7 @@ const QuickAction = ({ icon: Icon, title, desc, to, buttonText }) => (
 const WelcomeMission = () => (
   <div className="col-span-1 lg:col-span-3 bg-gradient-to-r from-indigo-950 to-slate-900 border border-indigo-500/30 rounded-3xl p-8 relative overflow-hidden shadow-2xl">
     <div className="absolute top-0 right-0 p-10 opacity-5 text-white">
-      <Zap size={250} />
+      <Cpu size={250} />
     </div>
     <div className="relative z-10 max-w-3xl">
       <h2 className="text-3xl font-bold text-white mb-2">Bienvenido al Nivel Pro 🚀</h2>
@@ -293,7 +294,7 @@ export default function DashboardHome({ user }) {
            {fasesSistema.map((fase) => (
              <div 
                 key={fase.id} 
-                className={`relative w-80 p-5 rounded-2xl border transition-all ${
+                className={`relative w-72 p-5 rounded-2xl border transition-all ${
                     fase.status === 'active' 
                     ? 'bg-gradient-to-br from-indigo-900/80 to-slate-900 border-indigo-500/50 shadow-lg shadow-indigo-900/20' 
                     : 'bg-slate-900/50 border-slate-800 opacity-60'
@@ -413,6 +414,7 @@ export default function DashboardHome({ user }) {
           <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planeador" desc="Tu menú semanal." buttonText="Ver Menú" />
           <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio" desc="Rutinas digitales." buttonText="Entrenar" />
           
+          {/* BOTÓN CHECK-IN SEMANAL (¡AHORA SÍ!) */}
           <button 
             onClick={() => setShowCheckin(true)}
             className="group flex flex-col justify-between p-5 rounded-2xl bg-indigo-900/20 border border-indigo-500/30 hover:bg-indigo-900/40 hover:border-indigo-400 transition-all h-full text-left"
