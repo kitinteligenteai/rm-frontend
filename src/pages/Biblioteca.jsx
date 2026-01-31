@@ -1,5 +1,5 @@
 // src/pages/Biblioteca.jsx
-// v10.0 - Diseño Netflix: Ciencia Primero + Imágenes Limpias
+// v11.0 - Banco de imágenes Clean & Bio (Sin esqueletos, links verificados)
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,33 +8,37 @@ import {
   X, ChevronRight, GraduationCap, Clock, PlayCircle, Search
 } from 'lucide-react';
 
-// Datos
 import { philosophyContent, survivalGuides, scienceReferences } from '../data/educationalContent';
 import { principles } from '../data/principlesData';
 import AsesorProteico from '../components/tools/AsesorProteico';
 
-// --- BANCO DE IMÁGENES (Curado: Sin calaveras, estilo Clean/Bio) ---
+// --- BANCO DE IMÁGENES PREMIUM (Curado) ---
 const getArticleImage = (category, index) => {
+  // Imágenes científicas limpias (Abstracto, ADN, Microscopio, Frutas)
   const scienceImages = [
-    "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=600", // Lab clean
+    "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=600", // Lab
     "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=600", // Molecular
-    "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&q=80&w=600", // DNA
-    "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=600", // Lab blue
-    "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&q=80&w=600"  // Microscopio
+    "https://images.unsplash.com/photo-1584036561566-b93a5816018c?auto=format&fit=crop&q=80&w=600", // Células (Azul/Morado estético)
+    "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&q=80&w=600", // ADN
+    "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=600", // Lab azul
+    "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=600"  // Agua/Ciencia
   ];
 
+  // Imágenes de Mentalidad (Paisajes, Calma, Foco)
   const philosophyImages = [
-    "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=600", // Zen
-    "https://images.unsplash.com/photo-1544367563-12123d815d19?auto=format&fit=crop&q=80&w=600", // Books
-    "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=600", // Focus
-    "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&q=80&w=600"  // Sunrise
+    "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=600", // Yoga/Sol
+    "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&q=80&w=600", // Amanecer
+    "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=600", // Motivación
+    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600"  // Escribir/Planear
   ];
 
+  // Imágenes de Guías (Comida real, Preparación)
   const guideImages = [
-    "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=600", // Healthy Food
-    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=600", // Veggies
+    "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=600", // Bowl saludable
+    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&q=80&w=600", // Vegetales mesa
     "https://images.unsplash.com/photo-1543333995-a09abd19380b?auto=format&fit=crop&q=80&w=600", // Meal Prep
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=600", // Salad
+    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=600", // Ensalada rica
+    "https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&q=80&w=600"  // Ingredientes
   ];
 
   if (category === 'ciencia') return scienceImages[index % scienceImages.length];
@@ -122,7 +126,7 @@ const NetflixRow = ({ title, icon: Icon, items, type, onSelect }) => (
 );
 
 const HeroArticle = ({ article, onClick }) => {
-  // Hero Image Específica para Ciencia
+  // Hero Image (Microscopio Estético)
   const image = "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=1200"; 
   
   return (
@@ -198,10 +202,10 @@ const Biblioteca = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 1. Organizar Datos: Ciencia Primero
+  // Organizar Datos: Ciencia Primero
   const ciencia = principles.map(i => ({ ...i, type: 'ciencia' }));
-  const heroArticle = ciencia[0]; // El primer artículo de ciencia es el Hero
-  const cienciaResto = ciencia.slice(1); // El resto va en la fila 1
+  const heroArticle = ciencia[0]; 
+  const cienciaResto = ciencia.slice(1); 
 
   const filosofia = philosophyContent.map(i => ({ ...i, type: 'filosofia' }));
   const guias = survivalGuides.map(i => ({ ...i, type: 'guias' }));
@@ -213,41 +217,17 @@ const Biblioteca = () => {
       <div className="px-6 md:px-10 pt-8 mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">Academia</h1>
-          <p className="text-slate-400">Tu maestría metabólica.</p>
+          <p className="text-slate-400">Domina la ciencia de tu metabolismo.</p>
         </div>
       </div>
 
-      {/* HERO SECTION (CIENCIA) */}
+      {/* HERO */}
       <HeroArticle article={heroArticle} onClick={setSelectedArticle} />
 
       {/* FILAS NETFLIX */}
-      
-      {/* 1. CIENCIA (Core) */}
-      <NetflixRow 
-        title="La Ciencia del Reinicio" 
-        icon={Brain} 
-        items={cienciaResto} 
-        type="ciencia" 
-        onSelect={(item) => setSelectedArticle({...item, type: 'ciencia'})} 
-      />
-
-      {/* 2. MENTALIDAD */}
-      <NetflixRow 
-        title="Estrategia Mental" 
-        icon={Zap} 
-        items={filosofia} 
-        type="filosofia" 
-        onSelect={(item) => setSelectedArticle({...item, type: 'filosofia'})} 
-      />
-
-      {/* 3. GUÍAS PRÁCTICAS */}
-      <NetflixRow 
-        title="Guías de Implementación" 
-        icon={Compass} 
-        items={guias} 
-        type="guias" 
-        onSelect={(item) => setSelectedArticle({...item, type: 'guias'})} 
-      />
+      <NetflixRow title="La Ciencia del Reinicio" icon={Brain} items={cienciaResto} type="ciencia" onSelect={(item) => setSelectedArticle({...item, type: 'ciencia'})} />
+      <NetflixRow title="Mentalidad y Estrategia" icon={Zap} items={filosofia} type="filosofia" onSelect={(item) => setSelectedArticle({...item, type: 'filosofia'})} />
+      <NetflixRow title="Guías de Implementación" icon={Compass} items={guias} type="guias" onSelect={(item) => setSelectedArticle({...item, type: 'guias'})} />
 
       {/* FOOTER */}
       <div className="px-6 md:px-10 mt-12 border-t border-slate-800 pt-10 pb-10">
@@ -264,7 +244,6 @@ const Biblioteca = () => {
          </div>
       </div>
 
-      {/* MODAL */}
       <AnimatePresence>
         {selectedArticle && (
           <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} />
