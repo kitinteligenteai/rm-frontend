@@ -1,10 +1,11 @@
 // src/pages/Gimnasio.jsx
-// v12.0 - Diseño Netflix Rows (Semanas)
+// v12.1 - FIX: Agregado import 'Circle' y 'X' para evitar pantalla negra
 
 import React, { useState, useEffect, useRef } from 'react';
 import { trainingProgram } from '../data/trainingProgram.js';
 import EquipmentModal from '../components/gimnasio/EquipmentModal.jsx';
-import { Info, Play, Pause, RotateCcw, CheckCircle2, Dumbbell, Settings2, Timer, ChevronRight } from 'lucide-react';
+// CORRECCIÓN: Se agregaron Circle y X a la lista de imports
+import { Info, Play, Pause, RotateCcw, CheckCircle2, Dumbbell, Settings2, Timer, ChevronRight, Circle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const EQUIPMENT_OPTIONS = [
@@ -53,7 +54,7 @@ const ExerciseTimer = ({ duration, onComplete }) => {
   );
 };
 
-// Tarjeta de Ejercicio (Horizontal para Netflix Row)
+// Tarjeta de Ejercicio
 const ExerciseCard = ({ exercise, slotTitle, isCompleted, onToggleComplete }) => {
   const [showTimer, setShowTimer] = useState(false);
 

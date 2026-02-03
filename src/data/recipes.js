@@ -974,7 +974,7 @@ export const recipes = [
   {
     "id": "ligero_chicharron_salsa_verde",
     "name": "Chicharrón en Salsa Verde",
-    "type": "Platillo Ligero",
+    "type": "Platillo Principal",
     "description": "Un clásico irresistible y muy versátil. El chicharrón de cerdo es una excelente fuente de proteína y grasa, perfecto para este estilo de vida.",
     "ingredients": [
       { "name": "Chicharrón de cerdo (trozo, para guisar)", "quantity": "100g", "category": "Carnes y Pescados" },
