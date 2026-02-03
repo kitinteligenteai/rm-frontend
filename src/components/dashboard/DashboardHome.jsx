@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v23.2 - FIX: Agregado import ClipboardCheck para evitar pantalla negra
+// v24.0 - Contenido High Ticket en Fases (Adiós al relleno)
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from 'react-router-dom';
@@ -7,8 +7,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
   TrendingUp, ArrowRight, Activity, BookHeart,
-  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Target, Lock, Map, Star, Unlock, Brain, PlayCircle, StopCircle, X,
-  ClipboardCheck // <--- ¡AQUÍ ESTÁ LA CORRECCIÓN!
+  LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Target, Lock, Map, Star, Unlock, Brain, PlayCircle, StopCircle, X, ClipboardCheck
 } from "lucide-react";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -18,37 +17,47 @@ import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
 import WeeklyCheckin from './WeeklyCheckin'; 
 
-// --- CONTENIDO EXCLUSIVO POR FASE ---
+// --- CONTENIDO EXCLUSIVO "HIGH TICKET" (FASES) ---
 const FASE_CONTENT = {
   2: {
     title: "Nivel 2: Neuro-Reprogramación",
-    description: "Has superado la desintoxicación física. Ahora vamos a reprogramar tu mente para que el éxito sea automático.",
+    description: "La batalla no es contra la comida, es contra los viejos circuitos neuronales. En esta fase, instalamos el software de 'Persona Delgada'.",
     tools: [
       { 
         type: 'audio', 
-        title: "Audio: Identidad de Persona Delgada", 
-        text: "Cierra los ojos. Ya no eres una persona a dieta. Eres un atleta metabólico. Visualiza cómo tu cuerpo quema grasa como combustible preferido. Siente la energía estable. No necesitas azúcar, necesitas poder." 
+        title: "Audio Terapia: 'Identidad Metabólica'", 
+        text: "Toma aire profundo. Reténlo... y suelta. Escucha bien: Tu identidad antigua te decía 'soy ansioso, necesito azúcar'. Eso es mentira. Es un cableado viejo. Ahora eres un atleta metabólico. Visualiza tus células vibrando, no pidiendo veneno. Eres el capitán de este barco. Cada vez que dices 'no' a un antojo, estás matando al viejo yo y alimentando al nuevo. Siente el control. Siente el poder. Eres libre." 
       },
       { 
         type: 'tip', 
-        title: "Protocolo de Ayuno 14/10", 
-        text: "Esta fase aumentamos la ventana de ayuno a 14 horas. Tu última comida a las 8pm, tu primera a las 10am." 
+        title: "Técnica Clínica: 'Surfear la Ola'", 
+        text: "La ansiedad dura solo 3 minutos. Cuando llegue el impulso, no luches. Obsérvalo como una ola en el mar. Sube, rompe y se desvanece. Tu único trabajo es respirar mientras la ola pasa. Bebe un vaso de agua y espera 3 minutos. La ola desaparecerá." 
+      },
+      {
+        type: 'tip',
+        title: "Protocolo 14/10",
+        text: "Esta semana extendemos tu ventana de reparación. Tu última ingesta es a las 8:00 PM. Tu primera ingesta es a las 10:00 AM. En esas 14 horas, tu cuerpo se repara."
       }
     ]
   },
   3: {
-    title: "Nivel 3: Acelerador AMPK",
-    description: "Bienvenido a la maestría. Activaremos tu interruptor metabólico maestro.",
+    title: "Nivel 3: El Interruptor AMPK",
+    description: "Bienvenido a la Bio-Optimización. Vamos a activar la enzima maestra (AMPK) que ordena a tu cuerpo quemar reservas antiguas y reciclar células dañadas.",
     tools: [
       { 
         type: 'tip', 
-        title: "El Secreto del AMPK", 
-        text: "Para activar AMPK necesitas 'estrés hormético'. Ducha fría de 1 minuto al final del baño y ejercicio en ayunas 2 veces por semana." 
+        title: "Protocolo de Hormesis (El Frío)", 
+        text: "El AMPK se activa con estrés agudo positivo. INSTRUCCIÓN: Al terminar tu ducha diaria, gira la llave a totalmente fría. Aguanta 30 segundos la primera semana, 60 segundos después. Esto obliga a tus mitocondrias a generar calor quemando grasa blanca." 
       },
       { 
         type: 'audio', 
-        title: "Audio: Visualización AMPK", 
-        text: "Imagina tus células como pequeños motores. Al sentir el frío o el esfuerzo, se encienden luces rojas que queman las reservas antiguas. Estás limpiando la casa." 
+        title: "Audio: Visualización de Autofagia", 
+        text: "Imagina que dentro de ti hay un equipo de limpieza microscópico. Se llama Autofagia. Ahora mismo, mientras estás en ayuno, están barriendo las proteínas viejas, las células muertas y la grasa oxidada. No estás pasando hambre, estás limpiando la casa. Deja que terminen su trabajo. Siente cómo te vuelves más ligero, más limpio y más joven a nivel celular." 
+      },
+      {
+        type: 'tip',
+        title: "Ejercicio en Ayunas (El Detonador)",
+        text: "Dos días a la semana, realiza tu rutina del Gimnasio Digital ANTES de desayunar. Esto vacía el glucógeno y fuerza la activación máxima de AMPK. Come proteína pura inmediatamente después."
       }
     ]
   }
@@ -59,21 +68,22 @@ const PhaseAudioPlayer = ({ text, title }) => {
   const toggle = () => {
     if (playing) { window.speechSynthesis.cancel(); setPlaying(false); }
     else {
+      window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'es-MX'; u.rate = 0.9;
+      u.lang = 'es-MX'; u.rate = 0.95; u.pitch = 0.9; // Voz más pausada y profunda
       u.onend = () => setPlaying(false);
       window.speechSynthesis.speak(u);
       setPlaying(true);
     }
   };
   return (
-    <button onClick={toggle} className="w-full flex items-center gap-3 p-4 bg-slate-800 rounded-xl hover:bg-slate-700 transition-all border border-slate-700 group">
-      <div className={`p-2 rounded-full ${playing ? 'bg-indigo-500 text-white animate-pulse' : 'bg-slate-900 text-indigo-400'}`}>
-        {playing ? <StopCircle size={20}/> : <PlayCircle size={20}/>}
+    <button onClick={toggle} className="w-full flex items-center gap-4 p-5 bg-slate-800 rounded-xl hover:bg-slate-750 transition-all border border-slate-700 group shadow-md">
+      <div className={`p-3 rounded-full shrink-0 ${playing ? 'bg-indigo-500 text-white animate-pulse' : 'bg-slate-900 text-indigo-400 border border-slate-700'}`}>
+        {playing ? <StopCircle size={24}/> : <PlayCircle size={24}/>}
       </div>
       <div className="text-left">
-        <p className="text-white font-bold text-sm group-hover:text-indigo-300">{title}</p>
-        <p className="text-slate-400 text-xs">{playing ? "Reproduciendo..." : "Clic para escuchar"}</p>
+        <p className="text-white font-bold text-base group-hover:text-indigo-300 transition-colors">{title}</p>
+        <p className="text-slate-400 text-xs mt-1">{playing ? "Reproduciendo sesión..." : "Escuchar sesión guiada"}</p>
       </div>
     </button>
   );
@@ -85,30 +95,46 @@ const PhaseModal = ({ phaseId, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4 animate-in zoom-in-95 duration-200" onClick={onClose}>
-      <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl shadow-2xl relative overflow-hidden" onClick={e => e.stopPropagation()}>
-        <div className="bg-gradient-to-r from-indigo-900 to-slate-900 p-6 border-b border-slate-800">
-           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+      <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl shadow-2xl relative flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+        
+        {/* Header Modal */}
+        <div className="bg-gradient-to-r from-indigo-900 to-slate-900 p-6 border-b border-slate-800 shrink-0">
+           <h2 className="text-2xl font-bold text-white flex items-center gap-3">
              <Unlock size={24} className="text-indigo-400" /> {content.title}
            </h2>
-           <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white"><X/></button>
+           <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-full hover:bg-white/10"><X size={20}/></button>
         </div>
-        <div className="p-6 space-y-6">
-          <p className="text-slate-300 leading-relaxed">{content.description}</p>
+
+        {/* Body Scrollable */}
+        <div className="p-6 space-y-8 overflow-y-auto">
+          <p className="text-indigo-100 text-lg leading-relaxed border-l-4 border-indigo-500 pl-4">
+            {content.description}
+          </p>
+          
           <div className="space-y-4">
-             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Herramientas Desbloqueadas</h4>
+             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                <Target size={14} /> Herramientas Activadas
+             </h4>
+             
              {content.tools.map((tool, idx) => (
-               <div key={idx}>
+               <div key={idx} className="animate-in slide-in-from-bottom-2 fade-in duration-500" style={{ animationDelay: `${idx * 150}ms` }}>
                  {tool.type === 'audio' ? (
                    <PhaseAudioPlayer text={tool.text} title={tool.title} />
                  ) : (
-                   <div className="p-4 bg-teal-900/10 border border-teal-500/20 rounded-xl">
-                      <h5 className="text-teal-400 font-bold text-sm mb-1 flex items-center gap-2"><Zap size={14}/> {tool.title}</h5>
-                      <p className="text-slate-400 text-xs">{tool.text}</p>
+                   <div className="p-5 bg-teal-900/10 border border-teal-500/20 rounded-xl hover:border-teal-500/40 transition-colors">
+                      <h5 className="text-teal-400 font-bold text-base mb-2 flex items-center gap-2">
+                        <Zap size={18} className="fill-teal-400/20"/> {tool.title}
+                      </h5>
+                      <p className="text-slate-300 text-sm leading-relaxed">{tool.text}</p>
                    </div>
                  )}
                </div>
              ))}
           </div>
+        </div>
+
+        <div className="p-4 border-t border-slate-800 bg-slate-900/50 text-center shrink-0">
+            <p className="text-xs text-slate-500">Estas herramientas son exclusivas de tu nivel actual.</p>
         </div>
       </div>
     </div>
@@ -160,15 +186,32 @@ const WelcomeMission = () => (
         Ya conoces la teoría. Ahora vamos a <span className="font-bold text-white">automatizar tu éxito</span>. 
         Esta plataforma ajusta las porciones, menús y rutinas a TUS datos reales.
       </p>
+      <p className="text-sm text-slate-400 uppercase tracking-widest font-bold mb-4">Configuración del Sistema:</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link to="/plataforma/bitacora" className="flex flex-col p-4 bg-slate-800/80 hover:bg-indigo-900/50 border border-indigo-500/30 rounded-xl transition-all group">
-          <h4 className="text-white font-bold mb-1">Calibra</h4>
-          <p className="text-slate-400 text-xs">Registra tu peso.</p>
+          <div className="flex items-center justify-between mb-3">
+             <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold">1</div>
+             <Activity size={20} className="text-indigo-400" />
+          </div>
+          <h4 className="text-white font-bold mb-1">Calibra tu Metabolismo</h4>
+          <p className="text-slate-400 text-xs">Registra tu peso para que el sistema calcule tu hidratación exacta.</p>
         </Link>
         <Link to="/plataforma/planeador" className="flex flex-col p-4 bg-slate-800/80 hover:bg-teal-900/50 border border-slate-700 hover:border-teal-500/30 rounded-xl transition-all group">
-          <h4 className="text-white font-bold mb-1">Automatiza</h4>
-          <p className="text-slate-400 text-xs">Genera tu menú.</p>
+          <div className="flex items-center justify-between mb-3">
+             <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">2</div>
+             <Calendar size={20} className="text-teal-400" />
+          </div>
+          <h4 className="text-white font-bold mb-1">Automatiza tu Menú</h4>
+          <p className="text-slate-400 text-xs">Genera uno nuevo cada semana según tus gustos.</p>
         </Link>
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex flex-col p-4 bg-slate-800/80 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/30 rounded-xl transition-all text-left">
+          <div className="flex items-center justify-between mb-3">
+             <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">3</div>
+             <LifeBuoy size={20} className="text-red-400" />
+          </div>
+          <h4 className="text-white font-bold mb-1">Ubica tu "Escudo"</h4>
+          <p className="text-slate-400 text-xs">Arriba a la derecha tienes el botón SOS. Úsalo si sientes ansiedad.</p>
+        </button>
       </div>
     </div>
   </div>
@@ -188,6 +231,7 @@ export default function DashboardHome({ user }) {
   const cleanName = localName || user?.user_metadata?.full_name;
   const displayName = (cleanName && cleanName.trim() !== "") ? cleanName : "Campeón";
   
+  // --- CÁLCULO DE DÍAS REALES ---
   const daysSinceJoin = useMemo(() => {
     if (!user?.created_at) return 1;
     const created = new Date(user.created_at);
@@ -199,6 +243,7 @@ export default function DashboardHome({ user }) {
 
   const [diaActivo, setDiaActivo] = useState(daysSinceJoin);
 
+  // --- PROTOCOLO DINÁMICO ---
   const protocoloDia = useMemo(() => {
     if (diaActivo <= 14) {
       return { 
@@ -221,6 +266,7 @@ export default function DashboardHome({ user }) {
     }
   }, [diaActivo]);
 
+  // --- FASES INTERACTIVAS ---
   const fasesSistema = [
     { id: 1, nombre: "Fase 1: Inmersión", dias: "Días 1-14", status: "active", objetivo: "Desinflamación y adaptación." },
     { 
@@ -382,7 +428,7 @@ export default function DashboardHome({ user }) {
             <WelcomeMission />
           ) : (
             <>
-              {/* Tareas del Día */}
+              {/* Tareas del Día (Dinámicas según Fase) */}
               <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 relative overflow-hidden">
                 <div className="relative z-10">
                     <div className="mb-6">
@@ -465,6 +511,7 @@ export default function DashboardHome({ user }) {
           <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planeador" desc="Tu menú semanal." buttonText="Ver Menú" />
           <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio" desc="Rutinas digitales." buttonText="Entrenar" />
           
+          {/* BOTÓN CHECK-IN SEMANAL (YA CORREGIDO CON IMPORT) */}
           <button 
             onClick={() => setShowCheckin(true)}
             className="group flex flex-col justify-between p-5 rounded-2xl bg-indigo-900/20 border border-indigo-500/30 hover:bg-indigo-900/40 hover:border-indigo-400 transition-all h-full text-left"
