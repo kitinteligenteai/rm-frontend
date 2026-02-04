@@ -1,5 +1,5 @@
 // src/data/principlesData.js
-// ARTÍCULOS CIENTÍFICOS (Versión Original Completa + Corrección Médica en #3)
+// v2.0 - Corrección de analogía en Flexibilidad Metabólica
 
 export const principles = [
   {
@@ -32,7 +32,6 @@ export const principles = [
       <p>Reducir la inflamación crónica es uno de los pasos más importantes que puedes dar por tu salud a largo plazo. Es apagar las brasas para que tu cuerpo pueda, por fin, dejar de luchar y empezar a reparar.</p>
     `
   },
-  // --- ARTÍCULO CORREGIDO (CIENCIA INSULINA VS CALORÍAS) ---
   {
     id: 3,
     title: "La Verdad sobre el 'Modo Hambruna'",
@@ -67,8 +66,8 @@ export const principles = [
     content: `
       <p>Ya hemos establecido dos ideas fundamentales: nuestra biología está diseñada para la escasez (#1) y las hormonas, no las calorías, dictan las reglas (#3). Ahora, unamos estos conceptos en una de las metas más importantes de la salud moderna: la <strong>flexibilidad metabólica</strong>.</p>
       <p>Esto es, simplemente, la capacidad del cuerpo para cambiar de fuente de energía de manera eficiente, usando glucosa (azúcar) cuando está disponible y cambiando a grasa cuando no lo está.</p>
-      <p>Piénselo como un coche híbrido que usa gasolina en la ciudad y cambia a electricidad en la carretera para optimizar el rendimiento. Nuestro cuerpo estaba diseñado para hacer exactamente eso.</p>
-      <p>Sin embargo, nuestro estilo de vida actual, con comidas y snacks ricos en carbohidratos cada pocas horas, ha forzado a nuestro cuerpo a funcionar exclusivamente con un solo combustible: la glucosa. Nunca le damos la oportunidad de cambiar al "modo eléctrico" de la quema de grasa.</p>
+      <p>Piénselo como un coche híbrido que usa <strong>electricidad para los trayectos cortos y rápidos (glucosa en la ciudad)</strong>, pero cambia automáticamente a su <strong>tanque de gasolina para los viajes largos y constantes (grasa en la carretera)</strong>. Nuestro cuerpo estaba diseñado para hacer exactamente eso: usar azúcar para emergencias y grasa para vivir.</p>
+      <p>Sin embargo, nuestro estilo de vida actual, con comidas y snacks ricos en carbohidratos cada pocas horas, ha forzado a nuestro cuerpo a funcionar exclusivamente con un solo combustible: la glucosa. Nunca le damos la oportunidad de cambiar al "modo carretera" de la quema de grasa.</p>
       <p>¿La consecuencia? Nos volvemos dependientes del azúcar. Cuando los niveles de glucosa bajan un par de horas después de comer, sentimos esa caída de energía, el mal humor, la niebla mental y la necesidad urgente de otro "golpe" de carbohidratos para seguir funcionando. Vivimos en una montaña rusa de picos y valles de energía.</p>
       <p>Recuperar la flexibilidad metabólica es uno de los objetivos centrales del Reinicio. Al reducir la dependencia de los carbohidratos y reintroducir períodos de ayuno, "reentrenamos" a nuestro cuerpo para que recuerde cómo acceder y utilizar sus vastas reservas de grasa.</p>
       <p>Cuando tu cuerpo se vuelve flexible, te liberas de la tiranía del hambre constante. Puedes pasar horas con una energía estable y una mente clara, porque tu motor interno sabe que tiene un tanque de reserva de combustible limpio y duradero siempre disponible.</p>

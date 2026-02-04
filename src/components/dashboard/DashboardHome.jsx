@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v24.0 - Contenido High Ticket en Fases (Adiós al relleno)
+// v25.0 - Versión Final Humanizada (Textos de Beneficio + Fases Claras)
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from 'react-router-dom';
@@ -17,47 +17,47 @@ import ChefDanteWidget from '../dante/ChefDanteWidget';
 import SOSCenter from './SOSCenter';
 import WeeklyCheckin from './WeeklyCheckin'; 
 
-// --- CONTENIDO EXCLUSIVO "HIGH TICKET" (FASES) ---
+// --- CONTENIDO EXCLUSIVO POR FASE (HUMANIZADO) ---
 const FASE_CONTENT = {
   2: {
-    title: "Nivel 2: Neuro-Reprogramación",
-    description: "La batalla no es contra la comida, es contra los viejos circuitos neuronales. En esta fase, instalamos el software de 'Persona Delgada'.",
+    title: "Nivel 2: Dominio Mental",
+    description: "Ya sabes qué comer. Ahora vamos a entrenar a tu cerebro para que deje de pedir comida cuando no la necesita. En esta fase aprendes a diferenciar hambre real de hambre emocional.",
     tools: [
       { 
         type: 'audio', 
-        title: "Audio Terapia: 'Identidad Metabólica'", 
-        text: "Toma aire profundo. Reténlo... y suelta. Escucha bien: Tu identidad antigua te decía 'soy ansioso, necesito azúcar'. Eso es mentira. Es un cableado viejo. Ahora eres un atleta metabólico. Visualiza tus células vibrando, no pidiendo veneno. Eres el capitán de este barco. Cada vez que dices 'no' a un antojo, estás matando al viejo yo y alimentando al nuevo. Siente el control. Siente el poder. Eres libre." 
+        title: "Audio: Reprograma tu identidad", 
+        text: "Escucha esto antes de dormir. Tu cerebro necesita entender que ya no eres una persona a dieta, sino alguien que elige cuidarse. Vamos a instalar esa nueva creencia." 
       },
       { 
         type: 'tip', 
-        title: "Técnica Clínica: 'Surfear la Ola'", 
-        text: "La ansiedad dura solo 3 minutos. Cuando llegue el impulso, no luches. Obsérvalo como una ola en el mar. Sube, rompe y se desvanece. Tu único trabajo es respirar mientras la ola pasa. Bebe un vaso de agua y espera 3 minutos. La ola desaparecerá." 
+        title: "Técnica: Surfear el Antojo", 
+        text: "Un antojo dura solo 3 minutos. No luches contra él. Obsérvalo como una ola que sube y baja. Bebe agua, espera 3 minutos y verás cómo desaparece sin que tengas que comer." 
       },
       {
         type: 'tip',
-        title: "Protocolo 14/10",
-        text: "Esta semana extendemos tu ventana de reparación. Tu última ingesta es a las 8:00 PM. Tu primera ingesta es a las 10:00 AM. En esas 14 horas, tu cuerpo se repara."
+        title: "Ayuno Intuitivo (14/10)",
+        text: "Tu cuerpo ya sabe usar grasa. Ahora extendemos el descanso digestivo a 14 horas (ej: cena 8pm, desayuno 10am) para potenciar la energía mental."
       }
     ]
   },
   3: {
-    title: "Nivel 3: El Interruptor AMPK",
-    description: "Bienvenido a la Bio-Optimización. Vamos a activar la enzima maestra (AMPK) que ordena a tu cuerpo quemar reservas antiguas y reciclar células dañadas.",
+    title: "Nivel 3: Quema Grasa Acelerada",
+    description: "Tu cuerpo ya está limpio. Ahora vamos a convertirlo en una máquina eficiente. Usaremos técnicas avanzadas para reciclar células viejas y usar tu propia grasa como combustible primario.",
     tools: [
       { 
         type: 'tip', 
-        title: "Protocolo de Hormesis (El Frío)", 
-        text: "El AMPK se activa con estrés agudo positivo. INSTRUCCIÓN: Al terminar tu ducha diaria, gira la llave a totalmente fría. Aguanta 30 segundos la primera semana, 60 segundos después. Esto obliga a tus mitocondrias a generar calor quemando grasa blanca." 
+        title: "El Secreto del Agua Fría", 
+        text: "Terminar tu ducha con 30 segundos de agua fría no es tortura, es medicina. Obliga a tu cuerpo a generar calor quemando grasa acumulada. Inténtalo mañana." 
       },
       { 
         type: 'audio', 
-        title: "Audio: Visualización de Autofagia", 
-        text: "Imagina que dentro de ti hay un equipo de limpieza microscópico. Se llama Autofagia. Ahora mismo, mientras estás en ayuno, están barriendo las proteínas viejas, las células muertas y la grasa oxidada. No estás pasando hambre, estás limpiando la casa. Deja que terminen su trabajo. Siente cómo te vuelves más ligero, más limpio y más joven a nivel celular." 
+        title: "Audio: Limpieza Celular", 
+        text: "Visualiza cómo tu cuerpo, en ausencia de comida constante, empieza a comerse sus propios desechos (Autofagia). Estás rejuveneciendo por dentro. Siente esa limpieza." 
       },
       {
         type: 'tip',
-        title: "Ejercicio en Ayunas (El Detonador)",
-        text: "Dos días a la semana, realiza tu rutina del Gimnasio Digital ANTES de desayunar. Esto vacía el glucógeno y fuerza la activación máxima de AMPK. Come proteína pura inmediatamente después."
+        title: "Movimiento en Ayunas",
+        text: "Dos días a la semana, entrena antes de desayunar. Esto le enseña a tus músculos a 'pedir' grasa directamente a tus reservas, no a la comida reciente."
       }
     ]
   }
@@ -70,7 +70,7 @@ const PhaseAudioPlayer = ({ text, title }) => {
     else {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'es-MX'; u.rate = 0.95; u.pitch = 0.9; // Voz más pausada y profunda
+      u.lang = 'es-MX'; u.rate = 0.95; u.pitch = 0.9;
       u.onend = () => setPlaying(false);
       window.speechSynthesis.speak(u);
       setPlaying(true);
@@ -183,39 +183,38 @@ const WelcomeMission = () => (
     <div className="relative z-10 max-w-3xl">
       <h2 className="text-3xl font-bold text-white mb-2">Bienvenido al Nivel Pro 🚀</h2>
       <p className="text-indigo-200 mb-6 text-lg leading-relaxed">
-        Ya conoces la teoría. Ahora vamos a <span className="font-bold text-white">automatizar tu éxito</span>. 
-        Esta plataforma ajusta las porciones, menús y rutinas a TUS datos reales.
+        El PDF fue el mapa. Esto es el <strong>Sistema Operativo</strong>. Vamos a calibrar tu perfil para automatizar tu éxito.
       </p>
-      <p className="text-sm text-slate-400 uppercase tracking-widest font-bold mb-4">Configuración del Sistema:</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link to="/plataforma/bitacora" className="flex flex-col p-4 bg-slate-800/80 hover:bg-indigo-900/50 border border-indigo-500/30 rounded-xl transition-all group">
           <div className="flex items-center justify-between mb-3">
              <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold">1</div>
              <Activity size={20} className="text-indigo-400" />
           </div>
-          <h4 className="text-white font-bold mb-1">Calibra tu Metabolismo</h4>
-          <p className="text-slate-400 text-xs">Registra tu peso para que el sistema calcule tu hidratación exacta.</p>
+          <h4 className="text-white font-bold mb-1">Calibración</h4>
+          <p className="text-slate-400 text-xs">Registra tu peso para calcular tu hidratación exacta.</p>
         </Link>
         <Link to="/plataforma/planeador" className="flex flex-col p-4 bg-slate-800/80 hover:bg-teal-900/50 border border-slate-700 hover:border-teal-500/30 rounded-xl transition-all group">
           <div className="flex items-center justify-between mb-3">
              <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">2</div>
              <Calendar size={20} className="text-teal-400" />
           </div>
-          <h4 className="text-white font-bold mb-1">Automatiza tu Menú</h4>
-          <p className="text-slate-400 text-xs">Genera uno nuevo cada semana según tus gustos.</p>
+          <h4 className="text-white font-bold mb-1">Automatización</h4>
+          <p className="text-slate-400 text-xs">Genera tu menú semanal sin esfuerzo.</p>
         </Link>
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex flex-col p-4 bg-slate-800/80 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/30 rounded-xl transition-all text-left">
           <div className="flex items-center justify-between mb-3">
              <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">3</div>
              <LifeBuoy size={20} className="text-red-400" />
           </div>
-          <h4 className="text-white font-bold mb-1">Ubica tu "Escudo"</h4>
-          <p className="text-slate-400 text-xs">Arriba a la derecha tienes el botón SOS. Úsalo si sientes ansiedad.</p>
+          <h4 className="text-white font-bold mb-1">Escudo</h4>
+          <p className="text-slate-400 text-xs">Ubica el botón SOS para crisis.</p>
         </button>
       </div>
     </div>
   </div>
 );
+
 
 export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -231,7 +230,6 @@ export default function DashboardHome({ user }) {
   const cleanName = localName || user?.user_metadata?.full_name;
   const displayName = (cleanName && cleanName.trim() !== "") ? cleanName : "Campeón";
   
-  // --- CÁLCULO DE DÍAS REALES ---
   const daysSinceJoin = useMemo(() => {
     if (!user?.created_at) return 1;
     const created = new Date(user.created_at);
@@ -243,7 +241,7 @@ export default function DashboardHome({ user }) {
 
   const [diaActivo, setDiaActivo] = useState(daysSinceJoin);
 
-  // --- PROTOCOLO DINÁMICO ---
+  // --- PROTOCOLO DINÁMICO (DÍAS REALES) ---
   const protocoloDia = useMemo(() => {
     if (diaActivo <= 14) {
       return { 
@@ -259,19 +257,19 @@ export default function DashboardHome({ user }) {
       };
     } else {
         return { 
-            titulo: "Maestría AMPK", 
+            titulo: "Maestría Metabólica", 
             subtitulo: "Fase 3: Optimización", 
             tareas: ["Ducha fría (Hormesis)", "Entrenamiento en ayunas", "Protocolo avanzado"] 
         };
     }
   }, [diaActivo]);
 
-  // --- FASES INTERACTIVAS ---
+  // --- FASES INTERACTIVAS (NOMBRES ACTUALIZADOS) ---
   const fasesSistema = [
     { id: 1, nombre: "Fase 1: Inmersión", dias: "Días 1-14", status: "active", objetivo: "Desinflamación y adaptación." },
     { 
       id: 2, 
-      nombre: "Fase 2: Consolidación", 
+      nombre: "Fase 2: Dominio Mental", // <--- NOMBRE ACTUALIZADO 
       dias: "Días 15-28", 
       status: daysSinceJoin >= 15 ? "unlocked" : "locked", 
       objetivo: "Ayuno intermitente y mente.", 
@@ -279,10 +277,10 @@ export default function DashboardHome({ user }) {
     },
     { 
       id: 3, 
-      nombre: "Fase 3: Maestría", 
+      nombre: "Fase 3: Aceleración", // <--- NOMBRE ACTUALIZADO
       dias: "Día 29+", 
       status: daysSinceJoin >= 29 ? "unlocked" : "locked", 
-      objetivo: "Aceleración AMPK.", 
+      objetivo: "Quema de grasa profunda.", 
       teaser: "Desbloquea: Protocolos Avanzados" 
     }
   ];
@@ -511,7 +509,6 @@ export default function DashboardHome({ user }) {
           <QuickAction to="/plataforma/planeador" icon={Calendar} title="Planeador" desc="Tu menú semanal." buttonText="Ver Menú" />
           <QuickAction to="/plataforma/gimnasio" icon={Dumbbell} title="Gimnasio" desc="Rutinas digitales." buttonText="Entrenar" />
           
-          {/* BOTÓN CHECK-IN SEMANAL (YA CORREGIDO CON IMPORT) */}
           <button 
             onClick={() => setShowCheckin(true)}
             className="group flex flex-col justify-between p-5 rounded-2xl bg-indigo-900/20 border border-indigo-500/30 hover:bg-indigo-900/40 hover:border-indigo-400 transition-all h-full text-left"

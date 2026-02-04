@@ -1,10 +1,10 @@
 // src/pages/Gimnasio.jsx
-// v12.1 - FIX: Agregado import 'Circle' y 'X' para evitar pantalla negra
+// v13.0 - FIX: Importación de Circle corregida para evitar pantalla negra
 
 import React, { useState, useEffect, useRef } from 'react';
 import { trainingProgram } from '../data/trainingProgram.js';
 import EquipmentModal from '../components/gimnasio/EquipmentModal.jsx';
-// CORRECCIÓN: Se agregaron Circle y X a la lista de imports
+// CORRECCIÓN: Se agrega Circle explícitamente a la lista
 import { Info, Play, Pause, RotateCcw, CheckCircle2, Dumbbell, Settings2, Timer, ChevronRight, Circle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -54,7 +54,6 @@ const ExerciseTimer = ({ duration, onComplete }) => {
   );
 };
 
-// Tarjeta de Ejercicio
 const ExerciseCard = ({ exercise, slotTitle, isCompleted, onToggleComplete }) => {
   const [showTimer, setShowTimer] = useState(false);
 
@@ -116,7 +115,6 @@ export default function Gimnasio() {
         <EquipmentModal onSelect={handleSelect} availableEquipment={EQUIPMENT_OPTIONS} onClose={() => setShowModal(false)} />
       )}
 
-      {/* HEADER */}
       <div className="px-6 md:px-10 pt-8 mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">Gimnasio</h1>
@@ -131,28 +129,21 @@ export default function Gimnasio() {
         </button>
       </div>
 
-      {/* FILAS POR SEMANA (ESTILO NETFLIX) */}
       <div className="space-y-12">
         {trainingProgram?.weeks?.map((week, wIdx) => (
           <div key={wIdx} className="border-t border-slate-900 pt-8 first:border-0 first:pt-0">
-             
-             {/* Título de la Semana */}
              <div className="px-6 md:px-10 mb-6 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-500 font-bold text-sm">
                     {week.week}
                 </div>
                 <h2 className="text-xl md:text-2xl font-bold text-white">{week.title}</h2>
              </div>
-
-             {/* Días dentro de la semana */}
              <div className="space-y-8">
                 {week.days.map((day, dIdx) => (
                     <div key={dIdx}>
                         <h3 className="px-6 md:px-10 text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Día {day.day}: {day.title}
                         </h3>
-                        
-                        {/* Scroll Horizontal de Ejercicios */}
                         <div className="flex overflow-x-auto gap-4 px-6 md:px-10 pb-6 scrollbar-hide snap-x">
                             {day.routine.map((slot, idx) => (
                                 <ExerciseCard 
