@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { 
   Calendar, Utensils, Dumbbell, Award, 
-  TrendingUp, ArrowRight, Activity, BookHeart,
+  TrendingUp, ArrowRight, Activity, BookHeart,Cpu,
   LifeBuoy, CheckCircle, Circle, Droplets, Flame, AlertTriangle, Zap, Target, Lock, Map, Star, Unlock, Brain, PlayCircle, StopCircle, X, ClipboardCheck
 } from "lucide-react";
 import {
