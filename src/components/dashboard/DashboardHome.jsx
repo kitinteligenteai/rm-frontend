@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v31.0 - Human-Tech Harmony / Poka-Yoke Suave
+// v32.0 - Centro de Mando Narrativo / Dante Copiloto
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -12,7 +12,6 @@ import {
   ArrowRight,
   Activity,
   BookHeart,
-  Cpu,
   LifeBuoy,
   CheckCircle,
   Circle,
@@ -27,6 +26,8 @@ import {
   StopCircle,
   X,
   ClipboardCheck,
+  Sparkles,
+  BookOpen,
 } from "lucide-react";
 
 import {
@@ -43,7 +44,16 @@ import OnboardingModal from "./OnboardingModal";
 import ChefDanteWidget from "../dante/ChefDanteWidget";
 import SOSCenter from "./SOSCenter";
 import WeeklyCheckin from "./WeeklyCheckin";
-import MissionBriefing from "./MissionBriefing";
+
+// =======================================================
+// ESTADOS DEL FLUJO GUIADO
+// =======================================================
+
+const USER_STAGES = {
+  START: "START",
+  FOUNDATION: "FOUNDATION",
+  DAILY: "DAILY",
+};
 
 // =======================================================
 // CONTENIDO EXCLUSIVO HIGH TICKET
@@ -228,7 +238,103 @@ const PhaseModal = ({ phaseId, onClose }) => {
 };
 
 // =======================================================
-// ACCESO RÁPIDO CON POKA-YOKE SUAVE
+// TARJETA GUIADA POR DANTE
+// =======================================================
+
+const GuidedFlowCard = ({ stage, displayName, onFoundationClick }) => {
+  const stages = {
+    [USER_STAGES.START]: {
+      tag: "Primer paso",
+      title: "Personalicemos tu Reinicio",
+      desc:
+        "Para guiarte con precisión, primero necesitamos conocer tu punto de partida actual.",
+      buttonText: "Registrar avance inicial",
+      link: "/plataforma/bitacora",
+      icon: Activity,
+      dante:
+        `Hola ${displayName}. Empecemos por lo básico: guarda tu primer registro. Ese será nuestro punto de partida para mostrarte avances reales y ayudarte a retomar el hilo cada día.`,
+    },
+    [USER_STAGES.FOUNDATION]: {
+      tag: "Tu guía de hoy",
+      title: "Entiende por qué antes no funcionaba",
+      desc:
+        "Antes de avanzar, quiero mostrarte la lógica detrás de Reinicio Metabólico: no es una dieta temporal de restricción; es un cambio de mentalidad, hábitos y estilo de vida.",
+      buttonText: "Entender la base",
+      link: "/plataforma/biblioteca",
+      icon: BookOpen,
+      dante:
+        "Perfecto. Ya tenemos tu base inicial. Ahora quiero que entiendas algo importante: Reinicio Metabólico no es otra dieta; es aprender cómo responde tu cuerpo para construir hábitos que sí puedas sostener.",
+    },
+    [USER_STAGES.DAILY]: {
+      tag: "Tu enfoque de hoy",
+      title: "Avancemos con lo importante",
+      desc:
+        "Ya tienes la base. Hoy enfócate en organizar tu alimentación, registrar tu avance y moverte de forma simple.",
+      buttonText: "Abrir mi planeador",
+      link: "/plataforma/planeador",
+      icon: Calendar,
+      dante:
+        "Ya estás dentro del sistema. No necesitas hacerlo perfecto: organiza tu comida de hoy, registra tu avance y mantén consistencia.",
+    },
+  };
+
+  const current = stages[stage];
+  const Icon = current.icon;
+
+  const handleClick = () => {
+    if (stage === USER_STAGES.FOUNDATION && onFoundationClick) {
+      onFoundationClick();
+    }
+  };
+
+  return (
+    <section className="bg-gradient-to-br from-slate-900 to-indigo-950 border border-indigo-400/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+      <div className="absolute -top-16 -right-16 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-10 opacity-5 text-white pointer-events-none">
+        <Sparkles size={180} />
+      </div>
+
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 items-start">
+        <div className="w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+          <Icon size={30} />
+        </div>
+
+        <div>
+          <span className="text-[10px] font-bold tracking-[0.22em] text-teal-400 uppercase bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/20">
+            {current.tag}
+          </span>
+
+          <h2 className="text-3xl md:text-4xl font-bold text-white mt-4 mb-3">
+            {current.title}
+          </h2>
+
+          <p className="text-slate-300 text-lg leading-relaxed max-w-3xl mb-5">
+            {current.desc}
+          </p>
+
+          <div className="bg-slate-950/40 border border-slate-700/60 rounded-2xl p-4 mb-6 max-w-3xl">
+            <p className="text-slate-300 text-sm leading-relaxed">
+              <span className="text-teal-400 font-bold">Dante:</span>{" "}
+              {current.dante}
+            </p>
+          </div>
+
+          <Link
+            to={current.link}
+            onClick={handleClick}
+            className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-bold px-8 py-4 rounded-xl transition-all hover:scale-[1.02] shadow-lg shadow-teal-900/30"
+          >
+            {current.buttonText}
+            <ArrowRight size={20} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// =======================================================
+// ACCESO RÁPIDO
 // =======================================================
 
 const QuickAction = ({
@@ -292,111 +398,6 @@ const QuickAction = ({
 };
 
 // =======================================================
-// WELCOME PARA USUARIO SIN PESO
-// =======================================================
-
-const WelcomeMission = ({ onOpenSOS }) => (
-  <div className="col-span-1 lg:col-span-3 bg-gradient-to-r from-indigo-950 to-slate-900 border border-indigo-500/30 rounded-3xl p-8 relative overflow-hidden shadow-2xl">
-    <div className="absolute top-0 right-0 p-10 opacity-5 text-white">
-      <Cpu size={250} />
-    </div>
-
-    <div className="relative z-10 max-w-4xl">
-      <div className="mb-6">
-        <p className="text-xs font-bold uppercase tracking-widest text-indigo-300 mb-2">
-          Configuración inicial
-        </p>
-
-        <h2 className="text-3xl font-bold text-white mb-2">
-          Prepara tu sistema
-        </h2>
-
-        <p className="text-indigo-200 text-lg leading-relaxed max-w-3xl">
-          Antes de entrar de lleno, completa tu punto de partida. Esto permite
-          que la plataforma use tus datos reales para ajustar menús,
-          hidratación y seguimiento.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link
-          to="/plataforma/bitacora"
-          className="flex flex-col p-5 bg-indigo-900/40 hover:bg-indigo-900/70 border border-indigo-500/40 rounded-xl transition-all group"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-9 h-9 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold">
-              1
-            </div>
-            <Activity size={22} className="text-indigo-300" />
-          </div>
-
-          <h4 className="text-white font-bold mb-1">
-            Registra tu punto de partida
-          </h4>
-
-          <p className="text-slate-300 text-sm">
-            Peso, energía y sueño. Esto activa la personalización.
-          </p>
-
-          <span className="text-indigo-300 text-xs font-bold mt-4 uppercase">
-            Empezar aquí →
-          </span>
-        </Link>
-
-        <Link
-          to="/plataforma/planeador"
-          className="flex flex-col p-5 bg-slate-800/80 hover:bg-teal-900/50 border border-slate-700 hover:border-teal-500/30 rounded-xl transition-all group"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-9 h-9 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">
-              2
-            </div>
-            <Calendar size={22} className="text-teal-400" />
-          </div>
-
-          <h4 className="text-white font-bold mb-1">
-            Explora el planeador
-          </h4>
-
-          <p className="text-slate-400 text-sm">
-            Puedes revisarlo desde ahora. Será más preciso al completar tu
-            perfil.
-          </p>
-
-          <span className="text-teal-400 text-xs font-bold mt-4 uppercase">
-            Ir al planeador →
-          </span>
-        </Link>
-
-        <button
-          onClick={onOpenSOS}
-          className="flex flex-col p-5 bg-slate-800/80 hover:bg-red-900/40 border border-slate-700 hover:border-red-500/30 rounded-xl transition-all text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-9 h-9 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold">
-              3
-            </div>
-            <LifeBuoy size={22} className="text-red-400" />
-          </div>
-
-          <h4 className="text-white font-bold mb-1">
-            Aprende a controlar antojos
-          </h4>
-
-          <p className="text-slate-400 text-sm">
-            Usa este protocolo cuando sientas que vas a romper el plan.
-          </p>
-
-          <span className="text-red-400 text-xs font-bold mt-4 uppercase">
-            Ver protocolo →
-          </span>
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-// =======================================================
 // DASHBOARD PRINCIPAL
 // =======================================================
 
@@ -409,6 +410,7 @@ export default function DashboardHome({ user }) {
 
   const [latestWeight, setLatestWeight] = useState(null);
   const [weightTrend, setWeightTrend] = useState([]);
+  const [foundationSeen, setFoundationSeen] = useState(false);
   const [trackerData, setTrackerData] = useState({
     agua_vasos: 0,
     tareas_completadas: [],
@@ -424,6 +426,36 @@ export default function DashboardHome({ user }) {
     latestWeight !== null ||
     userProfile?.hasCompletedOnboarding ||
     userProfile?.goal;
+
+  const currentStage = useMemo(() => {
+    if (!isCalibrated) return USER_STAGES.START;
+    if (!foundationSeen) return USER_STAGES.FOUNDATION;
+    return USER_STAGES.DAILY;
+  }, [isCalibrated, foundationSeen]);
+
+  const danteStageMessage = useMemo(() => {
+    if (currentStage === USER_STAGES.START) {
+      return `Hola ${displayName}. Primero guarda tu punto de partida. Así podremos mostrarte avances reales y guiarte mejor.`;
+    }
+
+    if (currentStage === USER_STAGES.FOUNDATION) {
+      return "Ya tenemos tu base inicial. Ahora entiende la lógica del cambio: Reinicio Metabólico no es una dieta temporal, es un cambio de mentalidad, hábitos y estilo de vida.";
+    }
+
+    return "Tu guía de hoy está lista. Enfócate en alimentación, registro y movimiento simple. No buscamos perfección: buscamos consistencia.";
+  }, [currentStage, displayName]);
+
+  const danteStageAction = useMemo(() => {
+    if (currentStage === USER_STAGES.START) return "/plataforma/bitacora";
+    if (currentStage === USER_STAGES.FOUNDATION) return "/plataforma/biblioteca";
+    return "/plataforma/planeador";
+  }, [currentStage]);
+
+  const danteStageActionLabel = useMemo(() => {
+    if (currentStage === USER_STAGES.START) return "Registrar avance";
+    if (currentStage === USER_STAGES.FOUNDATION) return "Entender la base";
+    return "Abrir planeador";
+  }, [currentStage]);
 
   const daysSinceJoin = useMemo(() => {
     if (!user?.created_at) return 1;
@@ -442,10 +474,10 @@ export default function DashboardHome({ user }) {
     setDiaActivo(daysSinceJoin);
   }, [daysSinceJoin]);
 
-  const protocoloDia = useMemo(() => {
+  const enfoqueDia = useMemo(() => {
     if (diaActivo <= 14) {
       return {
-        titulo: "Tu misión de hoy",
+        titulo: "Tu enfoque de hoy",
         subtitulo: "Fase 1: Inmersión metabólica",
         tareas: [
           "Registrar peso, energía y sueño",
@@ -457,7 +489,7 @@ export default function DashboardHome({ user }) {
 
     if (diaActivo <= 28) {
       return {
-        titulo: "Tu misión de hoy",
+        titulo: "Tu enfoque de hoy",
         subtitulo: "Fase 2: Consolidación y control de impulsos",
         tareas: [
           "Completar registro en Bitácora",
@@ -468,7 +500,7 @@ export default function DashboardHome({ user }) {
     }
 
     return {
-      titulo: "Tu misión de hoy",
+      titulo: "Tu enfoque de hoy",
       subtitulo: "Fase 3: Optimización metabólica",
       tareas: [
         "Registrar estado del día",
@@ -507,7 +539,7 @@ export default function DashboardHome({ user }) {
   const handlePhaseClick = (fase) => {
     if (fase.status === "locked") {
       alert(
-        "🔒 Esta fase se desbloquea conforme avances. Sigue tu misión diaria."
+        "🔒 Esta fase se desbloquea conforme avances. Sigue tu enfoque de hoy."
       );
       return;
     }
@@ -534,12 +566,23 @@ export default function DashboardHome({ user }) {
     if (user) {
       fetchWeightData();
       fetchTrackerData();
+
+      const savedFoundation = localStorage.getItem(
+        `rm_foundation_seen_${user.id}`
+      );
+      setFoundationSeen(savedFoundation === "true");
     }
   }, [user, localName, diaActivo]);
 
   const handleOnboardingComplete = (newName) => {
     setLocalName(newName);
     setShowOnboarding(false);
+  };
+
+  const handleFoundationClick = () => {
+    if (!user?.id) return;
+    localStorage.setItem(`rm_foundation_seen_${user.id}`, "true");
+    setFoundationSeen(true);
   };
 
   const fetchWeightData = async () => {
@@ -663,147 +706,146 @@ export default function DashboardHome({ user }) {
         </button>
       </div>
 
-      <MissionBriefing latestWeight={latestWeight} userProfile={userProfile} />
+      <GuidedFlowCard
+        stage={currentStage}
+        displayName={displayName}
+        onFoundationClick={handleFoundationClick}
+      />
 
-      {/* ACCIÓN PRINCIPAL */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {!isCalibrated ? (
-          <WelcomeMission onOpenSOS={() => setShowSOS(true)} />
-        ) : (
-          <>
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 relative overflow-hidden">
-              <div className="relative z-10">
-                <div className="mb-6">
-                  <p className="text-xs text-teal-400 uppercase tracking-widest font-bold mb-2">
-                    Enfócate solo en esto
-                  </p>
+      {/* ENFOQUE ACTUAL */}
+      {isCalibrated && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 relative overflow-hidden">
+            <div className="relative z-10">
+              <div className="mb-6">
+                <p className="text-xs text-teal-400 uppercase tracking-widest font-bold mb-2">
+                  Enfócate solo en esto
+                </p>
 
-                  <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-                    <Target className="text-teal-400" />
-                    {protocoloDia.titulo}
-                  </h3>
+                <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+                  <Target className="text-teal-400" />
+                  {enfoqueDia.titulo}
+                </h3>
 
-                  <p className="text-slate-400 text-sm">
-                    {protocoloDia.subtitulo}. Completa estas acciones antes de
-                    explorar otros módulos.
-                  </p>
-                </div>
+                <p className="text-slate-400 text-sm">
+                  {enfoqueDia.subtitulo}. Completa estas acciones antes de
+                  explorar otros módulos.
+                </p>
+              </div>
 
-                <div className="space-y-4">
-                  {protocoloDia.tareas.map((tarea, idx) => {
-                    const isDone = (
-                      trackerData.tareas_completadas || []
-                    ).includes(tarea);
+              <div className="space-y-4">
+                {enfoqueDia.tareas.map((tarea, idx) => {
+                  const isDone = (trackerData.tareas_completadas || []).includes(
+                    tarea
+                  );
 
-                    return (
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => toggleTarea(tarea)}
+                      className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${
+                        isDone
+                          ? "bg-teal-500/10 border-teal-500/40"
+                          : "bg-slate-950/40 border-slate-700/50 hover:border-slate-600"
+                      }`}
+                    >
                       <div
-                        key={idx}
-                        onClick={() => toggleTarea(tarea)}
-                        className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                          isDone
-                            ? "bg-teal-500/10 border-teal-500/40"
-                            : "bg-slate-950/40 border-slate-700/50 hover:border-slate-600"
+                        className={`transition-transform ${
+                          isDone ? "text-teal-400 scale-110" : "text-slate-600"
                         }`}
                       >
-                        <div
-                          className={`transition-transform ${
-                            isDone
-                              ? "text-teal-400 scale-110"
-                              : "text-slate-600"
-                          }`}
-                        >
-                          {isDone ? (
-                            <CheckCircle className="fill-current" size={24} />
-                          ) : (
-                            <Circle size={24} />
-                          )}
-                        </div>
-
-                        <span
-                          className={`flex-1 font-medium text-lg ${
-                            isDone
-                              ? "text-teal-100 line-through decoration-teal-500/50"
-                              : "text-slate-200"
-                          }`}
-                        >
-                          {tarea}
-                        </span>
+                        {isDone ? (
+                          <CheckCircle className="fill-current" size={24} />
+                        ) : (
+                          <Circle size={24} />
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
+
+                      <span
+                        className={`flex-1 font-medium text-lg ${
+                          isDone
+                            ? "text-teal-100 line-through decoration-teal-500/50"
+                            : "text-slate-200"
+                        }`}
+                      >
+                        {tarea}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
+          </div>
 
-            <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden">
-              <div className="relative z-10 w-full h-full flex flex-col">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                      <Droplets className="text-blue-400" />
-                      Hidratación
-                    </h3>
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden">
+            <div className="relative z-10 w-full h-full flex flex-col">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                    <Droplets className="text-blue-400" />
+                    Hidratación
+                  </h3>
 
-                    <p className="text-slate-400 text-xs mt-1">
-                      Calculada para {latestWeight ? `tus ${latestWeight}kg` : "tu perfil inicial"}
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="text-blue-300 font-bold text-2xl">
-                      {liters}L
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex-1 flex flex-col justify-center items-center my-4">
-                  <div className="text-6xl font-black text-white mb-2 tracking-tighter">
-                    {trackerData.agua_vasos}
-                    <span className="text-2xl text-slate-600 font-medium">
-                      /{targetGlasses}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">
-                    Vasos registrados
+                  <p className="text-slate-400 text-xs mt-1">
+                    Calculada para{" "}
+                    {latestWeight ? `tus ${latestWeight}kg` : "tu perfil inicial"}
                   </p>
                 </div>
 
-                <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-6">
-                  <div
-                    className="bg-blue-500 h-full transition-all duration-500"
-                    style={{ width: `${percentHydration}%` }}
-                  ></div>
-                </div>
-
-                <div className="flex gap-3 w-full">
-                  <button
-                    onClick={() =>
-                      updateTracker({
-                        agua_vasos: Math.max(0, trackerData.agua_vasos - 1),
-                      })
-                    }
-                    className="w-14 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700"
-                  >
-                    -
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      updateTracker({
-                        agua_vasos: trackerData.agua_vasos + 1,
-                      })
-                    }
-                    className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30"
-                  >
-                    + Registrar vaso
-                  </button>
+                <div className="text-right">
+                  <span className="text-blue-300 font-bold text-2xl">
+                    {liters}L
+                  </span>
                 </div>
               </div>
+
+              <div className="flex-1 flex flex-col justify-center items-center my-4">
+                <div className="text-6xl font-black text-white mb-2 tracking-tighter">
+                  {trackerData.agua_vasos}
+                  <span className="text-2xl text-slate-600 font-medium">
+                    /{targetGlasses}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">
+                  Vasos registrados
+                </p>
+              </div>
+
+              <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-6">
+                <div
+                  className="bg-blue-500 h-full transition-all duration-500"
+                  style={{ width: `${percentHydration}%` }}
+                ></div>
+              </div>
+
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() =>
+                    updateTracker({
+                      agua_vasos: Math.max(0, trackerData.agua_vasos - 1),
+                    })
+                  }
+                  className="w-14 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700"
+                >
+                  -
+                </button>
+
+                <button
+                  onClick={() =>
+                    updateTracker({
+                      agua_vasos: trackerData.agua_vasos + 1,
+                    })
+                  }
+                  className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30"
+                >
+                  + Registrar vaso
+                </button>
+              </div>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* ACCESOS SECUNDARIOS */}
       <div>
@@ -814,7 +856,7 @@ export default function DashboardHome({ user }) {
           </h3>
 
           <p className="text-slate-400 text-sm mt-1">
-            Úsalos para completar o reforzar tu misión del día.
+            Úsalos para completar o reforzar tu enfoque del día.
           </p>
         </div>
 
@@ -826,7 +868,7 @@ export default function DashboardHome({ user }) {
             desc="Organiza tu menú semanal."
             buttonText="Ver menú"
             isSoftLocked={!isCalibrated}
-            lockedText="Será más preciso después de completar tu perfil inicial."
+            lockedText="Será más preciso después de registrar tu punto de partida."
           />
 
           <QuickAction
@@ -959,7 +1001,7 @@ export default function DashboardHome({ user }) {
 
           <p className="text-slate-400 text-sm mt-1">
             Esto muestra hacia dónde vas. Para avanzar hoy, sigue primero tu
-            misión diaria.
+            enfoque diario.
           </p>
         </div>
 
@@ -1034,7 +1076,12 @@ export default function DashboardHome({ user }) {
         </div>
       </div>
 
-      <ChefDanteWidget />
+      <ChefDanteWidget
+        message={danteStageMessage}
+        action={danteStageAction}
+        actionLabel={danteStageActionLabel}
+        badge={true}
+      />
     </div>
   );
 }
