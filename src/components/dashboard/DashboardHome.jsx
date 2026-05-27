@@ -314,7 +314,6 @@ const GuidedFlowCard = ({ stage, displayName, onFoundationClick }) => {
 
           <div className="bg-slate-950/40 border border-slate-700/60 rounded-2xl p-4 mb-6 max-w-3xl">
             <p className="text-slate-300 text-sm leading-relaxed">
-              <span className="text-teal-400 font-bold">Dante:</span>{" "}
               {current.dante}
             </p>
           </div>
