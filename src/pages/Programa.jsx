@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
 // ✅ CORRECCIÓN CRÍTICA: Importamos directo de components (Opción A)
 import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
+import LegalFooter from "../components/common/LegalFooter.jsx";
 
 export default function Programa() {
   // Enlace real de Gumroad configurado
@@ -136,9 +137,7 @@ export default function Programa() {
         </motion.section>
       </main>
 
-      <footer className="w-full border-t border-white/5 bg-black/40 py-8 text-center text-xs text-slate-600">
-        © {new Date().getFullYear()} Reinicio Metabólico.
-      </footer>
+      <LegalFooter />
     </div>
   );
 }

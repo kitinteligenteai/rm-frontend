@@ -3,26 +3,60 @@
 
   <url>
     <loc>https://reiniciometabolico.net/</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-05-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
+    <loc>https://reiniciometabolico.net/programa</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://reiniciometabolico.net/terminos</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://reiniciometabolico.net/privacidad</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://reiniciometabolico.net/devoluciones</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
     <loc>https://reiniciometabolico.net/gracias-kit</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://reiniciometabolico.net/gracias-upsell</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
 
   <url>
     <loc>https://reiniciometabolico.net/pago-fallido</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.2</priority>
   </url>
 
   <url>
     <loc>https://reiniciometabolico.net/pago-pendiente</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.2</priority>
   </url>
 </urlset>

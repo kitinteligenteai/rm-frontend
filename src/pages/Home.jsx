@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, LogIn } from "lucide-react";
 import { Link } from 'react-router-dom'; // Importar Link
 import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
+import LegalFooter from "../components/common/LegalFooter.jsx";
 
 const FEATURES = [
   "Plan exacto: qué comer y cuándo para bajar la inflamación.",
