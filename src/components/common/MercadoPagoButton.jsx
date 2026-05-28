@@ -1,32 +1,43 @@
-// src/components/common/MercadoPagoButton.jsx (v3.0 Blindado)
-// Ya no envía precios. Solo envía productId.
+// src/components/common/MercadoPagoButton.jsx
+// v3.1 — Consentimiento legal + payload sin precio
 
 import React, { useState, useRef } from "react";
 
-/**
- * Props esperadas:
- * - label: Texto del botón
- * - productId: ID del producto ("kit-7-dias" o "programa-completo")
- */
-export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", productId = "kit-7-dias" }) {
+export default function MercadoPagoButton({
+  label = "Pagar con Mercado Pago",
+  productId = "kit-7-dias",
+  legalConsent = null,
+}) {
   const [loading, setLoading] = useState(false);
   const clickedRef = useRef(false);
-  
-  // ⚠️ Asegúrate de que este projectRef sea el tuyo (mgjzlohapnepvrqlxmpo)
+
   const API = "https://mgjzlohapnepvrqlxmpo.functions.supabase.co/mp-generate-preference-v2";
 
   const handleClick = async () => {
+    if (!legalConsent?.accepted) {
+      alert("Para continuar, acepta los términos, el aviso de privacidad y la política de devoluciones.");
+      return;
+    }
+
     if (clickedRef.current) return;
     clickedRef.current = true;
     setLoading(true);
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15000); // 15 seg timeout
+    const timer = setTimeout(() => controller.abort(), 15000);
 
     try {
-      // 🔒 PAYLOAD SEGURO: Solo enviamos QUÉ queremos comprar, no cuánto cuesta.
-      const payload = { productId };
-      
+      const payload = {
+        productId,
+        legalConsent: {
+          accepted: true,
+          termsVersion: legalConsent.termsVersion,
+          privacyVersion: legalConsent.privacyVersion,
+          refundsVersion: legalConsent.refundsVersion,
+          consentedAt: legalConsent.consentedAt || new Date().toISOString(),
+        },
+      };
+
       const resp = await fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -37,7 +48,6 @@ export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", pr
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) throw new Error(data?.error || `Error del servidor (${resp.status})`);
 
-      // Lógica de redirección a Mercado Pago
       const url =
         data.initPoint ||
         (data.preferenceId
@@ -45,10 +55,8 @@ export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", pr
           : null);
 
       if (!url) throw new Error("No se recibió link de pago. Intenta de nuevo.");
-      
-      // Redirigir al usuario
-      window.location.assign(url);
 
+      window.location.assign(url);
     } catch (err) {
       console.error("[MP Button] Error:", err);
       alert(`No se pudo iniciar el pago: ${err.message}`);
@@ -76,10 +84,7 @@ export default function MercadoPagoButton({ label = "Pagar con Mercado Pago", pr
           <span>Procesando...</span>
         </>
       ) : (
-        <>
-          {/* Logo simple de MP opcional o solo texto */}
-          <span>{label}</span>
-        </>
+        <span>{label}</span>
       )}
     </button>
   );

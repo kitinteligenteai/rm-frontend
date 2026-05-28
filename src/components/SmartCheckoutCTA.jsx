@@ -1,7 +1,15 @@
-// src/components/SmartCheckoutCTA.jsx (v8.7 - VISUAL $139 + FIX RUTA INCLUIDO)
-import React, { useEffect, useState } from "react";
-// ✅ Mantenemos la ruta correcta que ya funcionó en el Build
+// src/components/SmartCheckoutCTA.jsx
+// v8.8 — Consentimiento legal antes de checkout
+
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import MercadoPagoButton from "./common/MercadoPagoButton";
+
+const LEGAL_VERSIONS = {
+  termsVersion: "terminos-2026-05-28",
+  privacyVersion: "privacidad-2026-05-28",
+  refundsVersion: "devoluciones-2026-05-28",
+};
 
 function guessDefaultCurrency() {
   try {
@@ -17,10 +25,11 @@ function guessDefaultCurrency() {
 
 export default function SmartCheckoutCTA({
   gumroadLink,
-  productId = "kit-7-dias", 
+  productId = "kit-7-dias",
   dense = true,
 }) {
   const [currency, setCurrency] = useState(guessDefaultCurrency);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
 
   useEffect(() => {
     try {
@@ -28,18 +37,25 @@ export default function SmartCheckoutCTA({
     } catch {}
   }, [currency]);
 
-  // Lógica de Precios
+  const legalConsent = useMemo(() => {
+    if (!acceptedLegal) return { accepted: false };
+    return {
+      accepted: true,
+      ...LEGAL_VERSIONS,
+      consentedAt: new Date().toISOString(),
+    };
+  }, [acceptedLegal]);
+
   const isPrograma = productId === "programa-completo";
-  
+
   const PRECIOS = isPrograma
-    ? { USD: 75, MXN: 1299, NAME: "Programa Completo" } 
-    : { USD: 7, MXN: 139, NAME: "Kit de 7 Días" }; // ✅ AQUI ESTÁ EL CAMBIO A 139
+    ? { USD: 75, MXN: 1299, NAME: "Programa Completo" }
+    : { USD: 7, MXN: 139, NAME: "Kit de 7 Días" };
 
   const isMXN = currency === "MXN";
   const displayPrice = isMXN ? PRECIOS.MXN : PRECIOS.USD;
 
-  // Link de respaldo
-  const finalGumroadLink = gumroadLink || (isPrograma 
+  const finalGumroadLink = gumroadLink || (isPrograma
     ? "https://inteligentekit.gumroad.com/l/snxlh"
     : "https://inteligentekit.gumroad.com/l/sxwrn");
 
@@ -71,15 +87,59 @@ export default function SmartCheckoutCTA({
         <div className="text-[12px] text-slate-500 mt-1">Un solo pago • Acceso de por vida</div>
       </div>
 
+      <label className="mt-4 flex items-start gap-3 rounded-lg border border-white/10 bg-black/20 p-3 text-left text-[11px] leading-relaxed text-slate-400">
+        <input
+          type="checkbox"
+          checked={acceptedLegal}
+          onChange={(event) => setAcceptedLegal(event.target.checked)}
+          className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-900 accent-teal-500"
+        />
+        <span>
+          Acepto los{" "}
+          <Link to="/terminos" className="text-teal-300 hover:text-teal-200 underline">
+            Términos
+          </Link>
+          , el{" "}
+          <Link to="/privacidad" className="text-teal-300 hover:text-teal-200 underline">
+            Aviso de Privacidad
+          </Link>{" "}
+          y la{" "}
+          <Link to="/devoluciones" className="text-teal-300 hover:text-teal-200 underline">
+            Política de Devoluciones
+          </Link>
+          . Entiendo que es contenido educativo de bienestar y no sustituye atención médica profesional.
+        </span>
+      </label>
+
       <div className="mt-4">
         {isMXN ? (
-          <MercadoPagoButton label={`Pagar ${PRECIOS.NAME}`} productId={productId} />
+          <MercadoPagoButton
+            label={`Pagar ${PRECIOS.NAME}`}
+            productId={productId}
+            legalConsent={legalConsent}
+          />
         ) : (
-          <a href={finalGumroadLink} target="_blank" rel="noreferrer" className="w-full inline-flex items-center justify-center rounded-lg h-[48px] bg-[#36c28b] hover:bg-[#2fb17e] text-white font-bold text-[15px]">
+          <a
+            href={acceptedLegal ? finalGumroadLink : undefined}
+            onClick={(event) => {
+              if (!acceptedLegal) {
+                event.preventDefault();
+                alert("Para continuar, acepta los términos, el aviso de privacidad y la política de devoluciones.");
+              }
+            }}
+            target="_blank"
+            rel="noreferrer"
+            className={`w-full inline-flex items-center justify-center rounded-lg h-[48px] text-white font-bold text-[15px] ${
+              acceptedLegal
+                ? "bg-[#36c28b] hover:bg-[#2fb17e]"
+                : "bg-slate-700 cursor-not-allowed opacity-70"
+            }`}
+          >
             Pagar con Tarjeta / PayPal
           </a>
         )}
       </div>
+
       <p className="mt-3 text-center text-[11px] text-slate-500">🔒 Transacción 100% segura</p>
     </div>
   );
