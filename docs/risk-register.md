@@ -6,15 +6,15 @@
 
 
 
-\### RLS / permisos Supabase no auditados
+### RLS / permisos Supabase auditados y hardening P0 aplicado
+- Estado: Mitigado el 2026-05-27
+- Hallazgo: `anon` y `authenticated` tenían permisos amplios sobre tablas críticas (`checkout_sessions`, `purchases`, `outbox_emails`, `entitlements`, `admin_notifications_log`, `security_audit_log`), incluyendo SELECT/INSERT/UPDATE/DELETE/TRUNCATE.
+- Acción aplicada: se revocó acceso directo de `anon` y `authenticated` a tablas críticas.
+- Excepción mantenida: `authenticated` conserva `SELECT` sobre la vista `my_entitlements`.
+- Validación: la consulta posterior de grants mostró únicamente `authenticated | my_entitlements | SELECT`.
+- Impacto: Home, login y navegación interna validados localmente después del cambio.
+- Pendiente: prueba controlada de compra/confirmación/correo antes de escalar tráfico.
 
-\- Estado: Pendiente confirmar
-
-\- Riesgo: tablas sensibles accesibles con permisos amplios.
-
-\- Impacto: exposición de compras, correos o sesiones.
-
-\- Mitigación: auditoría solo lectura de RLS, policies y grants antes de cambios SQL.
 
 
 
