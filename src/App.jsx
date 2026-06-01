@@ -18,6 +18,10 @@ import Terminos from './pages/Terminos.jsx';
 import Privacidad from './pages/Privacidad.jsx';
 import Devoluciones from './pages/Devoluciones.jsx';
 
+// Páginas de estado de pago
+import PagoFallido from './pages/PagoFallido.jsx';
+import PagoPendiente from './pages/PagoPendiente.jsx';
+
 export default function App() {
   return (
     <UserProvider>
@@ -32,6 +36,10 @@ export default function App() {
           <Route path="/terminos" element={<Terminos />} />
           <Route path="/privacidad" element={<Privacidad />} />
           <Route path="/devoluciones" element={<Devoluciones />} />
+
+          {/* Rutas de estado de pago */}
+          <Route path="/pago-fallido" element={<PagoFallido />} />
+          <Route path="/pago-pendiente" element={<PagoPendiente />} />
 
           {/* Rutas de Acceso */}
           <Route path="/auth" element={<AuthPage />} />
