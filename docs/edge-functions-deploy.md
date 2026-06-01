@@ -290,5 +290,62 @@ Resultado:
 
 npx supabase functions deploy mp-generate-preference-v2 --project-ref mgjzlohapnepvrqlxmpo --no-verify-jwt
 
+
 ```
+
+
+
+\## Validación mp-webhook-v3 v5.1
+
+
+
+Fecha: 2026-06-01
+
+
+
+Cambio aplicado:
+
+\- Hardening mínimo de `mp-webhook-v3`.
+
+\- Validación de método `POST`/`OPTIONS`.
+
+\- Validación explícita de `MP\_ACCESS\_TOKEN`.
+
+\- Resolución de `product\_id` desde:
+
+&#x20; 1. `payment.metadata.product\_type`
+
+&#x20; 2. `payment.additional\_info.items\[0].id`
+
+&#x20; 3. `payment.description`
+
+\- Notificación NTFY ajustada a texto ASCII para reducir problemas de encoding.
+
+\- Se mantiene `meta: payment` completo por trazabilidad forense.
+
+
+
+Deploy usado:
+
+
+
+```powershell
+
+npx supabase functions deploy mp-webhook-v3 --project-ref mgjzlohapnepvrqlxmpo --no-verify-jwt
+
+
+
+Validación sin compra:
+
+
+
+GET /mp-webhook-v3 responde method\_not\_allowed.
+
+POST {} responde { "ok": true, "ignored": true }.
+
+
+
+Nota:
+
+No se implementó validación de firma/origen todavía para no romper el webhook en caliente. Queda como hardening posterior controlado.
 
