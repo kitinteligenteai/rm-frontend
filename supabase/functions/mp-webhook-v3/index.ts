@@ -1,14 +1,13 @@
 // supabase/functions/mp-webhook-v3/index.ts
-// BUILD: 2026-06-01 — v5.1-HARDENED-MINIMAL
+// BUILD: 2026-06-05 — v5.2-HARDENED-BARK
 // Procesa pagos de Mercado Pago, registra compras y envia
-// UNA SOLA notificacion al administrador usando deduplicacion por DB.
+// notificaciones administrativas con deduplicacion por DB.
 //
-// Cambios v5.1:
-// - Valida metodo POST/OPTIONS.
-// - Valida MP_ACCESS_TOKEN.
-// - product_id se resuelve desde metadata.product_type, items[0].id o description.
-// - NTFY usa texto ASCII para evitar problemas de encoding en iPhone/app.
-// - Mantiene meta completo por ahora para trazabilidad forense.
+// Cambios v5.2:
+// - Mantiene hardening v5.1.
+// - Agrega Bark como alerta fuerte principal anti-Caso Claudia.
+// - Mantiene NTFY como respaldo secundario.
+// - No expone tokens en codigo; usa BARK_URL desde Supabase Secrets.
 // - No valida firma/origen todavia para no romper webhook en caliente.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -19,7 +18,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const BUILD = "mp-webhook-v3@v5.1-hardened-minimal";
+const BUILD = "mp-webhook-v3@v5.2-hardened-bark";
 
 function jsonResponse(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
@@ -61,6 +60,102 @@ function resolvePaymentId(body: any, url: URL): string | null {
   return String(possibleId);
 }
 
+function encodePathPart(value: string): string {
+  return encodeURIComponent(value).replace(/%20/g, "%20");
+}
+
+async function sendBarkAlert(params: {
+  barkUrl: string | null;
+  productId: string;
+  amount: string | number;
+  currency: string;
+  finalEmail: string | null;
+  paymentId: string;
+  sessionId: string | null;
+}) {
+  const { barkUrl, productId, amount, currency, finalEmail, paymentId, sessionId } = params;
+
+  if (!barkUrl) {
+    console.log(`[${BUILD}] BARK_URL not configured`);
+    return;
+  }
+
+  const baseUrl = barkUrl.replace(/\/+$/, "");
+
+  const title = "VENTA RM URGENTE";
+  const body = [
+    `Producto: ${productId}`,
+    `Monto: $${amount} ${currency}`,
+    `Cliente: ${finalEmail || "sin email aun"}`,
+    `Pago: ${paymentId}`,
+    `Sesion: ${sessionId || "sin session_id"}`,
+  ].join(" | ");
+
+  const url =
+    `${baseUrl}/${encodePathPart(title)}/${encodePathPart(body)}` +
+    "?level=critical&volume=9&call=1&sound=alarm&group=ventas-rm";
+
+  const response = await fetch(url, { method: "GET" });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    console.error(`[${BUILD}] Bark error`, {
+      status: response.status,
+      body: text.slice(0, 300),
+    });
+    return;
+  }
+
+  console.log(`[${BUILD}] Bark alert sent`);
+}
+
+async function sendNtfyAlert(params: {
+  topic: string | null;
+  productId: string;
+  amount: string | number;
+  currency: string;
+  finalEmail: string | null;
+  paymentId: string;
+  sessionId: string | null;
+}) {
+  const { topic, productId, amount, currency, finalEmail, paymentId, sessionId } = params;
+
+  if (!topic) {
+    console.log(`[${BUILD}] NTFY_TOPIC not configured`);
+    return;
+  }
+
+  const ntfyBody = [
+    "VENTA CONFIRMADA",
+    `Producto: ${productId}`,
+    `Monto: $${amount} ${currency}`,
+    `Cliente: ${finalEmail || "sin email aun"}`,
+    `Pago: ${paymentId}`,
+    `Sesion: ${sessionId || "sin session_id"}`,
+  ].join("\n");
+
+  const response = await fetch(`https://ntfy.sh/${topic}`, {
+    method: "POST",
+    body: ntfyBody,
+    headers: {
+      Title: "Nueva venta RM",
+      Tags: "moneybag,white_check_mark",
+      Priority: "urgent",
+    },
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    console.error(`[${BUILD}] NTFY error`, {
+      status: response.status,
+      body: text.slice(0, 300),
+    });
+    return;
+  }
+
+  console.log(`[${BUILD}] NTFY notification sent`);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -82,6 +177,7 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const accessToken = Deno.env.get("MP_ACCESS_TOKEN");
     const topic = Deno.env.get("NTFY_TOPIC");
+    const barkUrl = Deno.env.get("BARK_URL");
 
     if (!supabaseUrl || !serviceRoleKey) {
       console.error(`[${BUILD}] Missing Supabase env vars`);
@@ -101,14 +197,12 @@ Deno.serve(async (req) => {
     const paymentId = resolvePaymentId(body, url);
 
     if (!paymentId) {
-      // Mercado Pago puede enviar pruebas/pings sin ID util.
       console.log(`[${BUILD}] Ignored webhook without payment id`);
       return jsonResponse({ ok: true, ignored: true });
     }
 
     console.log(`[${BUILD}] Processing payment id: ${paymentId}`);
 
-    // Mercado Pago es la fuente de verdad.
     const mpResponse = await fetch(
       `https://api.mercadopago.com/v1/payments/${paymentId}`,
       {
@@ -204,7 +298,7 @@ Deno.serve(async (req) => {
       throw purchaseError;
     }
 
-    if (status === "approved" && topic) {
+    if (status === "approved") {
       const { error: logError } = await supabase
         .from("admin_notifications_log")
         .insert({
@@ -215,6 +309,8 @@ Deno.serve(async (req) => {
             product_id: productId,
             session_id: sessionId,
             status,
+            bark_enabled: Boolean(barkUrl),
+            ntfy_enabled: Boolean(topic),
           },
         });
 
@@ -222,26 +318,25 @@ Deno.serve(async (req) => {
         const amount = payment?.transaction_amount ?? "N/D";
         const currency = payment?.currency_id ?? "MXN";
 
-        const ntfyBody = [
-          "VENTA CONFIRMADA",
-          `Producto: ${productId}`,
-          `Monto: $${amount} ${currency}`,
-          `Cliente: ${finalEmail || "sin email aun"}`,
-          `Pago: ${paymentId}`,
-          `Sesion: ${sessionId || "sin session_id"}`,
-        ].join("\n");
-
-        await fetch(`https://ntfy.sh/${topic}`, {
-          method: "POST",
-          body: ntfyBody,
-          headers: {
-            Title: "Nueva venta RM",
-            Tags: "moneybag,white_check_mark",
-            Priority: "urgent",
-          },
+        await sendBarkAlert({
+          barkUrl,
+          productId,
+          amount,
+          currency,
+          finalEmail,
+          paymentId: String(paymentId),
+          sessionId,
         });
 
-        console.log(`[${BUILD}] ntfy notification sent`);
+        await sendNtfyAlert({
+          topic,
+          productId,
+          amount,
+          currency,
+          finalEmail,
+          paymentId: String(paymentId),
+          sessionId,
+        });
       } else {
         console.log(`[${BUILD}] duplicate notification prevented`, {
           paymentId,
