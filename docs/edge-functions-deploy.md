@@ -349,3 +349,39 @@ Nota:
 
 No se implementó validación de firma/origen todavía para no romper el webhook en caliente. Queda como hardening posterior controlado.
 
+## Validación Bark — alerta crítica de ventas
+
+Fecha: 2026-06-05
+
+Se agregó `BARK_URL` como Supabase Secret para usar Bark como canal principal de alerta crítica en ventas aprobadas.
+
+Formato del secret:
+
+BARK_URL=https://api.day.app/<device_key>
+
+No debe incluir rutas como `/Critical Alert` ni parámetros. El código de `mp-webhook-v3` construye la alerta con:
+
+- `level=critical`
+- `volume=9`
+- `call=1`
+- `sound=alarm`
+- `group=ventas-rm`
+
+Arquitectura de alertas:
+
+- Bark: alerta principal, fuerte, anti-Caso Claudia.
+- NTFY: respaldo secundario.
+
+Deploy usado:
+
+npx supabase functions deploy mp-webhook-v3 --project-ref mgjzlohapnepvrqlxmpo --no-verify-jwt
+
+Validación sin compra:
+
+- `GET /mp-webhook-v3` responde `method_not_allowed`.
+- `POST {}` responde `{ "ok": true, "ignored": true }`.
+
+Nota:
+
+Bark se dispara solo cuando Mercado Pago confirma `status === "approved"` y la notificación no fue deduplicada previamente por `admin_notifications_log`.
+
