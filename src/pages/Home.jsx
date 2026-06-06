@@ -52,7 +52,7 @@ export default function Home() {
             </Link>
 
             <Link
-              to="/plataforma/mis-compras"
+              to="/plataforma/panel-de-control"
               className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 px-4 py-2 rounded-full text-xs font-extrabold text-slate-950 transition-colors shadow-lg shadow-teal-500/20"
             >
               <LogIn size={14} />
