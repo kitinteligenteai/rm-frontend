@@ -1,26 +1,27 @@
 // src/App.jsx
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { UserProvider } from './context/UserContext';
-import EnvGuard from './components/common/EnvGuard.jsx';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { UserProvider } from "./context/UserContext";
+import EnvGuard from "./components/common/EnvGuard.jsx";
+import ProtectedRoute from "./utils/ProtectedRoute.jsx";
 
 // Páginas
-import Home from './pages/Home.jsx';
-import Programa from './pages/Programa.jsx';
-import GraciasKit from './pages/GraciasKit.jsx';
-import GraciasUpsell from './pages/GraciasUpsell.jsx';
-import Plataforma from './pages/Plataforma.jsx';
-import AuthPage from './pages/Auth.jsx';
-import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import Home from "./pages/Home.jsx";
+import Programa from "./pages/Programa.jsx";
+import GraciasKit from "./pages/GraciasKit.jsx";
+import GraciasUpsell from "./pages/GraciasUpsell.jsx";
+import Plataforma from "./pages/Plataforma.jsx";
+import AuthPage from "./pages/Auth.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 
 // Páginas legales
-import Terminos from './pages/Terminos.jsx';
-import Privacidad from './pages/Privacidad.jsx';
-import Devoluciones from './pages/Devoluciones.jsx';
+import Terminos from "./pages/Terminos.jsx";
+import Privacidad from "./pages/Privacidad.jsx";
+import Devoluciones from "./pages/Devoluciones.jsx";
 
 // Páginas de estado de pago
-import PagoFallido from './pages/PagoFallido.jsx';
-import PagoPendiente from './pages/PagoPendiente.jsx';
+import PagoFallido from "./pages/PagoFallido.jsx";
+import PagoPendiente from "./pages/PagoPendiente.jsx";
 
 export default function App() {
   return (
@@ -28,11 +29,11 @@ export default function App() {
       <EnvGuard />
       <BrowserRouter>
         <Routes>
-          {/* Rutas Públicas */}
+          {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/programa" element={<Programa />} />
 
-          {/* Rutas Legales */}
+          {/* Rutas legales */}
           <Route path="/terminos" element={<Terminos />} />
           <Route path="/privacidad" element={<Privacidad />} />
           <Route path="/devoluciones" element={<Devoluciones />} />
@@ -41,16 +42,23 @@ export default function App() {
           <Route path="/pago-fallido" element={<PagoFallido />} />
           <Route path="/pago-pendiente" element={<PagoPendiente />} />
 
-          {/* Rutas de Acceso */}
+          {/* Rutas de acceso */}
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          {/* Rutas de Gracias */}
+          {/* Rutas de gracias */}
           <Route path="/gracias-kit" element={<GraciasKit />} />
           <Route path="/gracias-upsell" element={<GraciasUpsell />} />
 
-          {/* Plataforma Privada */}
-          <Route path="/plataforma/*" element={<Plataforma />} />
+          {/* Plataforma privada: requiere sesión */}
+          <Route
+            path="/plataforma/*"
+            element={
+              <ProtectedRoute>
+                <Plataforma />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
