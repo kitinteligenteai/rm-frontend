@@ -1,10 +1,10 @@
 // src/pages/Home.jsx
-// v5.0 - Final: Con Botón de Acceso para Miembros
+// v5.1 - Acceso visible a Mi Programa
 
 import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, LogIn } from "lucide-react";
-import { Link } from 'react-router-dom'; // Importar Link
+import { Link } from "react-router-dom";
 import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
 import LegalFooter from "../components/common/LegalFooter.jsx";
 
@@ -20,7 +20,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-slate-100 font-sans bg-[#0f3e4a] relative overflow-hidden">
-      {/* Fondo gradiente con halo suave (esperanza) */}
+      {/* Fondo gradiente con halo suave */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
@@ -30,9 +30,9 @@ export default function Home() {
         }}
       />
 
-      {/* Header simple */}
-      <header className="relative z-10 sticky top-0 backdrop-blur-sm/0 border-b border-white/10">
-        <div className="mx-auto max-w-[1140px] px-4 sm:px-6 py-3 flex items-center justify-between">
+      {/* Header */}
+      <header className="relative z-10 sticky top-0 backdrop-blur-sm border-b border-white/10">
+        <div className="mx-auto max-w-[1140px] px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-[15px] font-extrabold tracking-tight">
               Reinicio Metabólico
@@ -41,11 +41,24 @@ export default function Home() {
               Claridad y energía en 7 días
             </p>
           </div>
-          
-          {/* ✅ BOTÓN DE ACCESO PARA MIEMBROS (Nuevo) */}
-          <Link to="/auth" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-xs font-bold text-white transition-colors border border-white/20">
-            <LogIn size={14} /> Soy Miembro
-          </Link>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/auth"
+              className="hidden sm:flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-xs font-bold text-white transition-colors border border-white/20"
+            >
+              <LogIn size={14} />
+              Iniciar sesión
+            </Link>
+
+            <Link
+              to="/plataforma/mis-compras"
+              className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 px-4 py-2 rounded-full text-xs font-extrabold text-slate-950 transition-colors shadow-lg shadow-teal-500/20"
+            >
+              <LogIn size={14} />
+              Mi Programa
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -59,7 +72,6 @@ export default function Home() {
         >
           {/* IZQUIERDA — Hero con llave */}
           <div className="relative">
-            {/* Llave — la hacemos un 12–15% más pequeña y bajamos 10px */}
             <div className="flex justify-start md:justify-start mb-6 md:mb-8">
               <img
                 src="/llave-maestra.png"
@@ -70,21 +82,18 @@ export default function Home() {
               />
             </div>
 
-            {/* Píldora superior */}
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 backdrop-blur-[2px] text-[12.5px] text-white/85">
               <span className="opacity-90">⚡</span> PDF de Acción Inmediata
             </div>
 
-            {/* Título con mayor contraste (premium) */}
             <h1 className="mt-3 text-[36px] sm:text-[42px] lg:text-[46px] leading-[1.05] font-extrabold tracking-tight text-[#DFFCF8]">
               Tu <span className="text-teal-200/90">Sistema de 7 Días</span>
             </h1>
 
-            {/* Subtítulo acotado a 520px para lectura cómoda */}
             <p className="mt-3 text-[15.5px] md:text-[16px] text-slate-200/90 max-w-[520px]">
-              Si vienes del dolor y el cansancio, aquí recuperas claridad. Te damos el
-              plan exacto para decidir cada comida con confianza — y volver a sentir
-              energía.
+              Si vienes del dolor y el cansancio, aquí recuperas claridad. Te
+              damos el plan exacto para decidir cada comida con confianza — y
+              volver a sentir energía.
             </p>
           </div>
 
@@ -102,7 +111,6 @@ export default function Home() {
 
               <div className="mt-6 mb-4 h-px bg-white/10" />
 
-              {/* SmartCheckoutCTA — dejamos una sola línea de confianza (dentro del propio botón/CTA) */}
               <SmartCheckoutCTA
                 productName="Kit de 7 Días — Reinicio Metabólico"
                 basePriceUSD={priceUSD}
@@ -115,6 +123,8 @@ export default function Home() {
           </div>
         </motion.div>
       </main>
+
+      <LegalFooter />
     </div>
   );
 }

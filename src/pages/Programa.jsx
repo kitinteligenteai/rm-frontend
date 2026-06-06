@@ -1,17 +1,16 @@
-// RUTA: src/pages/Programa.jsx
-// Versión v8.4 - FIX DE RUTA (Build Repair)
+// src/pages/Programa.jsx
+// v8.5 - Acceso visible a Mi Programa
 
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
-// ✅ CORRECCIÓN CRÍTICA: Importamos directo de components (Opción A)
+import { CheckCircle2, LogIn, Sparkles, ShieldCheck } from "lucide-react";
 import SmartCheckoutCTA from "../components/SmartCheckoutCTA";
 import LegalFooter from "../components/common/LegalFooter.jsx";
 
 export default function Programa() {
-  // Enlace real de Gumroad configurado
   const gumroadUrl = "https://inteligentekit.gumroad.com/l/snxlh";
-  
+
   const fromKit =
     typeof window !== "undefined" &&
     new URLSearchParams(window.location.search).get("from") === "kit";
@@ -46,13 +45,33 @@ export default function Programa() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans">
       <header className="w-full border-b border-white/10 backdrop-blur-md bg-white/5 sticky top-0 z-20">
-        <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 flex justify-between items-center">
-          <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">
-            Reinicio Metabólico
-          </h1>
-          <span className="text-[10px] uppercase font-bold bg-teal-500/10 text-teal-400 px-2 py-1 rounded border border-teal-500/20">
-            Nivel Premium
-          </span>
+        <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 flex justify-between items-center gap-3">
+          <div>
+            <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">
+              Reinicio Metabólico
+            </h1>
+            <p className="text-[11px] text-slate-400 -mt-0.5">
+              Programa Completo
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/auth"
+              className="hidden sm:flex items-center gap-2 border border-white/15 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
+            >
+              <LogIn size={14} />
+              Ya compré
+            </Link>
+
+            <Link
+              to="/plataforma/mis-compras"
+              className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-extrabold px-4 py-2 rounded-full transition-colors shadow-lg shadow-teal-500/20"
+            >
+              <LogIn size={14} />
+              Mi Programa
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -61,7 +80,8 @@ export default function Programa() {
           <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 text-sm flex items-center justify-center md:justify-start gap-2 text-emerald-100 font-medium">
             <Sparkles className="h-4 w-4 text-emerald-300" />
             <span>
-              ¡Excelente decisión! Estás a un paso de desbloquear el sistema completo.
+              ¡Excelente decisión! Estás a un paso de desbloquear el sistema
+              completo.
             </span>
           </div>
         </div>
@@ -77,11 +97,15 @@ export default function Programa() {
           <p className="text-[11px] md:text-xs uppercase tracking-[0.2em] text-teal-300/90 font-bold mb-3">
             Oferta Especial
           </p>
+
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-white mb-6">
-            Convierte tus <span className="text-teal-400">7 días</span> en<br className="hidden md:block" /> un año de resultados.
+            Convierte tus <span className="text-teal-400">7 días</span> en
+            <br className="hidden md:block" /> un año de resultados.
           </h2>
+
           <p className="text-slate-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-            Accede a todas las herramientas avanzadas, rutinas y la bóveda de recetas para mantener tu progreso a largo plazo.
+            Accede a todas las herramientas avanzadas, rutinas y la bóveda de
+            recetas para mantener tu progreso a largo plazo.
           </p>
         </motion.section>
 
@@ -91,17 +115,20 @@ export default function Programa() {
             <ul className="space-y-3">
               {featuresEssential.map((txt) => (
                 <li key={txt} className="flex gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="h-5 w-5 text-indigo-400 shrink-0" /> {txt}
+                  <CheckCircle2 className="h-5 w-5 text-indigo-400 shrink-0" />
+                  {txt}
                 </li>
               ))}
             </ul>
           </div>
+
           <div className="border border-white/10 bg-slate-800/40 rounded-2xl p-6 backdrop-blur-xl">
             <h3 className="text-xl font-bold text-white mb-4">Modo Experto</h3>
             <ul className="space-y-3">
               {featuresPlanner.map((txt) => (
                 <li key={txt} className="flex gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="h-5 w-5 text-teal-400 shrink-0" /> {txt}
+                  <CheckCircle2 className="h-5 w-5 text-teal-400 shrink-0" />
+                  {txt}
                 </li>
               ))}
             </ul>
@@ -114,11 +141,18 @@ export default function Programa() {
           transition={{ delay: 0.3 }}
           className="relative border border-teal-500/30 bg-gradient-to-b from-slate-900 to-black rounded-3xl p-8 md:p-12 shadow-2xl flex flex-col items-center"
         >
-          <h3 className="text-2xl font-bold text-white mb-8 text-center">Tu acceso total incluye:</h3>
+          <h3 className="text-2xl font-bold text-white mb-8 text-center">
+            Tu acceso total incluye:
+          </h3>
+
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-200 w-full max-w-3xl mb-10">
             {featuresGeneral.map((txt) => (
-              <li key={txt} className="flex gap-3 items-center bg-white/5 p-3 rounded-lg">
-                <CheckCircle2 className="h-4 w-4 text-teal-400" /> <span className="text-sm">{txt}</span>
+              <li
+                key={txt}
+                className="flex gap-3 items-center bg-white/5 p-3 rounded-lg"
+              >
+                <CheckCircle2 className="h-4 w-4 text-teal-400" />
+                <span className="text-sm">{txt}</span>
               </li>
             ))}
           </ul>
@@ -132,7 +166,7 @@ export default function Programa() {
 
           <div className="mt-8 flex gap-2 text-xs text-slate-500 items-center bg-white/5 px-4 py-2 rounded-full">
             <ShieldCheck className="h-4 w-4 text-teal-500" />
-            <span>Garantía de satisfacción • Acceso inmediato</span>
+            <span>Garantía de satisfacción • Acceso por correo en minutos</span>
           </div>
         </motion.section>
       </main>
