@@ -93,8 +93,6 @@ export default function GraciasUpsell() {
       if (!response.ok) {
         const serverMessage = data?.message || "Error al confirmar tu correo.";
 
-        // Si el usuario repite el proceso o refresca la página, no lo asustamos.
-        // La compra ya puede estar confirmada y el correo de acceso ya puede estar en camino.
         if (
           serverMessage.toLowerCase().includes("confirmada") ||
           serverMessage.toLowerCase().includes("anteriormente")
@@ -174,7 +172,7 @@ export default function GraciasUpsell() {
               </p>
               <p className="text-white text-sm leading-relaxed">
                 <strong>reiniciometabolico.net</strong> →{" "}
-                <strong>Iniciar sesión</strong> / <strong>Mi Programa</strong>
+                <strong>Acceso Programa Completo</strong>
               </p>
               <p className="text-slate-400 text-xs mt-2">
                 Usa siempre el mismo correo con el que hiciste la compra.
@@ -194,11 +192,11 @@ export default function GraciasUpsell() {
               </a>
 
               <Link
-                to="/auth"
+                to="/plataforma/panel-de-control"
                 className="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold py-4 px-6 rounded-xl transition-all flex items-center justify-center gap-2"
               >
                 <LockKeyhole className="w-5 h-5" />
-                Ir a iniciar sesión
+                Ir al Programa Completo
               </Link>
 
               <Link
@@ -242,7 +240,9 @@ export default function GraciasUpsell() {
               <ol className="text-slate-400 text-sm space-y-1 list-decimal list-inside">
                 <li>Confirmas tu correo de compra.</li>
                 <li>Te enviamos el enlace para crear contraseña.</li>
-                <li>Entras desde reiniciometabolico.net → Mi Programa.</li>
+                <li>
+                  Entras desde reiniciometabolico.net → Acceso Programa Completo.
+                </li>
               </ol>
             </div>
 
