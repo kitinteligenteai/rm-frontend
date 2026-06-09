@@ -1,5 +1,5 @@
 // src/pages/Programa.jsx
-// v8.5 - Acceso visible a Mi Programa
+// v8.6 - Header limpio con acceso único al Programa Completo
 
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -55,23 +55,13 @@ export default function Programa() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link
-              to="/auth"
-              className="hidden sm:flex items-center gap-2 border border-white/15 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
-            >
-              <LogIn size={14} />
-              Ya compré
-            </Link>
-
-            <Link
-              to="/plataforma/panel-de-control"
-              className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-extrabold px-4 py-2 rounded-full transition-colors shadow-lg shadow-teal-500/20"
-            >
-              <LogIn size={14} />
-              Mi Programa
-            </Link>
-          </div>
+          <Link
+            to="/plataforma/panel-de-control"
+            className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-extrabold px-4 py-2 rounded-full transition-colors shadow-lg shadow-teal-500/20"
+          >
+            <LogIn size={14} />
+            Acceso Programa Completo
+          </Link>
         </div>
       </header>
 

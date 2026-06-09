@@ -1,5 +1,5 @@
 // src/pages/Home.jsx
-// v5.1 - Acceso visible a Mi Programa
+// v5.2 - Header limpio con acceso único al Programa Completo
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -42,23 +42,13 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link
-              to="/auth"
-              className="hidden sm:flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full text-xs font-bold text-white transition-colors border border-white/20"
-            >
-              <LogIn size={14} />
-              Iniciar sesión
-            </Link>
-
-            <Link
-              to="/plataforma/panel-de-control"
-              className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 px-4 py-2 rounded-full text-xs font-extrabold text-slate-950 transition-colors shadow-lg shadow-teal-500/20"
-            >
-              <LogIn size={14} />
-              Mi Programa
-            </Link>
-          </div>
+          <Link
+            to="/plataforma/panel-de-control"
+            className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 px-4 py-2 rounded-full text-xs font-extrabold text-slate-950 transition-colors shadow-lg shadow-teal-500/20"
+          >
+            <LogIn size={14} />
+            Acceso Programa Completo
+          </Link>
         </div>
       </header>
 
