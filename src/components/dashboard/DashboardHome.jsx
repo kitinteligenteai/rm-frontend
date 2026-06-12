@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardHome.jsx
-// v33.0 - Centro de Reinicio Premium / Dante Asesor del Método
+// v32.0 - Centro de Mando Narrativo / Dante Copiloto
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -12,23 +12,22 @@ import {
   ArrowRight,
   Activity,
   BookHeart,
+  LifeBuoy,
   CheckCircle,
   Circle,
   Droplets,
   AlertTriangle,
   Zap,
   Target,
+  Lock,
+  Unlock,
   Brain,
+  PlayCircle,
+  StopCircle,
+  X,
+  ClipboardCheck,
   Sparkles,
   BookOpen,
-  ClipboardCheck,
-  ShieldCheck,
-  RotateCcw,
-  Clock,
-  Utensils,
-  ShoppingCart,
-  LifeBuoy,
-  Scale,
 } from "lucide-react";
 
 import {
@@ -46,250 +45,350 @@ import ChefDanteWidget from "../dante/ChefDanteWidget";
 import SOSCenter from "./SOSCenter";
 import WeeklyCheckin from "./WeeklyCheckin";
 
-const MANUAL_ITEMS = [
-  {
-    title: "Comida real",
-    desc: "Prioriza alimentos simples, reconocibles y preparados en casa siempre que puedas.",
-    icon: Utensils,
-  },
-  {
-    title: "Proteína suficiente",
-    desc: "Que cada comida importante tenga una base sólida de proteína.",
-    icon: Target,
-  },
-  {
-    title: "Verduras y fibra",
-    desc: "Acompaña tus comidas con verduras para saciedad, volumen y mejor control del apetito.",
-    icon: CheckCircle,
-  },
-  {
-    title: "Grasas buenas",
-    desc: "Usa grasas de calidad para cocinar y para dar saciedad sin recurrir a ultraprocesados.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Bebidas correctas",
-    desc: "Agua, café o té sin azúcar. Evita romper el método con bebidas disfrazadas de saludables.",
-    icon: Droplets,
-  },
-  {
-    title: "Movimiento",
-    desc: "No necesitas castigarte. Necesitas moverte con constancia y construir fuerza progresivamente.",
-    icon: Dumbbell,
-  },
-];
+// =======================================================
+// ESTADOS DEL FLUJO GUIADO
+// =======================================================
 
-const QUICK_SITUATIONS = [
-  {
-    title: "No sé qué comer",
-    desc: "Ve a recetas o arma una comida simple dentro del método.",
-    to: "/plataforma/recetas",
-    icon: Utensils,
-  },
-  {
-    title: "Voy al súper",
-    desc: "Organiza tu semana y compra con intención, sin improvisar.",
-    to: "/plataforma/planeador",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Quiero moverme hoy",
-    desc: "Elige una rutina en casa, con mancuernas o solo con tu cuerpo.",
-    to: "/plataforma/gimnasio",
-    icon: Dumbbell,
-  },
-  {
-    title: "Quiero entender el método",
-    desc: "Profundiza en la ciencia detrás de Reinicio Metabólico.",
-    to: "/plataforma/biblioteca",
-    icon: BookOpen,
-  },
-];
+const USER_STAGES = {
+  START: "START",
+  FOUNDATION: "FOUNDATION",
+  DAILY: "DAILY",
+};
 
-const TOOL_CARDS = [
-  {
-    title: "Planeador semanal",
-    desc: "Crea estructura para tus comidas y reduce decisiones durante la semana.",
-    to: "/plataforma/planeador",
-    icon: Calendar,
-    button: "Planear semana",
-  },
-  {
-    title: "Bóveda de recetas",
-    desc: "Opciones dentro del método para comer sin sentir que repites siempre lo mismo.",
-    to: "/plataforma/recetas",
-    icon: Utensils,
-    button: "Ver recetas",
-  },
-  {
-    title: "Gimnasio digital",
-    desc: "Rutinas para casa, con peso corporal o equipo básico.",
-    to: "/plataforma/gimnasio",
-    icon: Dumbbell,
-    button: "Entrenar",
-  },
-  {
-    title: "Guía social",
-    desc: "Estrategias para reuniones, salidas y comidas fuera sin volver al punto anterior.",
-    to: "/plataforma/social",
-    icon: LifeBuoy,
-    button: "Prepararme",
-  },
-  {
-    title: "Bitácora",
-    desc: "Registra peso, medidas, energía y sueño una vez por semana para ver tendencia.",
-    to: "/plataforma/bitacora",
-    icon: BookHeart,
-    button: "Registrar avance",
-  },
-  {
-    title: "Biblioteca",
-    desc: "Aprende la lógica del método: insulina, saciedad, músculo, sueño, estrés y hábitos.",
-    to: "/plataforma/biblioteca",
-    icon: Brain,
-    button: "Profundizar",
-  },
-];
+// =======================================================
+// CONTENIDO EXCLUSIVO HIGH TICKET
+// =======================================================
 
-const MethodPillar = ({ icon: Icon, title, desc }) => {
+const FASE_CONTENT = {
+  2: {
+    title: "Nivel 2: Neuro-Regulación",
+    description:
+      "La fuerza de voluntad se agota; la identidad no. En esta fase, dejamos de luchar contra los impulsos y aprendemos a desactivarlos desde el sistema nervioso.",
+    tools: [
+      {
+        type: "audio",
+        title: "Sesión: El Observador Consciente",
+        text:
+          "Cierra los ojos. Imagina que estás sentado en la orilla de un río. Los antojos son troncos que flotan en el agua. Tu instinto es saltar y agarrarlos. En esta sesión, aprenderás a quedarte en la orilla, observando cómo pasan y se alejan, sin que te mojes. Tú no eres tus impulsos; eres quien los observa.",
+      },
+      {
+        type: "tip",
+        title: "Técnica: La Pausa de los 10 Minutos",
+        text:
+          "Cuando sientas urgencia de comer sin hambre, pon un cronómetro de 10 minutos. Si al sonar la alarma sigues queriendo comer, elige una opción dentro del plan. La meta no es resistir para siempre, sino recuperar control.",
+      },
+      {
+        type: "tip",
+        title: "Protocolo 14:10",
+        text:
+          "No es una dieta, es un horario de reparación. Limita tu ventana de alimentación a 10 horas, por ejemplo de 9am a 7pm. Las otras 14 horas permiten descanso digestivo y mejor control de antojos.",
+      },
+    ],
+  },
+  3: {
+    title: "Nivel 3: Eficiencia Mitocondrial",
+    description:
+      "Has limpiado el terreno, ahora vamos a encender el motor. Esta fase se enfoca en mejorar energía, fuerza y consistencia.",
+    tools: [
+      {
+        type: "tip",
+        title: "Termogénesis suave",
+        text:
+          "Finaliza tu ducha con 30 segundos de agua fría. Concéntrate en controlar tu respiración. No se trata de sufrir, sino de entrenar tolerancia e intención.",
+      },
+      {
+        type: "audio",
+        title: "Sesión: Visualización de Energía Celular",
+        text:
+          "Visualiza tus células como pequeños motores que aprenden a usar energía de forma más estable. Cada comida real, cada caminata y cada rutina envía una señal de reparación y fuerza.",
+      },
+      {
+        type: "tip",
+        title: "Fuerza antes que castigo",
+        text:
+          "El entrenamiento de fuerza no es para agotarte. Es para recordarle a tu cuerpo que el músculo es prioridad. Hazlo con control, no con desesperación.",
+      },
+    ],
+  },
+};
+
+// =======================================================
+// AUDIO DE FASE
+// =======================================================
+
+const PhaseAudioPlayer = ({ text, title }) => {
+  const [playing, setPlaying] = useState(false);
+
+  const toggle = () => {
+    if (playing) {
+      window.speechSynthesis.cancel();
+      setPlaying(false);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-MX";
+    utterance.rate = 0.95;
+    utterance.pitch = 0.9;
+    utterance.onend = () => setPlaying(false);
+    utterance.onerror = () => setPlaying(false);
+
+    window.speechSynthesis.speak(utterance);
+    setPlaying(true);
+  };
+
   return (
-    <div className="bg-slate-950/45 border border-slate-700/70 rounded-2xl p-4 hover:border-teal-500/40 transition-colors">
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0">
-          <Icon size={20} />
-        </div>
-
-        <div>
-          <h4 className="text-white font-bold text-sm mb-1">{title}</h4>
-          <p className="text-slate-400 text-xs leading-relaxed">{desc}</p>
-        </div>
+    <button
+      onClick={toggle}
+      className="w-full flex items-center gap-4 p-5 bg-slate-800 rounded-xl hover:bg-slate-700 transition-all border border-slate-700 group shadow-md"
+    >
+      <div
+        className={`p-3 rounded-full shrink-0 ${
+          playing
+            ? "bg-indigo-500 text-white animate-pulse"
+            : "bg-slate-900 text-indigo-400 border border-slate-700"
+        }`}
+      >
+        {playing ? <StopCircle size={24} /> : <PlayCircle size={24} />}
       </div>
-    </div>
+
+      <div className="text-left">
+        <p className="text-white font-bold text-base group-hover:text-indigo-300 transition-colors">
+          {title}
+        </p>
+        <p className="text-slate-400 text-xs mt-1">
+          {playing ? "Reproduciendo sesión..." : "Escuchar sesión guiada"}
+        </p>
+      </div>
+    </button>
   );
 };
 
-const RouteCard = ({
-  icon: Icon,
-  label,
-  title,
-  desc,
-  bullets,
-  to,
-  button,
-  variant = "teal",
-}) => {
-  const styles =
-    variant === "indigo"
-      ? {
-          border: "border-indigo-500/30",
-          bg: "from-indigo-950/70 to-slate-900",
-          icon: "bg-indigo-500/10 border-indigo-500/20 text-indigo-300",
-          text: "text-indigo-300",
-          button: "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-900/30",
-        }
-      : {
-          border: "border-teal-500/30",
-          bg: "from-teal-950/60 to-slate-900",
-          icon: "bg-teal-500/10 border-teal-500/20 text-teal-300",
-          text: "text-teal-300",
-          button: "bg-teal-600 hover:bg-teal-500 shadow-teal-900/30",
-        };
+// =======================================================
+// MODAL DE FASE
+// =======================================================
+
+const PhaseModal = ({ phaseId, onClose }) => {
+  const content = FASE_CONTENT[phaseId];
+
+  if (!content) return null;
 
   return (
     <div
-      className={`bg-gradient-to-br ${styles.bg} border ${styles.border} rounded-3xl p-6 flex flex-col justify-between min-h-[340px]`}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4 animate-in zoom-in-95 duration-200"
+      onClick={onClose}
     >
-      <div>
-        <div className="flex items-center justify-between gap-4 mb-5">
-          <span
-            className={`text-[10px] uppercase tracking-[0.22em] font-bold ${styles.text}`}
+      <div
+        className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl shadow-2xl relative flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="bg-gradient-to-r from-indigo-900 to-slate-900 p-6 border-b border-slate-800 shrink-0">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+            <Unlock size={24} className="text-indigo-400" />
+            {content.title}
+          </h2>
+
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-full hover:bg-white/10"
           >
-            {label}
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-8 overflow-y-auto">
+          <p className="text-indigo-100 text-lg leading-relaxed border-l-4 border-indigo-500 pl-4">
+            {content.description}
+          </p>
+
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+              <Target size={14} />
+              Protocolos activados
+            </h4>
+
+            {content.tools.map((tool, idx) => (
+              <div
+                key={idx}
+                className="animate-in slide-in-from-bottom-2 fade-in duration-500"
+                style={{ animationDelay: `${idx * 150}ms` }}
+              >
+                {tool.type === "audio" ? (
+                  <PhaseAudioPlayer text={tool.text} title={tool.title} />
+                ) : (
+                  <div className="p-5 bg-teal-900/10 border border-teal-500/20 rounded-xl hover:border-teal-500/40 transition-colors">
+                    <h5 className="text-teal-400 font-bold text-base mb-2 flex items-center gap-2">
+                      <Zap size={18} className="fill-teal-400/20" />
+                      {tool.title}
+                    </h5>
+                    <p className="text-slate-300 text-sm leading-relaxed">
+                      {tool.text}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =======================================================
+// TARJETA GUIADA POR DANTE
+// =======================================================
+
+const GuidedFlowCard = ({ stage, displayName, onFoundationClick }) => {
+  const stages = {
+    [USER_STAGES.START]: {
+      tag: "Primer paso",
+      title: "Personalicemos tu Reinicio",
+      desc:
+        "Para guiarte con precisión, primero necesitamos conocer tu punto de partida actual.",
+      buttonText: "Registrar avance inicial",
+      link: "/plataforma/bitacora",
+      icon: Activity,
+      dante:
+        `Hola ${displayName}. Empecemos por lo básico: guarda tu primer registro. Ese será nuestro punto de partida para mostrarte avances reales y ayudarte a retomar el hilo cada día.`,
+    },
+    [USER_STAGES.FOUNDATION]: {
+      tag: "Tu guía de hoy",
+      title: "Entiende por qué antes no funcionaba",
+      desc:
+        "Antes de avanzar, quiero mostrarte la lógica detrás de Reinicio Metabólico: no es una dieta temporal de restricción; es un cambio de mentalidad, hábitos y estilo de vida.",
+      buttonText: "Entender la base",
+      link: "/plataforma/biblioteca",
+      icon: BookOpen,
+      dante:
+        "Perfecto. Ya tenemos tu base inicial. Ahora quiero que entiendas algo importante: Reinicio Metabólico no es otra dieta; es aprender cómo responde tu cuerpo para construir hábitos que sí puedas sostener.",
+    },
+    [USER_STAGES.DAILY]: {
+      tag: "Tu enfoque de hoy",
+      title: "Avancemos con lo importante",
+      desc:
+        "Ya tienes la base. Hoy enfócate en organizar tu alimentación, registrar tu avance y moverte de forma simple.",
+      buttonText: "Abrir mi planeador",
+      link: "/plataforma/planeador",
+      icon: Calendar,
+      dante:
+        "Ya estás dentro del sistema. No necesitas hacerlo perfecto: organiza tu comida de hoy, registra tu avance y mantén consistencia.",
+    },
+  };
+
+  const current = stages[stage];
+  const Icon = current.icon;
+
+  const handleClick = () => {
+    if (stage === USER_STAGES.FOUNDATION && onFoundationClick) {
+      onFoundationClick();
+    }
+  };
+
+  return (
+    <section className="bg-gradient-to-br from-slate-900 to-indigo-950 border border-indigo-400/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+      <div className="absolute -top-16 -right-16 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-10 opacity-5 text-white pointer-events-none">
+        <Sparkles size={180} />
+      </div>
+
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 items-start">
+        <div className="w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+          <Icon size={30} />
+        </div>
+
+        <div>
+          <span className="text-[10px] font-bold tracking-[0.22em] text-teal-400 uppercase bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/20">
+            {current.tag}
           </span>
 
+          <h2 className="text-3xl md:text-4xl font-bold text-white mt-4 mb-3">
+            {current.title}
+          </h2>
+
+          <p className="text-slate-300 text-lg leading-relaxed max-w-3xl mb-5">
+            {current.desc}
+          </p>
+
+          <div className="bg-slate-950/40 border border-slate-700/60 rounded-2xl p-4 mb-6 max-w-3xl">
+            <p className="text-slate-300 text-sm leading-relaxed">
+              {current.dante}
+            </p>
+          </div>
+
+          <Link
+            to={current.link}
+            onClick={handleClick}
+            className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-bold px-8 py-4 rounded-xl transition-all hover:scale-[1.02] shadow-lg shadow-teal-900/30"
+          >
+            {current.buttonText}
+            <ArrowRight size={20} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// =======================================================
+// ACCESO RÁPIDO
+// =======================================================
+
+const QuickAction = ({
+  icon: Icon,
+  title,
+  desc,
+  to,
+  buttonText,
+  isSoftLocked = false,
+  lockedText = "Se recomienda completar tu perfil primero.",
+}) => {
+  return (
+    <Link to={to} className="group block h-full">
+      <div
+        className={`relative flex flex-col justify-between p-6 rounded-2xl border transition-all h-full ${
+          isSoftLocked
+            ? "bg-slate-900/40 border-slate-800 opacity-80 hover:opacity-100"
+            : "bg-slate-800/40 border-slate-700 hover:border-teal-500/50 hover:bg-slate-800 shadow-sm"
+        }`}
+      >
+        {isSoftLocked && (
+          <div className="absolute top-4 right-4 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1 rounded-full">
+            <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-wider">
+              Sugerido
+            </span>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-4">
           <div
-            className={`w-12 h-12 rounded-2xl border flex items-center justify-center ${styles.icon}`}
+            className={`p-3 rounded-xl w-fit transition-colors ${
+              isSoftLocked
+                ? "bg-slate-800 text-slate-500"
+                : "bg-teal-500/10 text-teal-400 group-hover:bg-teal-500 group-hover:text-white"
+            }`}
           >
             <Icon size={24} />
           </div>
-        </div>
 
-        <h3 className="text-2xl font-bold text-white mb-3">{title}</h3>
+          <div>
+            <h4 className="text-white font-bold text-xl mb-1 group-hover:text-teal-400 transition-colors">
+              {title}
+            </h4>
+            <p className="text-slate-400 text-sm leading-snug">{desc}</p>
 
-        <p className="text-slate-300 text-sm leading-relaxed mb-5">{desc}</p>
-
-        <ul className="space-y-2">
-          {bullets.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-slate-300">
-              <CheckCircle className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <Link
-        to={to}
-        className={`mt-7 inline-flex items-center justify-center gap-2 text-white font-bold px-5 py-3 rounded-xl transition-all shadow-lg ${styles.button}`}
-      >
-        {button}
-        <ArrowRight size={18} />
-      </Link>
-    </div>
-  );
-};
-
-const SituationCard = ({ icon: Icon, title, desc, to, onClick }) => {
-  const content = (
-    <div className="group bg-slate-900/70 border border-slate-800 rounded-2xl p-5 hover:border-teal-500/40 hover:bg-slate-800/80 transition-all h-full">
-      <div className="flex items-start gap-4">
-        <div className="w-11 h-11 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-teal-400 group-hover:bg-teal-500 group-hover:text-white group-hover:border-teal-400 transition-all shrink-0">
-          <Icon size={21} />
-        </div>
-
-        <div className="min-w-0">
-          <h4 className="text-white font-bold text-base mb-1 group-hover:text-teal-300 transition-colors">
-            {title}
-          </h4>
-          <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (onClick) {
-    return (
-      <button onClick={onClick} className="text-left h-full">
-        {content}
-      </button>
-    );
-  }
-
-  return (
-    <Link to={to} className="block h-full">
-      {content}
-    </Link>
-  );
-};
-
-const ToolCard = ({ icon: Icon, title, desc, to, button }) => {
-  return (
-    <Link to={to} className="group block h-full">
-      <div className="bg-slate-800/40 border border-slate-700 rounded-2xl p-6 h-full hover:bg-slate-800 hover:border-teal-500/45 transition-all flex flex-col justify-between">
-        <div>
-          <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center mb-4 group-hover:bg-teal-500 group-hover:text-white transition-all">
-            <Icon size={23} />
+            {isSoftLocked && (
+              <p className="mt-3 text-xs text-yellow-500/70 italic font-medium">
+                {lockedText}
+              </p>
+            )}
           </div>
-
-          <h4 className="text-white font-bold text-lg mb-2 group-hover:text-teal-300 transition-colors">
-            {title}
-          </h4>
-
-          <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
         </div>
 
-        <div className="mt-6 flex items-center text-xs font-bold text-teal-400 uppercase tracking-widest group-hover:translate-x-1 transition-transform">
-          {button}
+        <div className="mt-6 flex items-center text-xs font-bold text-teal-500 uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+          {buttonText}
           <ArrowRight size={14} className="ml-2" />
         </div>
       </div>
@@ -297,16 +396,20 @@ const ToolCard = ({ icon: Icon, title, desc, to, button }) => {
   );
 };
 
+// =======================================================
+// DASHBOARD PRINCIPAL
+// =======================================================
+
 export default function DashboardHome({ user }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [localName, setLocalName] = useState("");
   const [showSOS, setShowSOS] = useState(false);
   const [showCheckin, setShowCheckin] = useState(false);
+  const [showPhaseModal, setShowPhaseModal] = useState(null);
 
   const [latestWeight, setLatestWeight] = useState(null);
   const [weightTrend, setWeightTrend] = useState([]);
   const [foundationSeen, setFoundationSeen] = useState(false);
-
   const [trackerData, setTrackerData] = useState({
     agua_vasos: 0,
     tareas_completadas: [],
@@ -314,7 +417,44 @@ export default function DashboardHome({ user }) {
 
   const cleanName = localName || user?.user_metadata?.full_name;
   const displayName =
-    cleanName && cleanName.trim() !== "" ? cleanName.trim() : "Campeón";
+    cleanName && cleanName.trim() !== "" ? cleanName : "Campeón";
+
+  const userProfile = user?.user_metadata || {};
+
+  const isCalibrated =
+    latestWeight !== null ||
+    userProfile?.hasCompletedOnboarding ||
+    userProfile?.goal;
+
+  const currentStage = useMemo(() => {
+    if (!isCalibrated) return USER_STAGES.START;
+    if (!foundationSeen) return USER_STAGES.FOUNDATION;
+    return USER_STAGES.DAILY;
+  }, [isCalibrated, foundationSeen]);
+
+  const danteStageMessage = useMemo(() => {
+    if (currentStage === USER_STAGES.START) {
+      return `Hola ${displayName}. Primero guarda tu punto de partida. Así podremos mostrarte avances reales y guiarte mejor.`;
+    }
+
+    if (currentStage === USER_STAGES.FOUNDATION) {
+      return "Ya tenemos tu base inicial. Ahora entiende la lógica del cambio: Reinicio Metabólico no es una dieta temporal, es un cambio de mentalidad, hábitos y estilo de vida.";
+    }
+
+    return "Tu guía de hoy está lista. Enfócate en alimentación, registro y movimiento simple. No buscamos perfección: buscamos consistencia.";
+  }, [currentStage, displayName]);
+
+  const danteStageAction = useMemo(() => {
+    if (currentStage === USER_STAGES.START) return "/plataforma/bitacora";
+    if (currentStage === USER_STAGES.FOUNDATION) return "/plataforma/biblioteca";
+    return "/plataforma/planeador";
+  }, [currentStage]);
+
+  const danteStageActionLabel = useMemo(() => {
+    if (currentStage === USER_STAGES.START) return "Registrar avance";
+    if (currentStage === USER_STAGES.FOUNDATION) return "Entender la base";
+    return "Abrir planeador";
+  }, [currentStage]);
 
   const daysSinceJoin = useMemo(() => {
     if (!user?.created_at) return 1;
@@ -327,61 +467,94 @@ export default function DashboardHome({ user }) {
     return diffDays || 1;
   }, [user]);
 
-  const trackerDay = Math.max(1, Math.min(daysSinceJoin, 7));
+  const [diaActivo, setDiaActivo] = useState(daysSinceJoin);
 
-  const hasProgressData = latestWeight !== null || weightTrend.length > 0;
+  useEffect(() => {
+    setDiaActivo(daysSinceJoin);
+  }, [daysSinceJoin]);
 
-  const danteMessage = useMemo(() => {
-    if (!foundationSeen && !hasProgressData) {
-      return `Hola ${displayName}. Ya diste el paso más importante: comenzaste con el Kit y ahora estás dentro del Programa Completo. Aquí no vamos a volver a empezar; vamos a consolidar la base para que esto se convierta en un sistema sostenible.`;
+  const enfoqueDia = useMemo(() => {
+    if (diaActivo <= 14) {
+      return {
+        titulo: "Tu enfoque de hoy",
+        subtitulo: "Fase 1: Inmersión metabólica",
+        tareas: [
+          "Registrar peso, energía y sueño",
+          "Planificar tus comidas del día",
+          "Cerrar el día sin azúcar ni harinas",
+        ],
+      };
     }
 
-    if (!foundationSeen) {
-      return `Bienvenido de nuevo, ${displayName}. Ya tienes avance registrado. Ahora conviene reforzar el Manual del Reinicio para que entiendas cómo sostener el método sin depender de motivación diaria.`;
+    if (diaActivo <= 28) {
+      return {
+        titulo: "Tu enfoque de hoy",
+        subtitulo: "Fase 2: Consolidación y control de impulsos",
+        tareas: [
+          "Completar registro en Bitácora",
+          "Mantener ventana de alimentación 14:10",
+          "Realizar movimiento de fuerza",
+        ],
+      };
     }
 
-    if (!hasProgressData) {
-      return `${displayName}, tu siguiente paso útil no es estudiar más: es convertir el método en acciones simples. Organiza comida real, prepara opciones rápidas y registra tu punto de partida esta semana.`;
+    return {
+      titulo: "Tu enfoque de hoy",
+      subtitulo: "Fase 3: Optimización metabólica",
+      tareas: [
+        "Registrar estado del día",
+        "Entrenar fuerza o caminar 20 minutos",
+        "Aplicar un protocolo avanzado",
+      ],
+    };
+  }, [diaActivo]);
+
+  const fasesSistema = [
+    {
+      id: 1,
+      nombre: "Fase 1: Inmersión",
+      dias: "Días 1-14",
+      status: "active",
+      objetivo: "Desinflamación y adaptación.",
+    },
+    {
+      id: 2,
+      nombre: "Fase 2: Dominio Mental",
+      dias: "Días 15-28",
+      status: daysSinceJoin >= 15 ? "unlocked" : "locked",
+      objetivo: "Control de ansiedad y hambre.",
+      teaser: "Desbloquea: Neuro-Entrenamiento",
+    },
+    {
+      id: 3,
+      nombre: "Fase 3: Aceleración",
+      dias: "Día 29+",
+      status: daysSinceJoin >= 29 ? "unlocked" : "locked",
+      objetivo: "Quema de grasa profunda.",
+      teaser: "Desbloquea: Protocolos Avanzados",
+    },
+  ];
+
+  const handlePhaseClick = (fase) => {
+    if (fase.status === "locked") {
+      alert(
+        "🔒 Esta fase se desbloquea conforme avances. Sigue tu enfoque de hoy."
+      );
+      return;
     }
 
-    return `${displayName}, vas bien. Mantén la base: comida real, proteína suficiente, verduras, grasas buenas, bebidas correctas y movimiento. No busques perfección; vuelve al método en la siguiente comida.`;
-  }, [displayName, foundationSeen, hasProgressData]);
-
-  const danteAction = useMemo(() => {
-    if (!foundationSeen) return "/plataforma/biblioteca";
-    if (!hasProgressData) return "/plataforma/bitacora";
-    return "/plataforma/planeador";
-  }, [foundationSeen, hasProgressData]);
-
-  const danteActionLabel = useMemo(() => {
-    if (!foundationSeen) return "Reforzar el método";
-    if (!hasProgressData) return "Registrar avance semanal";
-    return "Organizar mi semana";
-  }, [foundationSeen, hasProgressData]);
-
-  const weeklyFocus = useMemo(() => {
-    if (!hasProgressData) {
-      return [
-        "Elige tus comidas base para esta semana.",
-        "Ten proteína y verduras disponibles antes de que llegue el hambre.",
-        "Haz tu primer registro semanal: peso, medidas, energía y sueño.",
-      ];
+    if (fase.id > 1) {
+      setShowPhaseModal(fase.id);
     }
+  };
 
-    return [
-      "Repite la base: proteína, verduras, grasas buenas y bebidas sin azúcar.",
-      "Usa el planeador para evitar improvisar cuando estés cansado.",
-      "Muévete hoy aunque sea poco: caminar o rutina corta en casa.",
-    ];
-  }, [hasProgressData]);
-
-  const calculationWeight = latestWeight || 80;
+  const calculationWeight = latestWeight || 70;
   const dailyMl = calculationWeight * 35;
-  const targetGlasses = Math.max(6, Math.ceil(dailyMl / 250));
+  const targetGlasses = Math.ceil(dailyMl / 250);
   const liters = (dailyMl / 1000).toFixed(1);
   const percentHydration = Math.min(
     100,
-    Math.round(((trackerData.agua_vasos || 0) / targetGlasses) * 100)
+    Math.round((trackerData.agua_vasos / targetGlasses) * 100)
   );
 
   useEffect(() => {
@@ -398,14 +571,14 @@ export default function DashboardHome({ user }) {
       );
       setFoundationSeen(savedFoundation === "true");
     }
-  }, [user, localName, trackerDay]);
+  }, [user, localName, diaActivo]);
 
   const handleOnboardingComplete = (newName) => {
     setLocalName(newName);
     setShowOnboarding(false);
   };
 
-  const markFoundationSeen = () => {
+  const handleFoundationClick = () => {
     if (!user?.id) return;
     localStorage.setItem(`rm_foundation_seen_${user.id}`, "true");
     setFoundationSeen(true);
@@ -446,7 +619,7 @@ export default function DashboardHome({ user }) {
       .from("seguimiento_7dias")
       .select("*")
       .eq("user_id", user.id)
-      .eq("dia_numero", trackerDay)
+      .eq("dia_numero", diaActivo)
       .maybeSingle();
 
     if (data) {
@@ -464,20 +637,20 @@ export default function DashboardHome({ user }) {
     await supabase.from("seguimiento_7dias").upsert(
       {
         user_id: user.id,
-        dia_numero: trackerDay,
+        dia_numero: diaActivo,
         ...updates,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date(),
       },
       { onConflict: "user_id, dia_numero" }
     );
   };
 
-  const toggleFocus = (item) => {
+  const toggleTarea = (tarea) => {
     const actuales = trackerData.tareas_completadas || [];
 
-    const nuevaLista = actuales.includes(item)
-      ? actuales.filter((t) => t !== item)
-      : [...actuales, item];
+    const nuevaLista = actuales.includes(tarea)
+      ? actuales.filter((t) => t !== tarea)
+      : [...actuales, tarea];
 
     updateTracker({ tareas_completadas: nuevaLista });
   };
@@ -494,316 +667,269 @@ export default function DashboardHome({ user }) {
         <WeeklyCheckin user={user} onClose={() => setShowCheckin(false)} />
       )}
 
+      {showPhaseModal && (
+        <PhaseModal
+          phaseId={showPhaseModal}
+          onClose={() => setShowPhaseModal(null)}
+        />
+      )}
+
+      {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <p className="text-xs text-teal-400 uppercase tracking-[0.24em] font-bold mb-2">
-            Centro de Reinicio
-          </p>
-
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             Hola, {displayName}{" "}
             <span className="animate-wave inline-block">👋</span>
           </h1>
 
-          <p className="text-slate-400 mt-2 text-lg max-w-3xl">
-            Ya hiciste el arranque. Ahora vamos a consolidar el método para que
-            no se quede en una semana de motivación.
+          <p className="text-slate-400 mt-2 text-lg">
+            {isCalibrated ? (
+              <>
+                Estás en{" "}
+                <span className="text-teal-400 font-bold">Modo Reinicio</span>
+              </>
+            ) : (
+              <span className="text-indigo-400 font-bold">
+                Personalizando tu experiencia...
+              </span>
+            )}
           </p>
         </div>
 
         <button
           onClick={() => setShowSOS(true)}
-          className="w-full md:w-auto bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/40 px-5 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-900/20"
+          className="w-full md:w-auto bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/50 px-5 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-900/20"
         >
           <AlertTriangle size={18} />
-          Dante SOS
+          Control de antojos
         </button>
       </div>
 
-      <section className="bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950/50 border border-teal-500/25 rounded-3xl p-7 md:p-9 shadow-2xl relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-72 h-72 bg-teal-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl" />
+      <GuidedFlowCard
+        stage={currentStage}
+        displayName={displayName}
+        onFoundationClick={handleFoundationClick}
+      />
 
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 items-start">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-teal-500/10 text-teal-300 text-xs font-bold px-3 py-1 rounded-full border border-teal-500/20 uppercase tracking-widest mb-5">
-              <Sparkles className="w-4 h-4" />
-              Dante — Asesor del Método
-            </div>
+      {/* ENFOQUE ACTUAL */}
+      {isCalibrated && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 relative overflow-hidden">
+            <div className="relative z-10">
+              <div className="mb-6">
+                <p className="text-xs text-teal-400 uppercase tracking-widest font-bold mb-2">
+                  Enfócate solo en esto
+                </p>
 
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-5">
-              Ahora no se trata de empezar.
-              <span className="block text-teal-300">
-                Se trata de sostenerlo.
-              </span>
-            </h2>
+                <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+                  <Target className="text-teal-400" />
+                  {enfoqueDia.titulo}
+                </h3>
 
-            <p className="text-slate-300 text-lg leading-relaxed max-w-3xl mb-6">
-              El Kit de 7 días te mostró la base. En el Programa Completo vamos
-              a afianzar el método: comida real, proteína suficiente, verduras,
-              grasas buenas, bebidas correctas, movimiento y seguimiento simple.
-              Sin vivir contando calorías. Sin pasar hambre. Sin convertir esto
-              en una tarea imposible.
-            </p>
+                <p className="text-slate-400 text-sm">
+                  {enfoqueDia.subtitulo}. Completa estas acciones antes de
+                  explorar otros módulos.
+                </p>
+              </div>
 
-            <div className="bg-slate-950/55 border border-slate-700/70 rounded-2xl p-5 mb-7">
-              <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-                <span className="text-teal-300 font-bold">Dante dice:</span>{" "}
-                {danteMessage}
-              </p>
-            </div>
+              <div className="space-y-4">
+                {enfoqueDia.tareas.map((tarea, idx) => {
+                  const isDone = (trackerData.tareas_completadas || []).includes(
+                    tarea
+                  );
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/plataforma/planeador"
-                className="inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-teal-900/30"
-              >
-                Organizar mi alimentación
-                <ArrowRight size={19} />
-              </Link>
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => toggleTarea(tarea)}
+                      className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${
+                        isDone
+                          ? "bg-teal-500/10 border-teal-500/40"
+                          : "bg-slate-950/40 border-slate-700/50 hover:border-slate-600"
+                      }`}
+                    >
+                      <div
+                        className={`transition-transform ${
+                          isDone ? "text-teal-400 scale-110" : "text-slate-600"
+                        }`}
+                      >
+                        {isDone ? (
+                          <CheckCircle className="fill-current" size={24} />
+                        ) : (
+                          <Circle size={24} />
+                        )}
+                      </div>
 
-              <button
-                onClick={() => setShowSOS(true)}
-                className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold px-6 py-4 rounded-xl transition-all"
-              >
-                Necesito ayuda rápida
-                <LifeBuoy size={19} />
-              </button>
+                      <span
+                        className={`flex-1 font-medium text-lg ${
+                          isDone
+                            ? "text-teal-100 line-through decoration-teal-500/50"
+                            : "text-slate-200"
+                        }`}
+                      >
+                        {tarea}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <div className="bg-black/25 border border-white/10 rounded-3xl p-5 md:p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-11 h-11 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-300">
-                <Target size={22} />
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden">
+            <div className="relative z-10 w-full h-full flex flex-col">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                    <Droplets className="text-blue-400" />
+                    Hidratación
+                  </h3>
+
+                  <p className="text-slate-400 text-xs mt-1">
+                    Calculada para{" "}
+                    {latestWeight ? `tus ${latestWeight}kg` : "tu perfil inicial"}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-blue-300 font-bold text-2xl">
+                    {liters}L
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex-1 flex flex-col justify-center items-center my-4">
+                <div className="text-6xl font-black text-white mb-2 tracking-tighter">
+                  {trackerData.agua_vasos}
+                  <span className="text-2xl text-slate-600 font-medium">
+                    /{targetGlasses}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">
+                  Vasos registrados
+                </p>
+              </div>
+
+              <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-6">
+                <div
+                  className="bg-blue-500 h-full transition-all duration-500"
+                  style={{ width: `${percentHydration}%` }}
+                ></div>
+              </div>
+
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() =>
+                    updateTracker({
+                      agua_vasos: Math.max(0, trackerData.agua_vasos - 1),
+                    })
+                  }
+                  className="w-14 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700"
+                >
+                  -
+                </button>
+
+                <button
+                  onClick={() =>
+                    updateTracker({
+                      agua_vasos: trackerData.agua_vasos + 1,
+                    })
+                  }
+                  className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30"
+                >
+                  + Registrar vaso
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ACCESOS SECUNDARIOS */}
+      <div>
+        <div className="mb-6">
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <Zap className="text-yellow-400" />
+            Accesos secundarios
+          </h3>
+
+          <p className="text-slate-400 text-sm mt-1">
+            Úsalos para completar o reforzar tu enfoque del día.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <QuickAction
+            to="/plataforma/planeador"
+            icon={Calendar}
+            title="Planeador"
+            desc="Organiza tu menú semanal."
+            buttonText="Ver menú"
+            isSoftLocked={!isCalibrated}
+            lockedText="Será más preciso después de registrar tu punto de partida."
+          />
+
+          <QuickAction
+            to="/plataforma/bitacora"
+            icon={BookHeart}
+            title="Bitácora"
+            desc="Registra peso, energía y sueño."
+            buttonText="Registrar"
+          />
+
+          <QuickAction
+            to="/plataforma/gimnasio"
+            icon={Dumbbell}
+            title="Gimnasio"
+            desc="Rutina base disponible desde el día uno."
+            buttonText="Entrenar"
+          />
+
+          <button
+            onClick={() => setShowCheckin(true)}
+            className="group flex flex-col justify-between p-6 rounded-2xl bg-indigo-900/20 border border-indigo-500/30 hover:bg-indigo-900/40 hover:border-indigo-400 transition-all h-full text-left"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="p-3 rounded-xl bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors w-fit">
+                <ClipboardCheck className="w-6 h-6" />
               </div>
 
               <div>
-                <h3 className="text-white font-bold text-xl">
-                  Tu enfoque práctico
-                </h3>
-                <p className="text-slate-400 text-xs">
-                  No es obligación diaria. Es una guía para volver al rumbo.
+                <h4 className="text-white font-bold text-xl mb-1 group-hover:text-indigo-300 transition-colors">
+                  Consulta semanal
+                </h4>
+
+                <p className="text-sm text-slate-400 leading-snug">
+                  Revisa tu progreso y ajusta la semana.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {weeklyFocus.map((item) => {
-                const isDone = (trackerData.tareas_completadas || []).includes(
-                  item
-                );
-
-                return (
-                  <button
-                    key={item}
-                    onClick={() => toggleFocus(item)}
-                    className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl border transition-all ${
-                      isDone
-                        ? "bg-teal-500/10 border-teal-500/40"
-                        : "bg-slate-950/40 border-slate-700/60 hover:border-slate-500"
-                    }`}
-                  >
-                    <div
-                      className={`mt-0.5 ${
-                        isDone ? "text-teal-400" : "text-slate-600"
-                      }`}
-                    >
-                      {isDone ? <CheckCircle size={20} /> : <Circle size={20} />}
-                    </div>
-
-                    <span
-                      className={`text-sm leading-relaxed ${
-                        isDone
-                          ? "text-teal-100 line-through decoration-teal-500/40"
-                          : "text-slate-300"
-                      }`}
-                    >
-                      {item}
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="mt-6 flex items-center text-xs font-bold text-indigo-400 uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+              Iniciar consulta
+              <ArrowRight size={14} className="ml-2" />
             </div>
-
-            <button
-              onClick={() => setShowCheckin(true)}
-              className="mt-5 w-full flex items-center justify-center gap-2 bg-indigo-600/80 hover:bg-indigo-500 text-white font-bold px-5 py-3 rounded-xl transition-all"
-            >
-              <ClipboardCheck size={18} />
-              Hacer revisión semanal
-            </button>
-          </div>
+          </button>
         </div>
-      </section>
+      </div>
 
-      <section className="bg-slate-900 border border-slate-800 rounded-3xl p-7 md:p-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-7">
-          <div>
-            <p className="text-xs text-teal-400 uppercase tracking-[0.24em] font-bold mb-2">
-              El Manual del Reinicio
-            </p>
-
-            <h3 className="text-2xl md:text-3xl font-bold text-white">
-              Vuelve a la base, una y otra vez.
+      {/* GRÁFICA */}
+      {latestWeight !== null && (
+        <div className="bg-slate-800/40 border border-slate-700 p-8 rounded-3xl flex flex-col h-96 relative overflow-hidden">
+          <div className="flex justify-between items-center mb-6 z-10">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <TrendingUp className="text-teal-400" />
+              Tu transformación
             </h3>
 
-            <p className="text-slate-400 mt-2 max-w-3xl">
-              La transformación no depende de hacerlo perfecto. Depende de
-              repetir los principios correctos hasta que se vuelvan tu forma
-              normal de operar.
-            </p>
+            <span className="text-sm text-slate-400 bg-slate-800 px-3 py-1 rounded-full">
+              Últimos 7 registros
+            </span>
           </div>
 
-          <Link
-            to="/plataforma/biblioteca"
-            onClick={markFoundationSeen}
-            className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold px-5 py-3 rounded-xl transition-all"
-          >
-            Entender la filosofía
-            <BookOpen size={18} />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {MANUAL_ITEMS.map((item) => (
-            <MethodPillar key={item.title} {...item} />
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <div className="mb-6">
-          <p className="text-xs text-teal-400 uppercase tracking-[0.24em] font-bold mb-2">
-            Elige cómo avanzar
-          </p>
-
-          <h3 className="text-2xl md:text-3xl font-bold text-white">
-            Dos caminos, mismo método.
-          </h3>
-
-          <p className="text-slate-400 mt-2 max-w-3xl">
-            Hay semanas donde quieres estructura completa y semanas donde solo
-            necesitas resolver sin estrés. Ambas rutas deben mantenerte dentro
-            de Reinicio Metabólico.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <RouteCard
-            icon={Calendar}
-            label="Modo Automático"
-            title="Planea tu semana sin improvisar"
-            desc="Usa el planeador para organizar comidas, revisar recetas y convertir la semana en una lista de compras clara."
-            bullets={[
-              "Menú semanal estructurado.",
-              "Recetas conectadas al plan.",
-              "Lista de compras para surtir tu despensa.",
-              "Menos decisiones cuando estás cansado.",
-            ]}
-            to="/plataforma/planeador"
-            button="Usar modo automático"
-          />
-
-          <RouteCard
-            icon={Clock}
-            label="Modo Rápido"
-            title="Resuelve días ocupados sin salirte"
-            desc="Cuando no tienes tiempo, no necesitas hacerlo perfecto: necesitas una comida simple, real y alineada al método."
-            bullets={[
-              "Proteína lista o rápida.",
-              "Verdura sencilla.",
-              "Grasa buena para saciedad.",
-              "Bebida correcta y cero culpa.",
-            ]}
-            to="/plataforma/recetas"
-            button="Buscar opciones rápidas"
-            variant="indigo"
-          />
-        </div>
-      </section>
-
-      <section className="bg-slate-900 border border-slate-800 rounded-3xl p-7 md:p-8">
-        <div className="mb-6">
-          <p className="text-xs text-red-300 uppercase tracking-[0.24em] font-bold mb-2">
-            Cuando la vida real aparece
-          </p>
-
-          <h3 className="text-2xl md:text-3xl font-bold text-white">
-            No necesitas abandonar por un mal momento.
-          </h3>
-
-          <p className="text-slate-400 mt-2 max-w-3xl">
-            El problema no es una comida fuera del plan. El problema es
-            convertir un desliz en una semana perdida. Aquí Dante te ayuda a
-            volver rápido a la base.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-          <SituationCard
-            icon={AlertTriangle}
-            title="Tengo antojo"
-            desc="Pausa, decide y vuelve al método sin culpa."
-            onClick={() => setShowSOS(true)}
-          />
-
-          <SituationCard
-            icon={RotateCcw}
-            title="Me salí del plan"
-            desc="No compenses. Vuelve a la siguiente comida base."
-            onClick={() => setShowSOS(true)}
-          />
-
-          <SituationCard
-            icon={Clock}
-            title="No tengo tiempo"
-            desc="Usa la ruta rápida y resuelve sin cocinar elaborado."
-            to="/plataforma/recetas"
-          />
-
-          <SituationCard
-            icon={LifeBuoy}
-            title="Tengo evento social"
-            desc="Disfruta con estrategia y vuelve sin perder el rumbo."
-            to="/plataforma/social"
-          />
-
-          <SituationCard
-            icon={Scale}
-            title="Estoy estancado"
-            desc="Revisa tendencia, sueño, comida y movimiento semanal."
-            onClick={() => setShowCheckin(true)}
-          />
-        </div>
-      </section>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-7 md:p-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <h3 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-                <TrendingUp className="text-teal-400" />
-                Tu avance
-              </h3>
-
-              <p className="text-slate-400 text-sm mt-1">
-                Revisa tendencia, no perfección diaria. Sugerimos registrar una
-                vez por semana.
-              </p>
-            </div>
-
-            <Link
-              to="/plataforma/bitacora"
-              className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold px-5 py-3 rounded-xl transition-all"
-            >
-              Registrar avance
-              <Activity size={18} />
-            </Link>
-          </div>
-
-          <div className="h-80">
-            {latestWeight !== null && weightTrend.length > 0 ? (
+          <div className="flex-1 w-full min-h-0 relative z-10">
+            {weightTrend.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={weightTrend}>
                   <defs>
@@ -855,142 +981,104 @@ export default function DashboardHome({ user }) {
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-slate-500 text-center border-2 border-dashed border-slate-700 rounded-2xl bg-slate-950/40">
-                <Activity size={42} className="mb-3 opacity-50" />
-                <p className="text-slate-300 font-semibold">
-                  Aún no hay registros.
-                </p>
-                <p className="text-sm max-w-md mt-1">
-                  No necesitas registrar diario. Hazlo una vez por semana para
-                  ver tendencia de peso, energía, medidas y sueño.
-                </p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-base border-2 border-dashed border-slate-700 rounded-2xl bg-slate-900/50">
+                <Activity size={40} className="mb-3 opacity-50" />
+                <p>Registra tu primer peso para ver tu evolución.</p>
               </div>
             )}
           </div>
         </div>
+      )}
 
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-7 md:p-8 flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="text-white font-bold text-xl flex items-center gap-2">
-                  <Droplets className="text-blue-400" />
-                  Hidratación
-                </h3>
-
-                <p className="text-slate-400 text-xs mt-1">
-                  Referencia práctica, no regla médica rígida.
-                </p>
-              </div>
-
-              <div className="text-right">
-                <span className="text-blue-300 font-bold text-2xl">
-                  {liters}L
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col justify-center items-center my-8">
-              <div className="text-6xl font-black text-white mb-2 tracking-tighter">
-                {trackerData.agua_vasos || 0}
-                <span className="text-2xl text-slate-600 font-medium">
-                  /{targetGlasses}
-                </span>
-              </div>
-
-              <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">
-                Vasos registrados
-              </p>
-            </div>
-
-            <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden mb-6">
-              <div
-                className="bg-blue-500 h-full transition-all duration-500"
-                style={{ width: `${percentHydration}%` }}
-              ></div>
-            </div>
-          </div>
-
-          <div className="flex gap-3 w-full">
-            <button
-              onClick={() =>
-                updateTracker({
-                  agua_vasos: Math.max(0, (trackerData.agua_vasos || 0) - 1),
-                })
-              }
-              className="w-14 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700"
-            >
-              -
-            </button>
-
-            <button
-              onClick={() =>
-                updateTracker({
-                  agua_vasos: (trackerData.agua_vasos || 0) + 1,
-                })
-              }
-              className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/30"
-            >
-              + Registrar vaso
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="mb-6">
-          <p className="text-xs text-teal-400 uppercase tracking-[0.24em] font-bold mb-2">
-            Herramientas del Programa
-          </p>
-
-          <h3 className="text-2xl md:text-3xl font-bold text-white">
-            Todo existe para ayudarte a sostener el método.
+      {/* RUTA COMPLETA */}
+      <div>
+        <div className="mb-5">
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <Brain className="text-indigo-400" />
+            Ruta completa del programa
           </h3>
 
-          <p className="text-slate-400 mt-2 max-w-3xl">
-            No tienes que usar todo hoy. Usa la herramienta que resuelva el
-            problema que tienes frente a ti.
+          <p className="text-slate-400 text-sm mt-1">
+            Esto muestra hacia dónde vas. Para avanzar hoy, sigue primero tu
+            enfoque diario.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {TOOL_CARDS.map((tool) => (
-            <ToolCard key={tool.title} {...tool} />
-          ))}
-        </div>
-      </section>
+        <div className="overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex gap-4 min-w-max">
+            {fasesSistema.map((fase) => (
+              <div
+                key={fase.id}
+                onClick={() => handlePhaseClick(fase)}
+                className={`relative w-72 p-5 rounded-2xl border transition-all cursor-pointer hover:scale-105 ${
+                  fase.status === "active" || fase.status === "unlocked"
+                    ? "bg-gradient-to-br from-indigo-900/80 to-slate-900 border-indigo-500/50 shadow-lg shadow-indigo-900/20"
+                    : "bg-slate-900/50 border-slate-800 opacity-60"
+                }`}
+              >
+                {fase.status === "locked" ? (
+                  <div className="absolute top-3 right-3 text-slate-500">
+                    <Lock size={16} />
+                  </div>
+                ) : (
+                  <div className="absolute top-3 right-3 text-indigo-400">
+                    <Unlock size={16} />
+                  </div>
+                )}
 
-      <section className="bg-gradient-to-br from-indigo-950/50 to-slate-900 border border-indigo-500/20 rounded-3xl p-7 md:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] gap-5 items-center">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-300">
-            <ClipboardCheck size={28} />
+                <div className="flex items-center gap-2 mb-2">
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${
+                      fase.status !== "locked"
+                        ? "bg-indigo-500 text-white"
+                        : "bg-slate-800 text-slate-400"
+                    }`}
+                  >
+                    {fase.dias}
+                  </span>
+
+                  {fase.status === "active" && (
+                    <span className="text-[10px] text-indigo-300 font-bold animate-pulse">
+                      ● ACTIVO
+                    </span>
+                  )}
+
+                  {fase.status === "unlocked" && (
+                    <span className="text-[10px] text-emerald-400 font-bold">
+                      ✓ COMPLETADO
+                    </span>
+                  )}
+                </div>
+
+                <h3 className="text-lg font-bold text-white mb-1">
+                  {fase.nombre}
+                </h3>
+
+                <p className="text-xs text-slate-400 mb-3">{fase.objetivo}</p>
+
+                {fase.status === "locked" && (
+                  <div className="mt-2 p-2 bg-slate-950/50 rounded border border-slate-800 flex items-center gap-2 text-xs text-slate-400">
+                    <Lock size={12} />
+                    {fase.teaser}
+                  </div>
+                )}
+
+                {fase.status !== "locked" && fase.id > 1 && (
+                  <div className="mt-2 p-2 bg-indigo-900/40 rounded border border-indigo-500/30 flex items-center gap-2 text-xs text-indigo-200">
+                    <Brain size={12} />
+                    Ver contenido exclusivo
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-
-          <div>
-            <h3 className="text-2xl font-bold text-white mb-2">
-              Revisión semanal, no tarea diaria.
-            </h3>
-
-            <p className="text-slate-300 leading-relaxed">
-              Una vez por semana revisa cómo vas: peso, medidas, energía, sueño,
-              adherencia y obstáculos. El objetivo no es juzgarte; es ajustar el
-              rumbo.
-            </p>
-          </div>
-
-          <button
-            onClick={() => setShowCheckin(true)}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-4 rounded-xl transition-all shadow-lg shadow-indigo-900/30"
-          >
-            Abrir revisión
-          </button>
         </div>
-      </section>
+      </div>
 
       <ChefDanteWidget
-        message={danteMessage}
-        action={danteAction}
-        actionLabel={danteActionLabel}
+        message={danteStageMessage}
+        action={danteStageAction}
+        actionLabel={danteStageActionLabel}
         badge={true}
       />
     </div>
