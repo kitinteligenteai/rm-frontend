@@ -7,6 +7,7 @@ import ProtectedRoute from "./utils/ProtectedRoute.jsx";
 
 // Páginas
 import Home from "./pages/Home.jsx";
+import HomeMarca from "./pages/HomeMarca.jsx";
 import Programa from "./pages/Programa.jsx";
 import GraciasKit from "./pages/GraciasKit.jsx";
 import GraciasUpsell from "./pages/GraciasUpsell.jsx";
@@ -29,8 +30,17 @@ export default function App() {
       <EnvGuard />
       <BrowserRouter>
         <Routes>
-          {/* Rutas públicas */}
-          <Route path="/" element={<Home />} />
+          {/* Home institucional segura para marca / Etsy / tráfico orgánico */}
+          <Route path="/" element={<HomeMarca />} />
+          <Route path="/inicio" element={<HomeMarca />} />
+
+          {/* Landing comercial del Kit: solo para embudo web / Meta Ads */}
+          <Route path="/reinicio-7-dias" element={<Home />} />
+
+          {/* Evitar ruta obvia al Kit barato */}
+          <Route path="/kit" element={<Navigate to="/inicio" replace />} />
+
+          {/* Programa Completo */}
           <Route path="/programa" element={<Programa />} />
 
           {/* Rutas legales */}
