@@ -53,7 +53,10 @@ export default function GraciasUpsell() {
       };
     }
 
-    if (cleanEmail.endsWith("@yahoo.com") || cleanEmail.endsWith("@yahoo.com.mx")) {
+    if (
+      cleanEmail.endsWith("@yahoo.com") ||
+      cleanEmail.endsWith("@yahoo.com.mx")
+    ) {
       return {
         label: "Abrir Yahoo Mail",
         href: "https://mail.yahoo.com",
@@ -77,30 +80,22 @@ export default function GraciasUpsell() {
 
     try {
       const response = await fetch(
-        "https://mgjzlohapnepvrqlxmpo.functions.supabase.co/confirm-purchase",
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/confirm-purchase`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             session_id: sessionId,
+            checkout_token: localStorage.getItem(`rm:checkout:${sessionId}`),
             email: cleanEmail,
           }),
-        }
+        },
       );
 
       const data = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
+      if (!response.ok || data.success !== true) {
         const serverMessage = data?.message || "Error al confirmar tu correo.";
-
-        if (
-          serverMessage.toLowerCase().includes("confirmada") ||
-          serverMessage.toLowerCase().includes("anteriormente")
-        ) {
-          setStatus("success");
-          setMessage(cleanEmail);
-          return;
-        }
 
         throw new Error(serverMessage);
       }
@@ -112,7 +107,7 @@ export default function GraciasUpsell() {
       setMessage(
         err instanceof Error
           ? err.message
-          : "No pudimos confirmar tu correo. Intenta de nuevo."
+          : "No pudimos confirmar tu correo. Intenta de nuevo.",
       );
     } finally {
       setLoading(false);
@@ -143,7 +138,7 @@ export default function GraciasUpsell() {
             <div className="bg-white/5 rounded-xl p-4 mb-5 border border-white/10">
               <p className="text-slate-300 text-sm mb-2">
                 Las instrucciones para crear tu contraseña y entrar al Programa
-                fueron enviadas a:
+                se están preparando para:
               </p>
               <p className="text-teal-400 font-mono text-base md:text-lg font-medium break-all">
                 {message}
@@ -212,7 +207,7 @@ export default function GraciasUpsell() {
           <div className="relative z-10">
             <div className="flex justify-center mb-4">
               <span className="bg-teal-500/10 text-teal-400 text-xs font-bold px-3 py-1 rounded-full border border-teal-500/20 uppercase tracking-widest">
-                Pago confirmado
+                Verificación de compra
               </span>
             </div>
 
@@ -241,7 +236,8 @@ export default function GraciasUpsell() {
                 <li>Confirmas tu correo de compra.</li>
                 <li>Te enviamos el enlace para crear contraseña.</li>
                 <li>
-                  Entras desde reiniciometabolico.net → Acceso Programa Completo.
+                  Entras desde reiniciometabolico.net → Acceso Programa
+                  Completo.
                 </li>
               </ol>
             </div>
@@ -287,7 +283,7 @@ export default function GraciasUpsell() {
                     onBlur={() => setConfirmTouched(true)}
                     placeholder="Repite tu correo"
                     autoComplete="email"
-                    onPaste={(e) => e.preventDefault()}
+
                     className={`w-full bg-black/40 border ${
                       confirmTouched && !doEmailsMatch
                         ? "border-red-500/50"

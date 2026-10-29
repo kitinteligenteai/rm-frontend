@@ -1,0 +1,11 @@
+# Merge into the reviewed CLI config before deploying functions. Never auto-deploy this file.
+[functions.confirm-purchase]
+verify_jwt = false
+[functions.get-kit-download]
+verify_jwt = false
+[functions.mp-webhook-v3]
+verify_jwt = false
+[functions.mp-generate-preference-v2]
+verify_jwt = false
+[functions.email-worker-v2]
+verify_jwt = true

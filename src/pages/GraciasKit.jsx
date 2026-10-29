@@ -23,7 +23,8 @@ export default function GraciasKit() {
   const doEmailsMatch =
     email.trim().toLowerCase() === confirmEmail.trim().toLowerCase();
 
-  const canSubmit = isEmailValid && doEmailsMatch && email.length > 0;
+  const canSubmit =
+    Boolean(sessionId) && isEmailValid && doEmailsMatch && email.length > 0;
 
   const handleConfirm = async (e) => {
     e.preventDefault();
@@ -34,19 +35,20 @@ export default function GraciasKit() {
 
     try {
       const response = await fetch(
-        "https://mgjzlohapnepvrqlxmpo.functions.supabase.co/confirm-purchase",
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/confirm-purchase`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             session_id: sessionId,
+            checkout_token: localStorage.getItem(`rm:checkout:${sessionId}`),
             email: email.trim(),
           }),
-        }
+        },
       );
 
       const data = await response.json();
-      if (!response.ok) {
+      if (!response.ok || data.success !== true) {
         throw new Error(data.message || "Error al confirmar");
       }
 
@@ -70,7 +72,7 @@ export default function GraciasKit() {
             </div>
 
             <h2 className="text-2xl font-bold text-white mb-2">
-              ¡Pago confirmado!
+              ¡Verificación de compra!
             </h2>
 
             <p className="text-slate-300 mb-4">{message}</p>
@@ -167,7 +169,7 @@ export default function GraciasKit() {
                     onChange={(e) => setConfirmEmail(e.target.value)}
                     onBlur={() => setConfirmTouched(true)}
                     placeholder="Repite tu correo"
-                    onPaste={(e) => e.preventDefault()}
+
                     className={`w-full bg-slate-900/50 border ${
                       confirmTouched && !doEmailsMatch
                         ? "border-red-500/50"

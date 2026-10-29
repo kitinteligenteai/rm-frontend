@@ -11,11 +11,13 @@ export default function MercadoPagoButton({
   const [loading, setLoading] = useState(false);
   const clickedRef = useRef(false);
 
-  const API = "https://mgjzlohapnepvrqlxmpo.functions.supabase.co/mp-generate-preference-v2";
+  const API = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mp-generate-preference-v2`;
 
   const handleClick = async () => {
     if (!legalConsent?.accepted) {
-      alert("Para continuar, acepta los términos, el aviso de privacidad y la política de devoluciones.");
+      alert(
+        "Para continuar, acepta los términos, el aviso de privacidad y la política de devoluciones.",
+      );
       return;
     }
 
@@ -46,7 +48,8 @@ export default function MercadoPagoButton({
       });
 
       const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) throw new Error(data?.error || `Error del servidor (${resp.status})`);
+      if (!resp.ok)
+        throw new Error(data?.error || `Error del servidor (${resp.status})`);
 
       const url =
         data.initPoint ||
@@ -54,7 +57,14 @@ export default function MercadoPagoButton({
           ? `https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=${data.preferenceId}`
           : null);
 
-      if (!url) throw new Error("No se recibió link de pago. Intenta de nuevo.");
+      if (data.sessionId && data.checkoutToken) {
+        localStorage.setItem(
+          `rm:checkout:${data.sessionId}`,
+          data.checkoutToken,
+        );
+      } else throw new Error("No se recibió una sesión segura de compra.");
+      if (!url)
+        throw new Error("No se recibió link de pago. Intenta de nuevo.");
 
       window.location.assign(url);
     } catch (err) {
@@ -78,8 +88,21 @@ export default function MercadoPagoButton({
       {loading ? (
         <>
           <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.3" />
-            <path d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" strokeWidth="4" fill="none" />
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="none"
+              opacity="0.3"
+            />
+            <path
+              d="M4 12a8 8 0 0 1 8-8"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="none"
+            />
           </svg>
           <span>Procesando...</span>
         </>

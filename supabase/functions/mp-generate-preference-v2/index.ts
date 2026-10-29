@@ -2,15 +2,18 @@
 // v4.1 — Precio backend + consentimiento legal trazable
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { v4 as uuidv4 } from "https://esm.sh/uuid";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const PRODUCT_CATALOG: Record<string, { title: string; price: number; currency: string }> = {
+const PRODUCT_CATALOG: Record<
+  string,
+  { title: string; price: number; currency: string }
+> = {
   "kit-7-dias": {
     title: "Kit de 7 Días - Reinicio Metabólico",
     price: 139,
@@ -71,6 +74,15 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "server_config_error" }, 500);
     }
 
+    const configuredSite = Deno.env.get("PUBLIC_SITE_URL");
+    if (!configuredSite)
+      return jsonResponse({ error: "site_not_configured" }, 503);
+    const siteUrl = new URL(configuredSite).origin;
+    if (
+      !siteUrl.startsWith("https://") &&
+      !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(siteUrl)
+    )
+      return jsonResponse({ error: "invalid_site_configuration" }, 503);
     const supabase = createClient(supabaseUrl, serviceKey);
 
     let body: {
@@ -91,7 +103,15 @@ Deno.serve(async (req) => {
     }
 
     const requestedId = body?.productId || "kit-7-dias";
-    const product = PRODUCT_CATALOG[requestedId] || PRODUCT_CATALOG.default;
+    const product = PRODUCT_CATALOG[requestedId];
+    if (!product || requestedId === "default")
+      return jsonResponse({ error: "unknown_product" }, 400);
+    const mode = Deno.env.get("PAYMENT_ENV") || "test";
+    if (
+      Deno.env.get("PAYMENTS_ENABLED") !== "true" ||
+      !["test", "live"].includes(mode)
+    )
+      return jsonResponse({ error: "checkout_unavailable" }, 503);
 
     const legalConsent = body?.legalConsent;
 
@@ -104,7 +124,8 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "legal_consent_required" }, 400);
     }
 
-    const sessionId = uuidv4();
+    const sessionId = crypto.randomUUID();
+    const checkoutToken = crypto.randomUUID();
 
     const ip = getClientIp(req);
     const userAgent = req.headers.get("user-agent");
@@ -112,6 +133,7 @@ Deno.serve(async (req) => {
 
     const { error: dbError } = await supabase.from("checkout_sessions").insert({
       id: sessionId,
+      correction_token: checkoutToken,
       status: "pending",
       raw_mp: {
         requested_product: requestedId,
@@ -122,7 +144,7 @@ Deno.serve(async (req) => {
           terms_version: legalConsent.termsVersion,
           privacy_version: legalConsent.privacyVersion,
           refunds_version: legalConsent.refundsVersion,
-          consented_at: legalConsent.consentedAt || new Date().toISOString(),
+          consented_at: new Date().toISOString(),
         },
       },
     });
@@ -131,33 +153,34 @@ Deno.serve(async (req) => {
       throw new Error(`checkout_session_insert_failed: ${dbError.message}`);
     }
 
-    const { error: consentError } = await supabase.from("legal_consents").insert({
-      session_id: sessionId,
-      product_id: requestedId,
-      terms_version: legalConsent.termsVersion,
-      privacy_version: legalConsent.privacyVersion,
-      refunds_version: legalConsent.refundsVersion,
-      consented_at: legalConsent.consentedAt || new Date().toISOString(),
-      ip_hash: ipHash,
-      user_agent: userAgent,
-      meta: {
-        source: "mp-generate-preference-v2",
-        currency: product.currency,
-        price: product.price,
-      },
-    });
+    const { error: consentError } = await supabase
+      .from("legal_consents")
+      .insert({
+        session_id: sessionId,
+        product_id: requestedId,
+        terms_version: legalConsent.termsVersion,
+        privacy_version: legalConsent.privacyVersion,
+        refunds_version: legalConsent.refundsVersion,
+        consented_at: new Date().toISOString(),
+        ip_hash: ipHash,
+        user_agent: userAgent,
+        meta: {
+          source: "mp-generate-preference-v2",
+          currency: product.currency,
+          price: product.price,
+        },
+      });
 
     if (consentError) {
       throw new Error(`legal_consent_insert_failed: ${consentError.message}`);
     }
 
-    const projectRef = Deno.env.get("PROJECT_REF") || "mgjzlohapnepvrqlxmpo";
-    const notification_url = `https://${projectRef}.functions.supabase.co/mp-webhook-v3`;
+    const notification_url = `${supabaseUrl}/functions/v1/mp-webhook-v3`;
 
     const isPrograma = requestedId === "programa-completo";
     const successUrl = isPrograma
-      ? `https://reiniciometabolico.net/gracias-upsell?session_id=${sessionId}`
-      : `https://reiniciometabolico.net/gracias-kit?session_id=${sessionId}`;
+      ? `${siteUrl}/gracias-upsell?session_id=${sessionId}`
+      : `${siteUrl}/gracias-kit?session_id=${sessionId}`;
 
     const preferenceData = {
       items: [
@@ -171,8 +194,8 @@ Deno.serve(async (req) => {
       ],
       back_urls: {
         success: successUrl,
-        failure: "https://reiniciometabolico.net/pago-fallido",
-        pending: "https://reiniciometabolico.net/pago-pendiente",
+        failure: `${siteUrl}/pago-fallido`,
+        pending: `${siteUrl}/pago-pendiente`,
       },
       auto_return: "approved",
       statement_descriptor: "REINICIO METABOLICO",
@@ -213,7 +236,9 @@ Deno.serve(async (req) => {
 
     return jsonResponse({
       preferenceId: data.id,
-      initPoint: data.init_point,
+      initPoint: mode === "test" ? data.sandbox_init_point : data.init_point,
+      sessionId,
+      checkoutToken,
     });
   } catch (e) {
     console.error("[mp-generate-preference-v2]", e);

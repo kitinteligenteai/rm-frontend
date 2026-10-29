@@ -1,186 +1,203 @@
-// src/pages/Gimnasio.jsx
-// v14.0 - FIX CRÍTICO: Blindaje contra ejercicios nulos (evita pantalla negra)
-
-import React, { useState, useEffect, useRef } from 'react';
-import { trainingProgram } from '../data/trainingProgram.js';
-import EquipmentModal from '../components/gimnasio/EquipmentModal.jsx';
-import { Info, Play, Pause, RotateCcw, CheckCircle2, Dumbbell, Settings2, Timer, ChevronRight, Circle, X, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-
-const EQUIPMENT_OPTIONS = [
-  { id: 'cuerpo', name: 'Sin Equipo (Peso Corporal)', description: 'Ejercicios efectivos usando tu propio peso.' },
-  { id: 'mancuernas', name: 'Con Mancuernas', description: 'Rutinas de fuerza con peso libre.' },
-];
-
-const ExerciseTimer = ({ duration, onComplete }) => {
-  const [timeLeft, setTimeLeft] = useState(duration);
-  const [isRunning, setIsRunning] = useState(false);
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    if (isRunning && timeLeft > 0) {
-      timerRef.current = setInterval(() => setTimeLeft(t => t - 1), 1000);
-    } else if (timeLeft === 0) {
-      setIsRunning(false);
-      clearInterval(timerRef.current);
-      onComplete();
-    }
-    return () => clearInterval(timerRef.current);
-  }, [isRunning, timeLeft, onComplete]);
-
-  const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
-
-  return (
-    <div className="flex flex-col items-center mt-3 bg-black/30 p-3 rounded-xl border border-white/10">
-      <div className="w-full h-1 bg-white/10 rounded-full mb-3 overflow-hidden">
-        <motion.div 
-          className="bg-teal-500 h-full" 
-          initial={{ width: '100%' }} 
-          animate={{ width: `${(timeLeft / duration) * 100}%` }} 
-          transition={{ ease: "linear", duration: 1 }}
-        />
-      </div>
-      <div className="flex items-center gap-4">
-        <button onClick={() => setIsRunning(!isRunning)} className="p-2 rounded-full bg-white/10 text-white hover:bg-teal-500 transition-colors">
-          {isRunning ? <Pause size={16} /> : <Play size={16} />}
-        </button>
-        <span className="text-xl font-mono font-bold text-white">{formatTime(timeLeft)}</span>
-        <button onClick={() => { setIsRunning(false); setTimeLeft(duration); }} className="text-slate-400 hover:text-white">
-          <RotateCcw size={16} />
-        </button>
-      </div>
-    </div>
+import { useState } from "react";
+import { trainingProgram, exerciseLibrary } from "../data/trainingProgram";
+import { useProgramState } from "../hooks/useProgramState";
+import { SaveStatus } from "../components/common/SaveStatus";
+import ExerciseTimer from "../components/gimnasio/ExerciseTimer";
+function Illustration({ exercise }) {
+  const [failed, setFailed] = useState(false);
+  return failed ? (
+    <p className="p-4 text-sm text-slate-400 border border-slate-700 rounded-xl">
+      Ilustración no disponible. Sigue las instrucciones o elige la alternativa.
+    </p>
+  ) : (
+    <img
+      loading="lazy"
+      src={exercise.imageUrl}
+      alt={`Ilustración de ${exercise.name}`}
+      onError={() => setFailed(true)}
+      className="w-full h-52 object-contain bg-slate-100 rounded-xl"
+    />
   );
-};
-
-// Tarjeta de Ejercicio
-const ExerciseCard = ({ exercise, slotTitle, isCompleted, onToggleComplete }) => {
-  const [showTimer, setShowTimer] = useState(false);
-
-  // --- ESCUDO ANTI-ERROR ---
-  // Si por alguna razón el ejercicio no viene en la base de datos, no rompemos la app.
-  if (!exercise || !exercise.name) {
-    return (
-        <div className="flex-shrink-0 w-80 snap-start bg-slate-900/50 border border-slate-800 border-dashed rounded-2xl p-6 flex flex-col justify-center items-center text-slate-600">
-            <AlertCircle size={24} className="mb-2 opacity-50" />
-            <p className="text-xs">Descanso o ejercicio no disponible.</p>
-        </div>
-    );
-  }
-
-  return (
-    <div className={`flex-shrink-0 w-80 snap-start bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden relative flex flex-col transition-all ${isCompleted ? 'opacity-60 border-emerald-500/30' : ''}`}>
-      <div className="p-5 flex-1">
-         <div className="flex justify-between items-start mb-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded">
-               {slotTitle}
-            </span>
-            <button onClick={(e) => { e.stopPropagation(); onToggleComplete(); }} className={`text-slate-600 hover:text-emerald-500 transition-colors ${isCompleted ? 'text-emerald-500' : ''}`}>
-               {isCompleted ? <CheckCircle2 size={24} /> : <Circle size={24} />}
-            </button>
-         </div>
-         
-         <h3 className="text-lg font-bold text-white mb-2 leading-snug">{exercise.name}</h3>
-         <p className="text-xs text-slate-400 leading-relaxed line-clamp-3">
-           {exercise.description}
-         </p>
-      </div>
-
-      <div className="bg-slate-950 p-4 border-t border-slate-800">
-         {!showTimer ? (
-             <button onClick={() => setShowTimer(true)} className="w-full flex items-center justify-center gap-2 text-xs font-bold text-slate-300 hover:text-white py-2 rounded-lg hover:bg-white/5 transition-colors">
-                <Timer size={14} /> Iniciar Timer (45s)
-             </button>
-         ) : (
-             <div className="animate-in fade-in slide-in-from-bottom-2">
-                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-[10px] text-slate-500 uppercase">Timer Activo</span>
-                    <button onClick={() => setShowTimer(false)} className="text-slate-500 hover:text-white"><X size={14}/></button>
-                 </div>
-                 <ExerciseTimer duration={45} onComplete={() => {}} />
-             </div>
-         )}
-      </div>
-    </div>
-  );
-};
-
+}
 export default function Gimnasio() {
-  const [userEquipment, setUserEquipment] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('userTrainingEquipment');
-    return 'cuerpo'; 
-  });
-  const [showModal, setShowModal] = useState(false);
-  const [completed, setCompleted] = useState({});
-
-  const handleSelect = (id) => {
-    localStorage.setItem('userTrainingEquipment', id);
-    setUserEquipment(id);
-    setShowModal(false);
-  };
-
+  const [progress, setProgress, status, retry] = useProgramState("gym", {});
+  const [week, setWeek] = useState(1);
+  const [day, setDay] = useState(1);
+  const [round, setRound] = useState(1);
+  const [timerPhase, setTimerPhase] = useState({});
+  const routine = trainingProgram.weeks[week - 1].days[day - 1];
   return (
-    <div className="min-h-screen bg-slate-950 pb-24 animate-in fade-in duration-500">
-      
-      {showModal && (
-        <EquipmentModal onSelect={handleSelect} availableEquipment={EQUIPMENT_OPTIONS} onClose={() => setShowModal(false)} />
-      )}
-
-      {/* HEADER */}
-      <div className="px-6 md:px-10 pt-8 mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
-        <div>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">Gimnasio</h1>
-          <p className="text-slate-400">Entrenamiento metabólico inteligente.</p>
+    <div className="max-w-5xl mx-auto p-4 sm:p-8 space-y-6 pb-16">
+      <header>
+        <h1 className="text-3xl font-bold">Gimnasio digital</h1>
+        <p className="text-slate-300 mt-3">
+          15–20 minutos a tu ritmo. Sin equipo obligatorio y sin saltos en las
+          rutinas base.
+        </p>
+      </header>
+      <div className="p-5 bg-slate-900 border border-slate-700 rounded-2xl space-y-3">
+        <p>
+          Calienta 3 minutos con marcha suave y movilidad cómoda. Haz dos
+          vueltas de cuatro ejercicios: hasta 30 segundos de movimiento y 45
+          segundos de descanso por ejercicio. Termina con 2 minutos suaves.
+          Puedes hacer una sola vuelta al empezar.
+        </p>
+        <p className="text-sm text-amber-200">
+          Entrena en días separados, dejando al menos un día de recuperación
+          entre sesiones de fuerza. Repite una semana si lo necesitas; el
+          calendario no obliga a aumentar dificultad.
+        </p>
+        <p className="text-xs text-slate-400">
+          Detén la sesión si aparece dolor, mareo, dolor de pecho o falta de
+          aire inusual. Dolor de pecho, desmayo o dificultad respiratoria
+          importante requieren atención urgente. Si tienes enfermedad
+          cardiovascular, renal, diabetes, embarazo o limitaciones articulares,
+          consulta antes de empezar.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-4">
+        <label>
+          Semana{" "}
+          <select
+            aria-label="Semana"
+            className="bg-slate-800 rounded-lg p-3"
+            value={week}
+            onChange={(e) => {
+              setWeek(+e.target.value);
+              setRound(1);
+            }}
+          >
+            {trainingProgram.weeks.map((w) => (
+              <option key={w.week} value={w.week}>
+                {w.week}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Sesión{" "}
+          <select
+            aria-label="Sesión"
+            className="bg-slate-800 rounded-lg p-3"
+            value={day}
+            onChange={(e) => {
+              setDay(+e.target.value);
+              setRound(1);
+            }}
+          >
+            {[1, 2, 3].map((d) => (
+              <option key={d}>{d}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Vuelta{" "}
+          <select
+            aria-label="Vuelta"
+            className="bg-slate-800 rounded-lg p-3"
+            value={round}
+            onChange={(e) => setRound(+e.target.value)}
+          >
+            {[1, 2].map((r) => (
+              <option key={r}>{r}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <SaveStatus status={status} retry={retry} />
+      <h2 className="text-xl font-bold">
+        {trainingProgram.weeks[week - 1].title} · {routine.title}
+      </h2>
+      <div className="grid sm:grid-cols-2 gap-4">
+        {routine.routine.map((slot) => {
+          const e = slot.variants.cuerpo;
+          const key = `${week}-${day}-${round}-${e.id}`;
+          const rest = timerPhase[key] === "rest";
+          return (
+            <article
+              key={key}
+              className="bg-slate-900 border border-slate-700 rounded-2xl p-5 space-y-4"
+            >
+              <Illustration exercise={e} />
+              <h3 className="text-xl font-bold">{e.name}</h3>
+              <p className="text-slate-300 text-sm">{e.description}</p>
+              <p className="text-teal-200 text-sm">
+                {e.repetitions}; termina antes de perder técnica. Descansa 45–60
+                segundos o más si lo necesitas.
+              </p>
+              <p className="text-slate-400 text-sm">
+                <strong>Menor impacto:</strong> {e.alternative}
+              </p>
+              <p className="text-sm font-semibold">
+                {rest
+                  ? "Descanso · 45 segundos"
+                  : "Movimiento · hasta 30 segundos"}
+              </p>
+              <ExerciseTimer
+                key={`${key}-${rest}`}
+                duration={rest ? 45 : 30}
+                onComplete={() => {
+                  if (!rest) setTimerPhase((p) => ({ ...p, [key]: "rest" }));
+                }}
+              />
+              {rest && (
+                <button
+                  className="underline text-teal-300"
+                  onClick={() =>
+                    setTimerPhase((p) => ({ ...p, [key]: "work" }))
+                  }
+                >
+                  Volver al movimiento
+                </button>
+              )}
+              <label className="flex items-center gap-3 py-3">
+                <input
+                  className="w-5 h-5 accent-teal-500"
+                  type="checkbox"
+                  disabled={["loading","unavailable"].includes(status)}
+                  checked={!!progress[key]}
+                  onChange={() =>
+                    setProgress((prev) => ({ ...prev, [key]: !prev[key] }))
+                  }
+                />
+                Marcar esta serie como realizada
+              </label>
+            </article>
+          );
+        })}
+      </div>
+      <p className="text-sm text-slate-400">
+        Puedes usar tus mancuernas en un plan indicado para ti. Esta versión
+        utiliza las demostraciones de peso corporal disponibles; no anuncia
+        videos ni variantes con equipo que aún no existen.
+      </p>
+      <details className="bg-slate-900 rounded-2xl p-5">
+        <summary className="cursor-pointer font-bold p-2">
+          Ver las 12 ilustraciones y variantes opcionales
+        </summary>
+        <p className="text-sm text-slate-400 mt-3">
+          Las variantes avanzadas no son un requisito del programa. Las imágenes
+          son ilustrativas y no sustituyen una revisión de técnica.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-5 mt-4">
+          {exerciseLibrary.map((e) => (
+            <article
+              key={e.id}
+              className="space-y-3 border border-slate-700 p-4 rounded-xl"
+            >
+              <Illustration exercise={e} />
+              <h3 className="font-bold">
+                {e.name}
+                {e.advanced ? " · Opcional avanzada" : ""}
+              </h3>
+              <p className="text-sm">{e.description}</p>
+              <p className="text-sm text-teal-200">
+                Alternativa: {e.alternative}
+              </p>
+            </article>
+          ))}
         </div>
-        
-        <button 
-            onClick={() => setShowModal(true)} 
-            className="flex items-center gap-2 text-sm bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl border border-slate-700 transition-all"
-        >
-            <Settings2 size={16} /> Configurar Equipo
-        </button>
-      </div>
-
-      {/* FILAS POR SEMANA (ESTILO NETFLIX) */}
-      <div className="space-y-12">
-        {trainingProgram?.weeks?.map((week, wIdx) => (
-          <div key={wIdx} className="border-t border-slate-900 pt-8 first:border-0 first:pt-0">
-             
-             {/* Título de la Semana */}
-             <div className="px-6 md:px-10 mb-6 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-500 font-bold text-sm">
-                    {week.week}
-                </div>
-                <h2 className="text-xl md:text-2xl font-bold text-white">{week.title}</h2>
-             </div>
-
-             {/* Días dentro de la semana */}
-             <div className="space-y-8">
-                {week.days.map((day, dIdx) => (
-                    <div key={dIdx}>
-                        <h3 className="px-6 md:px-10 text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                           <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div> Día {day.day}: {day.title}
-                        </h3>
-                        
-                        {/* Scroll Horizontal de Ejercicios */}
-                        <div className="flex overflow-x-auto gap-4 px-6 md:px-10 pb-6 scrollbar-hide snap-x">
-                            {day.routine.map((slot, idx) => (
-                                <ExerciseCard 
-                                    key={idx} 
-                                    slotTitle={slot.slot} 
-                                    // Verificamos que 'variants' y 'userEquipment' existan
-                                    exercise={slot.variants ? slot.variants[userEquipment] : null} 
-                                    isCompleted={completed[`${week.week}-${day.day}-${idx}`]} 
-                                    onToggleComplete={() => setCompleted(prev => ({...prev, [`${week.week}-${day.day}-${idx}`]: !prev[`${week.week}-${day.day}-${idx}`]}))} 
-                                />
-                            ))}
-                        </div>
-                    </div>
-                ))}
-             </div>
-          </div>
-        ))}
-      </div>
+      </details>
     </div>
   );
 }
