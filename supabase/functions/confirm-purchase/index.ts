@@ -1,3 +1,4 @@
+import { assertRecipient } from "../_shared/environment.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
 import {
   validEmail,
@@ -27,6 +28,7 @@ Deno.serve(async (req) => {
         },
         400,
       );
+    assertRecipient((key) => Deno.env.get(key), email);
     const db = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,

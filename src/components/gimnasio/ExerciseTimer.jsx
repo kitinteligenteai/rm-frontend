@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 export default function ExerciseTimer({
   duration = 30,
+  initialRemaining,
+  onCheckpoint = () => {},
   onComplete = () => {},
 }) {
-  const [remaining, setRemaining] = useState(duration);
+  const [remaining, setRemaining] = useState(
+    Number.isFinite(initialRemaining)
+      ? Math.max(0, Math.min(duration, initialRemaining))
+      : duration,
+  );
   const [running, setRunning] = useState(false);
   const deadline = useRef(null);
   const callback = useRef(onComplete);
@@ -12,10 +18,16 @@ export default function ExerciseTimer({
     callback.current = onComplete;
   }, [onComplete]);
   useEffect(() => {
-    setRemaining(duration);
+    setRemaining(
+      Number.isFinite(initialRemaining)
+        ? Math.max(0, Math.min(duration, initialRemaining))
+        : duration,
+    );
     setRunning(false);
     deadline.current = null;
     fired.current = false;
+    // A checkpoint is only an initial value. Parent saves must not reset a running clock.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [duration]);
   useEffect(() => {
     if (!running) return;
@@ -43,9 +55,12 @@ export default function ExerciseTimer({
   }, [running]);
   function toggle() {
     if (running) {
-      setRemaining(
-        Math.max(0, Math.ceil((deadline.current - Date.now()) / 1000)),
+      const left = Math.max(
+        0,
+        Math.ceil((deadline.current - Date.now()) / 1000),
       );
+      setRemaining(left);
+      onCheckpoint(left);
       setRunning(false);
     } else if (remaining > 0) {
       deadline.current = Date.now() + remaining * 1000;
@@ -57,6 +72,7 @@ export default function ExerciseTimer({
     setRemaining(duration);
     deadline.current = null;
     fired.current = false;
+    onCheckpoint(duration);
   }
   return (
     <div className="flex gap-2 items-center min-h-12">
@@ -80,7 +96,7 @@ export default function ExerciseTimer({
       </button>
       {remaining === 0 && (
         <span className="sr-only" role="status">
-          Tiempo terminado. Descansa.
+          Tiempo terminado. Continúa cuando estés listo.
         </span>
       )}
     </div>

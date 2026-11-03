@@ -44,7 +44,7 @@ export default function Programa() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans">
-      <header className="w-full border-b border-white/10 backdrop-blur-md bg-white/5 sticky top-0 z-20">
+      <header className="w-full border-b border-white/10 bg-slate-950/95 sticky top-0 z-20">
         <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 flex justify-between items-center gap-3">
           <div>
             <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">
@@ -60,7 +60,8 @@ export default function Programa() {
             className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-extrabold px-4 py-2 rounded-full transition-colors shadow-lg shadow-teal-500/20"
           >
             <LogIn size={14} />
-            Acceso Programa Completo
+            <span className="sm:hidden">Mi programa</span>
+            <span className="hidden sm:inline">Acceso Programa Completo</span>
           </Link>
         </div>
       </header>

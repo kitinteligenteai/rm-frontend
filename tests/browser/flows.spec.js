@@ -16,6 +16,7 @@ async function fixture(
     accessFailure = false,
     saveFailure = false,
     signedIn = true,
+    account = user,
     existingStore = null,
     stateFailure = false,
   } = {},
@@ -34,7 +35,7 @@ async function fixture(
             user,
           }),
         ),
-      user,
+      account,
     );
   await page.route("**/*", async (r) => {
     const url = new URL(r.request().url());
@@ -52,7 +53,7 @@ async function fixture(
       }
       if (url.pathname.includes("/auth/"))
         return r.fulfill({
-          json: url.pathname.includes("recover") ? {} : user,
+          json: url.pathname.includes("recover") ? {} : account,
         });
       if (url.pathname.includes("my_entitlements"))
         return r.fulfill({
@@ -201,19 +202,31 @@ test("gym shows real illustrations, timer and saved series across reload", async
   ).toBeVisible();
   await page.reload();
   await expect(page.getByRole("checkbox").first()).toBeChecked();
+  await page.getByRole("button", { name: "Preparar sesión guiada" }).click();
+  await page.getByRole("button", { name: "Ya calenté, comenzar" }).click();
+  await page.getByRole("button", { name: "Iniciar", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Pausar", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Pausar", exact: true }).click();
+  await page.getByRole("button", { name: "Reiniciar", exact: true }).click();
+  await expect(page.getByLabel("Tiempo restante")).toHaveText("00:30");
   await page
-    .getByRole("button", { name: "Iniciar", exact: true })
-    .first()
+    .getByRole("button", { name: "Registrar serie y descansar" })
     .click();
-  await expect(page.getByRole("button", { name: "Pausar" })).toBeVisible();
-  await page.getByRole("button", { name: "Pausar" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Recupera el aire" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Tiempo restante")).toHaveText("00:45");
   await page
-    .getByRole("button", { name: "Reiniciar", exact: true })
-    .first()
+    .getByText("Biblioteca de 20 movimientos y variantes", { exact: true })
     .click();
-  await expect(page.getByLabel("Tiempo restante").first()).toHaveText("00:30");
-  await page.getByText("Ver las 12 ilustraciones").click();
-  await expect(page.getByRole("img", { name: /Ilustración/ })).toHaveCount(16);
+  await expect(page.getByRole("img", { name: /Ilustración de/ })).toHaveCount(
+    24,
+  );
+  await page
+    .getByText("Biblioteca de 20 movimientos y variantes", { exact: true })
+    .click();
   await noOverflow(page);
   await page.screenshot({
     path: `audit-evidence/${testInfo.project.name}-gym.png`,
@@ -395,4 +408,379 @@ test("all program sections render without runtime exceptions", async ({
     await noOverflow(page);
   }
   expect(errors).toEqual([]);
+});
+
+for (const mode of ["Sin equipo", "Con mancuernas"])
+  test(`gym all 12 sessions load correct images and no empty variants: ${mode}`, async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(60000);
+    await fixture(page);
+    await page.goto("/plataforma/gimnasio");
+    await page.getByRole("button", { name: mode, exact: true }).click();
+    for (let week = 1; week <= 4; week++)
+      for (let day = 1; day <= 3; day++) {
+        await page
+          .getByLabel("Semana", { exact: true })
+          .selectOption(String(week));
+        await page
+          .getByLabel("Sesión", { exact: true })
+          .selectOption(String(day));
+        const images = page
+          .getByRole("region", { name: "Movimientos de esta sesión" })
+          .getByRole("img");
+        await expect(images).toHaveCount(4);
+        for (const image of await images.all()) {
+          await image.scrollIntoViewIfNeeded();
+          await expect
+            .poll(() => image.evaluate((i) => i.complete && i.naturalWidth > 0))
+            .toBe(true);
+        }
+        await expect(page.getByRole("alert")).toHaveCount(0);
+        await noOverflow(page);
+      }
+    await expect(page.getByRole('status').filter({hasText:'Guardado en tu cuenta.'})).toBeVisible();
+    await page.screenshot({
+      path: `audit-evidence/${testInfo.project.name}-gym-${mode === "Sin equipo" ? "body" : "dumbbells"}.png`,
+      fullPage: true,
+    });
+  });
+test("guided workout resumes on second device and alternative, rest and completed session persist", async ({
+  page,
+  browser,
+}) => {
+  const { store } = await fixture(page);
+  await page.goto("/plataforma/gimnasio");
+  await page
+    .getByRole("button", { name: "Con mancuernas", exact: true })
+    .click();
+  await page.getByLabel("Vueltas", { exact: true }).selectOption("1");
+  await page.getByRole("button", { name: "Preparar sesión guiada" }).click();
+  await page.getByRole("button", { name: "Ya calenté, comenzar" }).click();
+  await page
+    .getByRole("button", { name: "Usar alternativa más sencilla" })
+    .click();
+  const guide = page.getByRole("region", { name: "Sesión guiada" });
+  await expect(
+    guide.getByRole("heading", { name: "Sentadilla en silla", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Registrar serie y descansar" })
+    .click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Guardado en tu cuenta." }),
+  ).toBeVisible();
+  const context = await browser.newContext();
+  const other = await context.newPage();
+  await fixture(other, { existingStore: store });
+  await other.goto("/plataforma/gimnasio");
+  await expect(
+    other.getByRole("heading", { name: "Recupera el aire" }),
+  ).toBeVisible();
+  for (let i = 0; i < 4; i++) {
+    await other
+      .getByRole("button", { name: "Continuar al siguiente paso" })
+      .click();
+    if (i < 3)
+      await other
+        .getByRole("button", { name: "Registrar serie y descansar" })
+        .click();
+  }
+  await expect(
+    other.getByRole("heading", { name: "Baja el ritmo" }),
+  ).toBeVisible();
+  await other
+    .getByRole("button", { name: "Finalizar y guardar sesión" })
+    .click();
+  await expect(
+    other.getByText("1 sesiones registradas", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    other.getByRole("status").filter({ hasText: "Guardado en tu cuenta." }),
+  ).toBeVisible();
+  await other.reload();
+  await expect(
+    other.getByText("1 sesiones registradas", { exact: true }),
+  ).toBeVisible();
+  await context.close();
+});
+test("dirty local cache is never uploaded after failed remote load", async ({
+  page,
+}) => {
+  const key = `rm:${user.id}:gym:v1`;
+  const local = {
+    version: 2,
+    selection: { mode: "cuerpo", week: 2, day: 1, rounds: 2 },
+    marks: { local: true },
+  };
+  await page.addInitScript(
+    ({ key, local }) =>
+      localStorage.setItem(
+        key,
+        JSON.stringify({ value: local, dirty: true, baseline: {} }),
+      ),
+    { key, local },
+  );
+  const { requests, store } = await fixture(page, {
+    stateFailure: true,
+    existingStore: { rows: [], planner: {}, gym: { remote: true }, logs: [] },
+  });
+  await page.goto("/plataforma/gimnasio");
+  await expect(
+    page.getByText("No pudimos cargar tus datos. Reintenta antes de editar.", {
+      exact: false,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Preparar sesión guiada" }),
+  ).toBeDisabled();
+  expect(
+    requests.filter((r) => r.url.includes("save_program_state")),
+  ).toHaveLength(0);
+  expect(store.gym).toEqual({ remote: true });
+});
+test("different account cannot recover the previous account cache", async ({
+  page,
+}) => {
+  await page.addInitScript(
+    (id) =>
+      localStorage.setItem(
+        `rm:${id}:gym:v1`,
+        JSON.stringify({
+          value: { secret: "previous-account", sessions: { old: true } },
+          dirty: false,
+        }),
+      ),
+    user.id,
+  );
+  await fixture(page, {
+    account: {
+      ...user,
+      id: "00000000-0000-4000-8000-000000000099",
+      email: "second@example.invalid",
+    },
+  });
+  await page.goto("/plataforma/gimnasio");
+  await expect(
+    page.getByText("0 sesiones registradas", { exact: true }),
+  ).toBeVisible();
+});
+
+test("conflicting cache requires explicit resolution and saves a recovery copy", async ({
+  page,
+}) => {
+  const key = `rm:${user.id}:gym:v1`;
+  const local = {
+    version: 2,
+    selection: { mode: "cuerpo", week: 2, day: 1, rounds: 2 },
+    marks: { local: true },
+  };
+  await page.addInitScript(
+    ({ key, local }) => {
+      if (!sessionStorage.getItem("seeded")) {
+        localStorage.setItem(
+          key,
+          JSON.stringify({ value: local, dirty: true, baseline: {} }),
+        );
+        sessionStorage.setItem("seeded", "1");
+      }
+    },
+    { key, local },
+  );
+  const { requests, store } = await fixture(page, {
+    existingStore: { rows: [], planner: {}, gym: { remote: true }, logs: [] },
+  });
+  await page.goto("/plataforma/gimnasio");
+  await expect(
+    page.getByText("Hay cambios distintos en este navegador y en tu cuenta.", {
+      exact: false,
+    }),
+  ).toBeVisible();
+  expect(
+    requests.filter((r) => r.url.includes("save_program_state")),
+  ).toHaveLength(0);
+  await page
+    .getByRole("button", {
+      name: "Cargar versión de mi cuenta y conservar copia local",
+    })
+    .click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Guardado en tu cuenta." }),
+  ).toBeVisible();
+  expect(store.gym).toEqual({ remote: true });
+  expect(
+    await page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key + ":conflict-backup")).value,
+      key,
+    ),
+  ).toEqual(local);
+});
+test("exercise illustration opens as a modal and returns to session", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto("/plataforma/gimnasio");
+  await page
+    .getByRole("button", {
+      name: "Ampliar ilustración de Sentadilla en silla",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByRole("dialog", {
+      name: "Ilustración ampliada: Sentadilla en silla",
+    }),
+  ).toBeVisible();
+  await noOverflow(page);
+  await page.getByRole("button", { name: "Cerrar imagen" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("mobile cross-browser return explains automatic delivery without trusting URL status", async ({
+  page,
+}) => {
+  await fixture(page, { signedIn: false });
+  await page.goto(
+    "/gracias-kit?session_id=00000000-0000-4000-8000-000000000088&status=approved",
+  );
+  await expect(
+    page.getByText(/No necesitas volver al mismo navegador/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Consultar estado de mi compra" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText("Pago verificado por el servidor.", { exact: false }),
+  ).toHaveCount(0);
+  await noOverflow(page);
+});
+test("logout removes the current environment session and preserves per-account progress cache", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto("/plataforma/gimnasio");
+  await page.getByRole("checkbox").first().check();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Guardado en tu cuenta." }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Cerrar sesión", exact: true })
+    .click();
+  await expect(page).toHaveURL(/auth/);
+  expect(
+    await page.evaluate(() => localStorage.getItem("sb-rm-test-auth-token")),
+  ).toBeNull();
+  expect(
+    await page.evaluate(
+      (id) => JSON.parse(localStorage.getItem(`rm:${id}:gym:v1`)).value.marks,
+      user.id,
+    ),
+  ).toBeTruthy();
+});
+test("MXN checkout collects matching delivery email and posts no client price", async ({
+  page,
+}, testInfo) => {
+  await fixture(page, { signedIn: false });
+  await page.goto("/programa");
+  await page
+    .getByRole("button", { name: "🇲🇽 MXN", exact: true })
+    .first()
+    .click();
+  const form = page
+    .locator("form")
+    .filter({
+      has: page.getByRole("button", {
+        name: "Pagar Programa Completo",
+        exact: true,
+      }),
+    })
+    .first();
+  await form
+    .getByLabel("Correo para recibir tu producto", { exact: true })
+    .fill("qa@example.invalid");
+  await form
+    .getByLabel("Confirma tu correo", { exact: true })
+    .fill("wrong@example.invalid");
+  await page.getByRole("checkbox").first().check();
+  await form
+    .getByRole("button", { name: "Pagar Programa Completo", exact: true })
+    .click();
+  await expect(form.getByRole("alert")).toContainText(
+    "Los correos deben coincidir",
+  );
+  await form
+    .getByLabel("Confirma tu correo", { exact: true })
+    .fill("qa@example.invalid");
+  let payload;
+  await page.route(
+    "**/functions/v1/mp-generate-preference-v2",
+    async (route) => {
+      payload = route.request().postDataJSON();
+      await route.fulfill({
+        status: 503,
+        json: { error: "staging_checkout_not_configured" },
+      });
+    },
+  );
+  await form
+    .getByRole("button", { name: "Pagar Programa Completo", exact: true })
+    .click();
+  await expect.poll(() => payload?.email).toBe("qa@example.invalid");
+  expect(payload.emailConfirmation).toBe("qa@example.invalid");
+  expect(payload.productId).toBe("programa-completo");
+  expect(payload.price).toBeUndefined();
+  await expect(form.getByRole("alert")).toContainText(
+    "No se pudo iniciar el pago",
+  );
+  await noOverflow(page);
+  await page.screenshot({
+    path: `audit-evidence/${testInfo.project.name}-checkout.png`,
+  });
+});
+
+test("JSONB key ordering does not cause a false conflict for a legitimate dirty cache", async ({
+  page,
+}) => {
+  const key = `rm:${user.id}:gym:v1`;
+  const local = {
+    selection: { mode: "cuerpo", week: 2, day: 1, rounds: 2 },
+    marks: { local: true },
+  };
+  await page.addInitScript(
+    ({ key, local }) =>
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          value: local,
+          dirty: true,
+          baseline: { alpha: 1, beta: { x: 2, y: 3 } },
+        }),
+      ),
+    { key, local },
+  );
+  const { store } = await fixture(page, {
+    existingStore: {
+      rows: [],
+      planner: {},
+      gym: { beta: { y: 3, x: 2 }, alpha: 1 },
+      logs: [],
+    },
+  });
+  await page.goto("/plataforma/gimnasio");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Guardado en tu cuenta." }),
+  ).toBeVisible();
+  expect(store.gym).toEqual(local);
+});
+test("retry reads remote changes before replaying a failed local write", async ({
+  page,
+}) => {
+  const { store } = await fixture(page, { saveFailure: true });
+  await page.goto("/plataforma/gimnasio");
+  await page.getByRole("checkbox").first().check();
+  await expect(page.getByRole("status")).toContainText("Sin sincronizar");
+  store.gym = { fromAnotherDevice: true };
+  await page.getByRole("button", { name: "Reintentar", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Hay cambios distintos");
+  expect(store.gym).toEqual({ fromAnotherDevice: true });
 });

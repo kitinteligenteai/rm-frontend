@@ -5,6 +5,9 @@ begin;
 alter table public.checkout_sessions enable row level security;
 alter table public.outbox_emails enable row level security;
 alter table public.admin_notifications_log enable row level security;
+alter table public.purchases enable row level security;
+alter table public.legal_consents enable row level security;
+alter table public.security_audit_log enable row level security;
 revoke all on public.checkout_sessions, public.outbox_emails, public.admin_notifications_log,
   public.purchases, public.legal_consents, public.security_audit_log from anon, authenticated;
 revoke all on public.sales_dashboard from public, anon, authenticated;
@@ -15,6 +18,31 @@ grant select on public.entitlements to authenticated;
 alter view public.my_entitlements set (security_invoker = true);
 revoke all on public.my_entitlements from public, anon;
 grant select on public.my_entitlements to authenticated;
+
+-- Reconciled against the live catalog: the original seven-day check would
+-- reject every dashboard save from day 8 onward. No historical rows are removed.
+alter table public.seguimiento_7dias drop constraint seguimiento_7dias_dia_numero_check;
+alter table public.seguimiento_7dias add constraint seguimiento_7dias_dia_numero_check
+  check (dia_numero between 1 and 28);
+-- MP reports charged_back; retain the legacy spelling for existing rows.
+alter table public.checkout_sessions drop constraint checkout_sessions_status_check;
+alter table public.checkout_sessions add constraint checkout_sessions_status_check
+  check (status in ('pending','approved','in_process','in_mediation','authorized',
+    'rejected','refunded','cancelled','chargeback','charged_back'));
+
+-- Existing owner policies remain, with a restrictive premium policy so the
+-- Data API cannot bypass the React route guard. Preserve account ownership.
+do $$ declare t text; begin
+  foreach t in array array['seguimiento_7dias','progress_logs','chequeos_semanales'] loop
+    execute format('alter table public.%I enable row level security',t);
+    execute format('revoke all on public.%I from public, anon',t);
+    execute format('create policy program_access_required on public.%I as restrictive for all to authenticated using
+      ((select auth.uid())=user_id and exists(select 1 from public.entitlements e where e.status=''active''
+        and e.product_id=''programa-completo'' and (e.user_id=(select auth.uid()) or e.email=(select auth.jwt()->>''email''))))
+      with check ((select auth.uid())=user_id and exists(select 1 from public.entitlements e where e.status=''active''
+        and e.product_id=''programa-completo'' and (e.user_id=(select auth.uid()) or e.email=(select auth.jwt()->>''email''))))',t);
+  end loop;
+end $$;
 
 -- Internal RPCs must never be callable by a browser. Preserve service-role jobs.
 do $$ declare f record; begin
@@ -39,6 +67,7 @@ create table if not exists public.program_state (
 alter table public.program_state enable row level security;
 revoke all on public.program_state from public, anon, authenticated;
 grant select, insert, update on public.program_state to authenticated;
+grant all on public.program_state to service_role;
 create policy program_state_owner on public.program_state for all to authenticated
   using ((select auth.uid()) = user_id and exists (
     select 1 from public.entitlements e where e.status='active' and e.product_id='programa-completo'

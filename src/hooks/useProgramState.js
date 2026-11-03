@@ -1,3 +1,4 @@
+import { sameJson } from "../lib/stateSync";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useUser } from "../context/UserContext";
@@ -14,10 +15,14 @@ export function useProgramState(section, initialValue = {}) {
   const current = useRef(value);
   const queue = useRef(Promise.resolve());
   const cacheOk = useRef(true);
+  const baseline = useRef(null);
   const cache = useCallback(
     (next, dirty) => {
       try {
-        localStorage.setItem(key, JSON.stringify({ value: next, dirty }));
+        localStorage.setItem(
+          key,
+          JSON.stringify({ value: next, dirty, baseline: baseline.current }),
+        );
         return true;
       } catch {
         return false;
@@ -38,6 +43,9 @@ export function useProgramState(section, initialValue = {}) {
     if (cached?.value && typeof cached.value === "object") {
       current.current = cached.value;
       setValue(cached.value);
+    } else {
+      current.current = initial.current;
+      setValue(initial.current);
     }
     supabase
       .from("program_state")
@@ -46,15 +54,28 @@ export function useProgramState(section, initialValue = {}) {
       .maybeSingle()
       .then(({ data, error }) => {
         if (!active) return;
+        // Never replay a dirty cache when the remote read failed: another device
+        // may have newer data. Keep the local copy intact and require a new read.
+        if (error) {
+          loaded.current = false;
+          setStatus("unavailable");
+          return;
+        }
+        const remote = data?.[section] || initial.current;
+        baseline.current = remote;
+        if (
+          cached?.dirty &&
+          !sameJson(remote, cached.value) &&
+          !sameJson(cached.baseline, remote)
+        ) {
+          loaded.current = false;
+          setStatus("conflict");
+          return;
+        }
         if (cached?.dirty) {
           loaded.current = true;
           setStatus("local");
           setRevision((r) => r + 1);
-          return;
-        }
-        if (error) {
-          loaded.current = !!cached?.value;
-          setStatus(cached?.value ? "local" : "unavailable");
           return;
         }
         const next =
@@ -90,6 +111,7 @@ export function useProgramState(section, initialValue = {}) {
         setStatus(cacheOk.current ? "local" : "unsaved");
         return;
       }
+      baseline.current = snapshot;
       cache(snapshot, false);
       setStatus("saved");
     }, 350);
@@ -112,6 +134,19 @@ export function useProgramState(section, initialValue = {}) {
     update,
     status,
     () =>
-      loaded.current ? setRevision((r) => r + 1) : setLoadVersion((v) => v + 1),
+      loaded.current && !cacheOk.current
+        ? setRevision((r) => r + 1)
+        : setLoadVersion((v) => v + 1),
+    () => {
+      // Explicit resolution keeps the unsynced version separately for recovery.
+      try {
+        const local = localStorage.getItem(key);
+        if (local) localStorage.setItem(`${key}:conflict-backup`, local);
+        localStorage.removeItem(key);
+      } catch {
+        return;
+      }
+      setLoadVersion((v) => v + 1);
+    },
   ];
 }

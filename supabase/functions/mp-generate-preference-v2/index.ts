@@ -1,7 +1,9 @@
+import { validEmail } from "../_shared/paymentRules.ts";
+import { assertEnvironment, assertRecipient } from "../_shared/environment.ts";
 // supabase/functions/mp-generate-preference-v2/index.ts
 // v4.1 — Precio backend + consentimiento legal trazable
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -66,6 +68,7 @@ Deno.serve(async (req) => {
   }
 
   try {
+    assertEnvironment((key) => Deno.env.get(key));
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const accessToken = Deno.env.get("MP_ACCESS_TOKEN");
@@ -87,6 +90,8 @@ Deno.serve(async (req) => {
 
     let body: {
       productId?: string;
+      email?: string;
+      emailConfirmation?: string;
       legalConsent?: {
         accepted?: boolean;
         termsVersion?: string;
@@ -124,6 +129,15 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "legal_consent_required" }, 400);
     }
 
+    const email =
+      typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    if (
+      !validEmail(email) ||
+      typeof body.emailConfirmation !== "string" ||
+      email !== body.emailConfirmation?.trim().toLowerCase()
+    )
+      return jsonResponse({ error: "valid_delivery_email_required" }, 400);
+    assertRecipient((key) => Deno.env.get(key), email);
     const sessionId = crypto.randomUUID();
     const checkoutToken = crypto.randomUUID();
 
@@ -134,6 +148,7 @@ Deno.serve(async (req) => {
     const { error: dbError } = await supabase.from("checkout_sessions").insert({
       id: sessionId,
       correction_token: checkoutToken,
+      email_final: email,
       status: "pending",
       raw_mp: {
         requested_product: requestedId,
@@ -158,6 +173,7 @@ Deno.serve(async (req) => {
       .insert({
         session_id: sessionId,
         product_id: requestedId,
+        email,
         terms_version: legalConsent.termsVersion,
         privacy_version: legalConsent.privacyVersion,
         refunds_version: legalConsent.refundsVersion,
@@ -242,6 +258,9 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("[mp-generate-preference-v2]", e);
-    return jsonResponse({ error: e?.message || "internal_error" }, 500);
+    return jsonResponse(
+      { error: e instanceof Error ? e.message : "internal_error" },
+      500,
+    );
   }
 });

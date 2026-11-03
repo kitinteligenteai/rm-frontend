@@ -11,7 +11,7 @@ const MEAL_SLOTS = [
 ];
 
 export function useSmartPlanner() {
-  const [weekPlan, setWeekPlan, saveStatus, retrySave] = useProgramState('planner', {});
+  const [weekPlan, setWeekPlan, saveStatus, retrySave, resolveSave] = useProgramState('planner', {});
   const [version, setVersion] = useState(0);
 
   const getRecipesByType = (type) => recipes.filter(r => r.type === type);
@@ -77,6 +77,7 @@ export function useSmartPlanner() {
     weekPlan,
     saveStatus,
     retrySave,
+    resolveSave,
     generateQuickMenu,
     updateSlot,
     shuffleSlot,

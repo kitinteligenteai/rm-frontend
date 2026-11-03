@@ -1,6 +1,7 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { schemaBaseline } from "../scripts/schema-baseline.mjs";
 import { PGlite } from "@electric-sql/pglite";
 const db = new PGlite();
 const user = "00000000-0000-4000-8000-000000000001";
@@ -23,25 +24,26 @@ before(async () => {
  grant usage on schema public,auth to anon,authenticated,service_role;
  grant execute on all functions in schema auth to anon,authenticated,service_role;
  insert into auth.users values('${user}','buyer@example.invalid');
- create table checkout_sessions(id uuid primary key,raw_mp jsonb,email_final text,payment_id text,status text,updated_at timestamptz default now(),correction_token uuid default gen_random_uuid());
- create table purchases(id uuid primary key default gen_random_uuid(),provider text,provider_payment_id text unique,session_id text unique,product_id text,status text,email text,meta jsonb,created_at timestamptz default now(),unique(provider,provider_payment_id));
- create table outbox_emails(id uuid primary key default gen_random_uuid(),to_email text,template text,payload jsonb,status text default 'queued',attempts int default 0,last_error text,provider_message_id text,created_at timestamptz default now(),updated_at timestamptz default now());
- create unique index uq_outbox_by_purchase_template on outbox_emails((payload->>'purchase_id'),template);
- create table admin_notifications_log(id bigint generated always as identity primary key,provider_payment_id text unique,channel text,meta jsonb);
- create table legal_consents(id uuid); create table security_audit_log(id bigint);
- create table entitlements(id uuid primary key default gen_random_uuid(),user_id uuid,email text,product_id text,status text,purchase_id uuid,created_at timestamptz default now(),updated_at timestamptz default now(),unique(email,product_id));
- alter table entitlements enable row level security;
- create policy entitlements_select_own on entitlements for select to authenticated using(user_id=auth.uid() or email=auth.jwt()->>'email');
- create view my_entitlements as select product_id,status,created_at,updated_at from entitlements where user_id=auth.uid() or email=auth.jwt()->>'email';
- create view sales_dashboard as select email from purchases;
- grant all on all tables in schema public to anon,authenticated,service_role;
  create function confirm_checkout(text,text) returns void language sql security definer as $$select$$;
  create function create_purchase_and_enqueue_email(text,text,text,text,text,jsonb) returns void language sql security definer as $$select$$;
  `);
+  await db.exec(schemaBaseline());
+  await db.exec(
+    "grant all on all tables in schema public to anon,authenticated,service_role",
+  );
   await db.exec(
     await readFile(
       new URL(
         "../supabase/migrations/20261029025222_launch_security_and_continuity.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  await db.exec(
+    await readFile(
+      new URL(
+        "../supabase/migrations/20261029234602_gumroad_verified_sales.sql",
         import.meta.url,
       ),
       "utf8",
@@ -270,6 +272,158 @@ test("kit approval grants kit only and replays enqueue once", async () => {
     (
       await scalar(
         "select count(*)::int n from outbox_emails where template='welcome-kit'",
+      )
+    ).n,
+    1,
+  );
+});
+
+test("day 8 through 28 save; day 29 rejected; free/Kit/revoked accounts cannot use premium Data API tables", async () => {
+  await db.query(
+    "insert into entitlements(email,product_id,status) values('buyer@example.invalid','programa-completo','active') on conflict(email,product_id) do update set status='active'",
+  );
+  await role(
+    "authenticated",
+    { sub: user, email: "buyer@example.invalid" },
+    async () => {
+      for (const day of [8, 28])
+        await db.query(
+          "insert into seguimiento_7dias(user_id,dia_numero) values($1,$2)",
+          [user, day],
+        );
+      await assert.rejects(() =>
+        db.query(
+          "insert into seguimiento_7dias(user_id,dia_numero) values($1,29)",
+          [user],
+        ),
+      );
+    },
+  );
+  const other = "00000000-0000-4000-8000-000000000099";
+  await db.query("insert into auth.users(id,email) values($1,$2)", [
+    other,
+    "free@example.invalid",
+  ]);
+  for (const status of ["none", "kit", "revoked"]) {
+    await db.query(
+      "delete from entitlements where email='free@example.invalid'",
+    );
+    if (status !== "none")
+      await db.query(
+        "insert into entitlements(email,product_id,status) values($1,$2,$3)",
+        [
+          "free@example.invalid",
+          status === "kit" ? "kit-7-dias" : "programa-completo",
+          status === "revoked" ? "revoked" : "active",
+        ],
+      );
+    await role(
+      "authenticated",
+      { sub: other, email: "free@example.invalid" },
+      async () => {
+        assert.equal(
+          (await db.query("select * from seguimiento_7dias")).rows.length,
+          0,
+        );
+        await assert.rejects(() =>
+          db.query(
+            "insert into seguimiento_7dias(user_id,dia_numero) values($1,1)",
+            [other],
+          ),
+        );
+        await assert.rejects(() =>
+          db.query("insert into progress_logs(user_id,weight) values($1,75)", [
+            other,
+          ]),
+        );
+      },
+    );
+  }
+});
+test("provider chargeback spelling persists and revokes the matching purchase", async () => {
+  await record({ ...payment, status: "charged_back" });
+  assert.equal(
+    (
+      await scalar("select status from checkout_sessions where id=$1", [
+        session,
+      ])
+    ).status,
+    "charged_back",
+  );
+});
+test("verified Gumroad sale creates correct entitlement and one email; refund revokes; browser RPC denied", async () => {
+  const id = "00000000-0000-4000-8000-000000000077";
+  const args = [
+    id,
+    "sale-test",
+    "programa-completo",
+    "gumroad@example.invalid",
+    7500,
+    "approved",
+    { currency: "usd" },
+  ];
+  const call = () =>
+    db.query("select record_verified_gumroad_sale($1,$2,$3,$4,$5,$6,$7)", args);
+  await call();
+  await call();
+  assert.equal(
+    (
+      await scalar(
+        "select count(*)::int as n from outbox_emails where to_email='gumroad@example.invalid'",
+      )
+    ).n,
+    1,
+  );
+  assert.equal(
+    (
+      await scalar(
+        "select status from entitlements where email='gumroad@example.invalid'",
+      )
+    ).status,
+    "active",
+  );
+  await role("anon", null, async () => {
+    await assert.rejects(call);
+  });
+  args[5] = "refunded";
+  await call();
+  assert.equal(
+    (
+      await scalar(
+        "select status from entitlements where email='gumroad@example.invalid'",
+      )
+    ).status,
+    "revoked",
+  );
+});
+
+test("approved webhook grants and queues using the pre-checkout email without a browser return", async () => {
+  const sid = "00000000-0000-4000-8000-000000000088";
+  await db.query(
+    "insert into checkout_sessions(id,email_final,raw_mp,status) values($1,$2,$3,$4)",
+    [
+      sid,
+      "mobile-return@example.invalid",
+      { requested_product: "programa-completo" },
+      "pending",
+    ],
+  );
+  await db.query("select record_verified_payment($1,$2)", [
+    sid,
+    { ...payment, id: 8888, external_reference: sid },
+  ]);
+  assert.equal(
+    (
+      await scalar(
+        "select status from entitlements where email='mobile-return@example.invalid'",
+      )
+    ).status,
+    "active",
+  );
+  assert.equal(
+    (
+      await scalar(
+        "select count(*)::int as n from outbox_emails where to_email='mobile-return@example.invalid'",
       )
     ).n,
     1,

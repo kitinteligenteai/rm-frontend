@@ -9,3 +9,8 @@ verify_jwt = false
 verify_jwt = false
 [functions.email-worker-v2]
 verify_jwt = true
+
+[functions.gumroad-webhook]
+verify_jwt = false
+[functions.resend-webhook-v2]
+verify_jwt = false

@@ -1,5 +1,5 @@
 // src/pages/Planeador.jsx (v9.0 - Meta Personalizada Conectada)
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSmartPlanner } from "../hooks/useSmartPlanner";
 import { SaveStatus } from "../components/common/SaveStatus";
 import { recipes } from "../data/recipes";
@@ -11,14 +11,12 @@ import {
   Moon,
   Coffee,
   Utensils,
-  Dumbbell,
   Dice5,
   XCircle,
   CheckCircle,
   Printer,
   Zap,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const SlotIcons = {
   desayuno: Sun,
@@ -116,6 +114,7 @@ export default function Planeador() {
     generateQuickMenu,
     saveStatus,
     retrySave,
+    resolveSave,
     calculateDailyStats,
     days,
     slots,
@@ -124,14 +123,6 @@ export default function Planeador() {
   const [viewingRecipe, setViewingRecipe] = useState(null);
   const [selectedDaySlot, setSelectedDaySlot] = useState(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
-
-  // ✅ NUEVO: Leemos la meta personalizada o usamos 90g por defecto
-  const [userGoal, setUserGoal] = useState(90);
-
-  useEffect(() => {
-    const savedGoal = localStorage.getItem("user_protein_goal");
-    if (savedGoal) setUserGoal(parseInt(savedGoal));
-  }, []);
 
   const RecipeSelectorModal = () => {
     if (!selectedDaySlot) return null;
@@ -213,7 +204,9 @@ export default function Planeador() {
           <h1 className="text-3xl font-bold text-white mb-2">
             Planeador Semanal
           </h1>
-          <p className="text-slate-400 text-sm">Organiza tus comidas.</p>
+          <p className="text-slate-400 text-sm">
+            Organiza tus comidas y guarda los cambios en tu cuenta.
+          </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <button
@@ -256,15 +249,17 @@ export default function Planeador() {
         </div>
       )}
 
-      <SaveStatus status={saveStatus} retry={retrySave} />
-      {Object.keys(weekPlan).length === 0 && saveStatus !== "loading" && saveStatus !== "unavailable" && (
-        <button
-          className="p-4 bg-teal-600 rounded-xl my-4"
-          onClick={() => generateQuickMenu(false)}
-        >
-          Crear propuesta de menú
-        </button>
-      )}
+      <SaveStatus status={saveStatus} retry={retrySave} resolve={resolveSave} />
+      {Object.keys(weekPlan).length === 0 &&
+        saveStatus !== "loading" &&
+        saveStatus !== "unavailable" && (
+          <button
+            className="p-4 bg-teal-600 rounded-xl my-4"
+            onClick={() => generateQuickMenu(false)}
+          >
+            Crear propuesta de menú
+          </button>
+        )}
       <p className="text-xs text-slate-400 my-4">
         Propuesta orientativa, editable. Las cifras de proteína son estimaciones
         y no una prescripción. En enfermedad renal o necesidades especiales,
@@ -272,38 +267,9 @@ export default function Planeador() {
       </p>
       {activeTab === "gusto" && (
         <div className="space-y-8">
-          {/* BARRA DE META PERSONALIZADA */}
-          <div className="bg-indigo-900/20 border border-indigo-500/30 p-4 rounded-xl flex flex-wrap gap-4 items-center justify-between print:hidden">
-            <div className="flex gap-4 items-center">
-              <div className="p-2 bg-indigo-500/20 rounded-lg text-emerald-400">
-                <Dumbbell className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-white font-bold text-sm">
-                  Meta Diaria:{" "}
-                  <span className="text-emerald-400">{userGoal}g Proteína</span>
-                </h4>
-                <p className="text-indigo-200/80 text-xs">
-                  Referencia editable de organización, no una meta clínica.
-                </p>
-              </div>
-            </div>
-            <Link
-              to="/plataforma/biblioteca"
-              className="text-xs text-indigo-400 hover:text-white underline"
-            >
-              Recalcular mi meta →
-            </Link>
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 print:grid-cols-7 print:gap-2 print:text-xs">
             {days.map((day) => {
               const dailyProtein = calculateDailyStats(day);
-              // Semáforo dinámico basado en la meta personal
-              const progress = Math.min((dailyProtein / userGoal) * 100, 100);
-              let proteinColor = "bg-red-500";
-              if (progress > 60) proteinColor = "bg-yellow-500";
-              if (progress > 90) proteinColor = "bg-emerald-500";
 
               return (
                 <div
@@ -315,7 +281,7 @@ export default function Planeador() {
                       {day}
                     </span>
                     <span className="text-[10px] text-slate-400 print:text-gray-600">
-                      {dailyProtein}g
+                      {dailyProtein}g aprox.
                     </span>
                   </div>
 
@@ -367,13 +333,6 @@ export default function Planeador() {
                         </div>
                       );
                     })}
-                  </div>
-                  {/* Barra de progreso de día */}
-                  <div className="h-1 w-full bg-slate-800 print:hidden">
-                    <div
-                      className={`h-full ${proteinColor}`}
-                      style={{ width: `${progress}%` }}
-                    ></div>
                   </div>
                 </div>
               );

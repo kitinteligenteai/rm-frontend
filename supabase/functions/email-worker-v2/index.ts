@@ -1,3 +1,4 @@
+import { assertEnvironment, assertRecipient } from "../_shared/environment.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
 import { emailTemplate, sendResend } from "../_shared/emailDelivery.ts";
 import { json } from "../_shared/http.ts";
@@ -14,12 +15,18 @@ Deno.serve(async (req) => {
     !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(siteUrl)
   )
     return json({ error: "invalid_site_configuration" }, 503);
+  try {
+    assertEnvironment((key) => Deno.env.get(key), "EMAIL_ENV");
+  } catch {
+    return json({ error: "email_environment_mismatch" }, 503);
+  }
   const db = createClient(Deno.env.get("SUPABASE_URL")!, key);
   const { data: jobs, error } = await db.rpc("claim_email_jobs");
   if (error) return json({ error: "claim_failed" }, 503);
   let sent = 0;
   for (const job of jobs || []) {
     try {
+      assertRecipient((key) => Deno.env.get(key), job.to_email, "EMAIL_ENV");
       const { data: p, error: purchaseError } = await db
         .from("purchases")
         .select("status,product_id")
@@ -108,16 +115,17 @@ Deno.serve(async (req) => {
       if (markError) throw Error("delivery_reconciliation_required");
       sent++;
     } catch (e) {
+      const reason = e instanceof Error ? e.message : "delivery_failed";
       // Stale 'processing' jobs are deliberately not automatically reclaimed after a crash.
       // Reconcile with the provider before retrying beyond its 24h idempotency window.
       await db
         .from("outbox_emails")
         .update({
           status:
-            e.message === "delivery_reconciliation_required"
+            reason === "delivery_reconciliation_required"
               ? "processing"
               : "failed",
-          last_error: e.message,
+          last_error: reason,
           updated_at: new Date().toISOString(),
         })
         .eq("id", job.id);

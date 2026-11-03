@@ -1,3 +1,4 @@
+import { assertEnvironment } from "../_shared/environment.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
 import {
   validMpSignature,
@@ -11,6 +12,7 @@ Deno.serve(async (req) => {
   if (!(await validMpSignature(req, Deno.env.get("MP_WEBHOOK_SECRET") || "")))
     return json({ error: "invalid_signature" }, 401);
   try {
+    assertEnvironment((key) => Deno.env.get(key));
     const id = new URL(req.url).searchParams.get("data.id")!;
     const body = await req.json();
     if (String(body.data?.id) !== id || body.type !== "payment")

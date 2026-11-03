@@ -102,7 +102,7 @@ export const UserProvider = ({ children }) => {
     refreshAccess: () => setAccessVersion((v) => v + 1),
     signIn: (data) => supabase.auth.signInWithPassword(data),
     signUp: (data) => supabase.auth.signUp(data),
-    signOut: () => supabase.auth.signOut(),
+    signOut: () => supabase.auth.signOut({ scope: "local" }),
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

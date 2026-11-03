@@ -64,7 +64,7 @@ export async function validMpSignature(req: Request, secret: string) {
     ["verify"],
   );
   const bytes = new Uint8Array(
-    signature.v1.match(/../g)!.map((h) => parseInt(h, 16)),
+    signature.v1.match(/../g)!.map((h: string) => parseInt(h, 16)),
   );
   // Re-fetch current state and retain DB idempotency even for valid signed retries.
   return crypto.subtle.verify(

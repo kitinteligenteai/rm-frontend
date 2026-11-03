@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 const HELP = {
+  desayuno: {
+    title: "No sé qué desayunar",
+    text: "Empieza por lo disponible: huevo o yogur natural, fruta y avena o pan integral son opciones sencillas. Adapta porciones y alimentos a tu hambre, tolerancia y necesidades. Guarda una opción en el planeador para reducir decisiones mañana.",
+    to: "/plataforma/planeador",
+    label: "Organizar mi desayuno",
+  },
+  hoy: {
+    title: "¿Qué hago hoy?",
+    text: "Elige una sola tarea de tu día actual: organiza tu siguiente comida, haz movimiento cómodo o registra un aprendizaje. Si regresaste después de una pausa, continúa desde lo guardado; no hace falta compensar los días que no entraste.",
+    to: "/plataforma/planeador",
+    label: "Resolver mi siguiente comida",
+  },
   antojos: {
     title: "Tengo antojo",
     text: "Haz una pausa para reconocer qué necesitas. Si tienes hambre, prepara una comida o colación suficiente. Puedes incluir algo que disfrutes en una porción que te resulte cómoda; no necesitas compensarlo con ayuno ni ejercicio.",
@@ -44,6 +56,15 @@ export default function DanteSupport({ gap, current, completed }) {
             ? `Ya completaste ${completed} días. Sigue con una acción del día ${current}.`
             : "Comienza con una acción pequeña. Solo contaremos lo que tú registres."}
       </p>
+      {gap >= 3 && (
+        <p className="text-sm text-teal-200">
+          {gap >= 14
+            ? "Después de dos semanas o más, repite una sesión sencilla y revisa lo que necesitas para tu próxima comida. Puedes retomar la primera semana del gimnasio."
+            : gap >= 7
+              ? "Vuelve con una sola acción y una sesión de movimiento que ya conozcas. Conserva tu ritmo anterior antes de aumentar dificultad."
+              : "Elige la tarea más fácil del día guardado. No hay días perdidos que debas recuperar de golpe."}
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
         {Object.entries(HELP).map(([id, h]) => (
           <button

@@ -1,4 +1,4 @@
-import React, { lazy } from "react";
+import React, { lazy, useState } from "react";
 import ProtectedRoute from "../utils/ProtectedRoute";
 import {
   Routes,
@@ -34,24 +34,21 @@ export default function Plataforma() {
   const { user, signOut } = useUser();
   const location = useLocation();
   const navigate = useNavigate();
+  const [logoutError, setLogoutError] = useState("");
 
   const handleLogout = async () => {
     try {
-      // Intentamos avisar a Supabase
-      await signOut();
-    } catch (error) {
-      console.warn(
-        "Error de red al salir (no importa, forzamos salida):",
-        error,
-      );
-    } finally {
-      // PASE LO QUE PASE, borramos rastros locales y redirigimos
-      localStorage.removeItem("sb-mgjzlohapnepvrqlxmpo-auth-token"); // Limpieza profunda (ajusta si tu key es distinta, pero esto ayuda)
+      setLogoutError("");
+      const { error } = await signOut();
+      if (error) throw error;
       navigate("/auth", { replace: true });
+    } catch {
+      setLogoutError("No pudimos cerrar la sesión. Reintenta con conexión.");
     }
   };
 
-  const NavItem = ({ to, icon: Icon, label }) => {
+  const NavItem = ({ to, icon, label }) => {
+    const Icon = icon;
     const isActive = location.pathname.includes(to);
     return (
       <Link
@@ -72,6 +69,14 @@ export default function Plataforma() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex text-slate-100 font-sans print:bg-white print:text-black">
+      {logoutError && (
+        <p
+          role="alert"
+          className="fixed bottom-4 left-4 right-4 z-50 bg-red-950 text-red-100 border border-red-400 p-4 rounded-xl"
+        >
+          {logoutError}
+        </p>
+      )}
       {/* SIDEBAR */}
       <aside className="w-72 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col sticky top-0 h-screen print:hidden">
         <div className="p-6">

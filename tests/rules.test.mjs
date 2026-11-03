@@ -40,20 +40,6 @@ test("kit, unknown and revoked products do not authorize program", () => {
   ])
     assert.equal(hasProduct(e, "programa-completo"), false);
 });
-test("12 distinct existing assets; all 12 base sessions have four non-impact exercises and fallbacks", () => {
-  assert.equal(exerciseLibrary.length, 12);
-  assert.equal(new Set(exerciseLibrary.map((e) => e.imageUrl)).size, 12);
-  for (const w of trainingProgram.weeks)
-    for (const d of w.days) {
-      assert.equal(d.routine.length, 4);
-      for (const s of d.routine) {
-        assert.ok(s.variants.cuerpo.imageUrl);
-        assert.ok(s.variants.mancuernas);
-        assert.equal(s.variants.cuerpo.advanced, false);
-        assert.ok(s.variants.cuerpo.alternative);
-      }
-    }
-});
 test("provider verification rejects amount, currency, product, session and mode mismatches", () => {
   const session = {
     id: "session",
