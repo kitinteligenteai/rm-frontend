@@ -84,7 +84,7 @@ export default function SmartCheckoutCTA({
         <div className="text-3xl font-extrabold tracking-tight text-teal-400">
           ${displayPrice} {isMXN ? "MXN" : "USD"}
         </div>
-        <div className="text-[12px] text-slate-500 mt-1">Un solo pago • Acceso de por vida</div>
+        <div className="text-[12px] text-slate-500 mt-1">Un solo pago • Sin cobro recurrente</div>
       </div>
 
       <label className="mt-4 flex items-start gap-3 rounded-lg border border-white/10 bg-black/20 p-3 text-left text-[11px] leading-relaxed text-slate-400">
@@ -140,7 +140,7 @@ export default function SmartCheckoutCTA({
         )}
       </div>
 
-      <p className="mt-3 text-center text-[11px] text-slate-500">🔒 Transacción 100% segura</p>
+      <p className="mt-3 text-center text-[11px] text-slate-500">Pago procesado por Mercado Pago o Gumroad</p>
     </div>
   );
 }

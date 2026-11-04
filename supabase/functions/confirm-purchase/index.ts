@@ -1,69 +1,99 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { assertRecipient } from "../_shared/environment.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
+import {
+  validEmail,
+  validUuid,
+  verifyPayment,
+} from "../_shared/paymentRules.ts";
+import { json, preflight } from "../_shared/http.ts";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
+  const options = preflight(req);
+  if (options) return options;
+  if (req.method !== "POST")
+    return json({ message: "Método no permitido." }, 405);
   try {
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-    const SERVICE_KEY   = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    // const NTFY_TOPIC    = Deno.env.get("NTFY_TOPIC"); // Ya no lo usamos aquí para evitar ruido
-
-    const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
-
-    const raw = await req.text();
-    let body: any = {};
-    try { body = JSON.parse(raw || "{}"); } catch { /* no-op */ }
-
-    const session_id = String(body?.session_id || "").trim();
-    const email      = String(body?.email || "").trim().toLowerCase();
-
-    if (!session_id || !email) {
-      return new Response(JSON.stringify({ success:false, message: "Faltan datos." }), { headers: corsHeaders, status: 400 });
-    }
-
-    const { data: sess, error: sessErr } = await supabase
-      .from("checkout_sessions")
-      .select("id, email_final")
-      .eq("id", session_id)
-      .single();
-
-    if (sessErr) {
-      return new Response(JSON.stringify({ success:false, message: "Sesión no encontrada." }), { headers: corsHeaders, status: 404 });
-    }
-
-    if (sess?.email_final) {
-      return new Response(
-        JSON.stringify({ success:true, message: "Correo ya confirmado." }),
-        { headers: corsHeaders, status: 200 }
+    const { session_id, email: rawEmail, checkout_token } = await req.json();
+    const email =
+      typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
+    if (
+      !validUuid(session_id) ||
+      !validUuid(checkout_token) ||
+      !validEmail(email)
+    )
+      return json(
+        {
+          message:
+            "Datos de compra inválidos. Usa el navegador donde compraste o contacta a soporte.",
+        },
+        400,
       );
-    }
-
-    const { error: rpcErr } = await supabase.rpc("update_checkout_email_final", {
-      p_session_id: session_id,
-      p_email: email,
-    });
-    
-    if (rpcErr) {
-      return new Response(JSON.stringify({ success:false, message: "Error al guardar." }), { headers: corsHeaders, status: 400 });
-    }
-
-    // 🔇 NOTIFICACIÓN SILENCIADA:
-    // Aquí estaba el fetch a NTFY. Se eliminó para evitar duplicidad.
-    // El email-worker te avisará cuando salga el correo.
-
-    return new Response(
-      JSON.stringify({ success:true, message: "Correo confirmado." }),
-      { headers: corsHeaders, status: 200 }
+    assertRecipient((key) => Deno.env.get(key), email);
+    const db = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
-
-  } catch (err:any) {
-    return new Response(JSON.stringify({ success:false, message: "Error interno." }), {
-      headers: corsHeaders, status: 400
+    const { data: s, error } = await db
+      .from("checkout_sessions")
+      .select("*")
+      .eq("id", session_id)
+      .eq("correction_token", checkout_token)
+      .maybeSingle();
+    if (error || !s)
+      return json({ message: "No pudimos verificar esta compra." }, 403);
+    if (s.email_final && s.email_final.toLowerCase() !== email)
+      return json(
+        {
+          message:
+            "El correo ya fue confirmado. Contacta a soporte para corregirlo.",
+        },
+        409,
+      );
+    if (!s.payment_id)
+      return json(
+        {
+          message:
+            "El pago aún está pendiente. Reintenta cuando esté aprobado.",
+        },
+        409,
+      );
+    const res = await fetch(
+      `https://api.mercadopago.com/v1/payments/${encodeURIComponent(s.payment_id)}`,
+      {
+        headers: { Authorization: `Bearer ${Deno.env.get("MP_ACCESS_TOKEN")}` },
+      },
+    );
+    if (!res.ok)
+      return json(
+        { message: "No pudimos verificar el pago. Intenta de nuevo." },
+        503,
+      );
+    const payment = await res.json();
+    verifyPayment(payment, s, Deno.env.get("PAYMENT_ENV") || "test");
+    if (payment.status !== "approved")
+      return json({ message: "El pago todavía no está aprobado." }, 409);
+    const { error: recordError } = await db.rpc("record_verified_payment", {
+      p_session_id: session_id,
+      p_payment: payment,
     });
+    if (recordError) throw recordError;
+    const { error: confirmError } = await db.rpc(
+      "update_checkout_email_final",
+      { p_session_id: session_id, p_email: email },
+    );
+    if (confirmError) throw confirmError;
+    return json({
+      success: true,
+      delivery: "queued",
+      message: "Compra verificada. El correo está en preparación.",
+    });
+  } catch {
+    return json(
+      {
+        message:
+          "No pudimos completar la confirmación. Reintenta o contacta a soporte.",
+      },
+      400,
+    );
   }
 });

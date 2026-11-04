@@ -1,164 +1,346 @@
-// Contenido COMPLETO, UNIFICADO y VERIFICADO para: rm-frontend/src/data/trainingProgram.js
-
-export const trainingProgram = {
-  weeks: [
-    // ==================================================================
-    // SEMANA 1: ACONDICIONAMIENTO FUNDAMENTAL
-    // ==================================================================
+// Stable movement IDs are independent of week, equipment and display name.
+const assetBase = import.meta.env?.VITE_GYM_ASSET_BASE_URL || "/media/gym/";
+const image = (file) => assetBase.replace(/\/$/, "") + "/" + file + ".webp";
+function movement(id, name, file, description, alternative, options = {}) {
+  return {
+    id,
+    name,
+    imageUrl: image(file),
+    file,
+    description,
+    alternative,
+    modality: "cuerpo",
+    difficulty: "Inicial",
+    repetitions: "6–10 repeticiones cómodas",
+    workSeconds: 30,
+    restSeconds: 45,
+    warning:
+      "Respira sin contener el aire. Detente antes de perder la técnica.",
+    ...options,
+  };
+}
+export const exerciseLibrary = [
+  movement(
+    "wall",
+    "Lagartija de pared",
+    "wall-v2",
+    "Manos a la altura del pecho sobre una pared firme. Cuerpo alineado; acerca el pecho flexionando los codos en diagonal y empuja mientras exhalas.",
+    "Acércate a la pared y reduce el recorrido.",
+  ),
+  movement(
+    "plank",
+    "Plancha frontal",
+    "rm002_plancha_frontal",
+    "Antebrazos bajo hombros. Apoya rodillas o puntas de los pies, mantén espalda neutra y respira sin hundir la cintura.",
+    "Apoya antebrazos en la pared y da un paso atrás.",
     {
-      week: 1,
-      title: "Semana de Acondicionamiento Fundamental",
-      days: [
-        {
-          day: 1,
-          title: "Tren Superior y Core",
-          routine: [
-            {
-              slot: "Empuje Horizontal",
-              variants: {
-                cuerpo: { name: "Lagartija Inclinada (en pared o mesa)", description: "Coloca las manos en una superficie elevada, más anchas que tus hombros. Mantén el cuerpo recto desde la cabeza hasta los talones. Baja el pecho hacia la superficie de forma controlada y empuja para volver al inicio.", videoId: "VIMEO_LINK_1_1_1" },
-                mancuernas: { name: "Press de Suelo con Mancuernas", description: "Acuéstate en el suelo con las rodillas flexionadas. Sostén una mancuerna en cada mano a los lados de tu pecho, con los codos tocando el suelo. Empuja las mancuernas hacia arriba hasta que tus brazos estén extendidos. Baja lentamente.", videoId: "VIMEO_LINK_1_1_2" }
-              }
-            },
-            {
-              slot: "Tracción Horizontal",
-              variants: {
-                cuerpo: { name: "Remo con Toalla", description: "Siéntate en el suelo con las piernas extendidas. Pasa una toalla por la planta de tus pies. Sujeta los extremos de la toalla y, manteniendo la espalda recta, jala hacia tu abdomen, apretando los omóplatos.", videoId: "VIMEO_LINK_1_2_1" },
-                mancuernas: { name: "Remo a una mano con Mancuerna (Remo Serrucho)", description: "Apoya una rodilla y una mano en una silla o banco. Con la espalda recta, sostén una mancuerna con el otro brazo extendido. Jala la mancuerna hacia tu cadera, manteniendo el codo pegado al cuerpo. Baja de forma controlada.", videoId: "VIMEO_LINK_1_2_2" }
-              }
-            },
-            {
-              slot: "Core (Anti-extensión)",
-              variants: {
-                cuerpo: { name: "Plancha Frontal", description: "Apoya los antebrazos y las puntas de los pies en el suelo. Mantén el cuerpo en una línea perfectamente recta, apretando el abdomen y los glúteos. Evita que tu cadera se caiga o se eleve demasiado.", videoId: "VIMEO_LINK_1_3_1" }
-              }
-            }
-          ]
-        },
-        {
-          day: 2,
-          title: "Tren Inferior y Estabilidad",
-          routine: [
-            {
-              slot: "Dominante de Rodilla",
-              variants: {
-                cuerpo: { name: "Sentadilla en Silla (Box Squat)", description: "Párate frente a una silla con los pies al ancho de los hombros. Empuja la cadera hacia atrás y baja de forma controlada hasta que tus glúteos toquen ligeramente la silla. Levántate sin impulsarte.", videoId: "VIMEO_LINK_1_4_1" },
-                mancuernas: { name: "Sentadilla Copa (Goblet Squat)", description: "Sostén una mancuerna verticalmente contra tu pecho con ambas manos. Manteniendo la espalda recta, baja la cadera por debajo de tus rodillas. Empuja con los talones para volver a la posición inicial.", videoId: "VIMEO_LINK_1_4_2" }
-              }
-            },
-            {
-              slot: "Dominante de Cadera",
-              variants: {
-                cuerpo: { name: "Puente de Glúteos", description: "Acuéstate boca arriba con las rodillas flexionadas y los pies apoyados en el suelo. Eleva la cadera hacia el techo, apretando fuertemente los glúteos en la parte superior. Baja de forma controlada.", videoId: "VIMEO_LINK_1_5_1" }
-              }
-            }
-          ]
-        },
-        {
-          day: 3,
-          title: "Full Body y Resistencia",
-          routine: [
-            { slot: "Empuje Horizontal", variants: { cuerpo: { name: "Lagartija Inclinada", description: "Repite el ejercicio del Día 1, intentando usar una superficie un poco más baja para aumentar la dificultad.", videoId: "VIMEO_LINK_1_1_1" } } },
-            { slot: "Dominante de Rodilla", variants: { cuerpo: { name: "Sentadilla en Silla", description: "Repite el ejercicio del Día 2, enfocándote en una ejecución más lenta y controlada.", videoId: "VIMEO_LINK_1_4_1" } } },
-            { slot: "Core (Anti-extensión)", variants: { cuerpo: { name: "Plancha Frontal", description: "Repite el ejercicio del Día 1, intenta mantener la posición por 5-10 segundos más que la vez anterior.", videoId: "VIMEO_LINK_1_3_1" } } }
-          ]
-        }
-      ]
+      repetitions: "10–20 segundos",
+      workSeconds: 20,
+      difficulty: "Intermedia",
+      advanced: true,
     },
-    // ==================================================================
-    // SEMANA 2: INTENSIFICACIÓN
-    // ==================================================================
+  ),
+  movement(
+    "deadbug",
+    "Dead bug",
+    "rm003_dead_bug",
+    "Boca arriba. Mueve lentamente un brazo y la pierna contraria sin arquear la zona lumbar. Alterna lados.",
+    "Pies apoyados; desliza un talón por vez.",
+    { repetitions: "3–5 por lado" },
+  ),
+  movement(
+    "chair",
+    "Sentadilla en silla",
+    "rm004_sentadilla_en_silla",
+    "Silla estable contra la pared. Lleva cadera atrás, toca suavemente el asiento y levántate con control. Rodillas siguen la dirección de los pies; mantén el pie completo apoyado.",
+    "Silla más alta, ayuda de manos y recorrido corto sin dolor.",
+  ),
+  movement(
+    "bridge",
+    "Puente de glúteos",
+    "rm005_puente_de_gluteos",
+    "Boca arriba, rodillas flexionadas y pies apoyados. Eleva cadera al exhalar sin arquear la espalda; baja con control.",
+    "Eleva menos la cadera o contrae suavemente sin elevarla.",
+  ),
+  movement(
+    "bird",
+    "Bird dog",
+    "rm006_bird_dog",
+    "En cuatro apoyos, extiende brazo y pierna opuestos lentamente sin girar la cadera ni arquear la espalda.",
+    "Mueve solo un brazo o una pierna, con apoyo acolchado.",
+    { repetitions: "3–5 por lado" },
+  ),
+  movement(
+    "lunge",
+    "Desplante estático",
+    "rm007_desplante_estatico",
+    "Junto a un apoyo firme, coloca un pie delante del otro. Flexiona poco ambas rodillas y vuelve con control; termina un lado y cambia.",
+    "Sentadilla en silla. No es necesario acercar la rodilla al suelo.",
     {
-      week: 2,
-      title: "Semana de Intensificación",
-      days: [
-        {
-          day: 1,
-          title: "Enfoque: Tren Superior",
-          routine: [
-            {
-              slot: "Empuje Vertical",
-              variants: {
-                cuerpo: { name: "Pike Push-up (Pica)", description: "Colócate en posición de 'V' invertida. Baja la parte superior de tu cabeza hacia el suelo, manteniendo las piernas rectas. Empuja para volver al inicio. Trabaja hombros y tríceps.", videoId: "VIMEO_LINK_2_1_1" },
-                mancuernas: { name: "Press Militar Sentado", description: "Sentado en una silla con la espalda recta, sostén las mancuernas a la altura de los hombros. Empújalas hacia arriba hasta extender los brazos por completo. Baja controladamente.", videoId: "VIMEO_LINK_2_1_2" }
-              }
-            },
-            {
-              slot: "Tracción Horizontal",
-              variants: {
-                cuerpo: { name: "Remo con Toalla", description: "Misma ejecución que en la Semana 1, pero intenta mantener la contracción por 2 segundos en cada repetición.", videoId: "VIMEO_LINK_1_2_1" },
-                mancuernas: { name: "Remo Serrucho", description: "Misma ejecución que en la Semana 1, pero intenta usar un poco más de peso o hacer más repeticiones.", videoId: "VIMEO_LINK_1_2_2" }
-              }
-            },
-            {
-              slot: "Accesorios de Brazo",
-              variants: {
-                mancuernas: { name: "Curl de Bíceps + Patada de Tríceps", description: "De pie, realiza un curl de bíceps. Luego, inclina el torso y realiza una patada de tríceps con el mismo brazo. Alterna brazos.", videoId: "VIMEO_LINK_2_2_2" }
-              }
-            }
-          ]
-        },
-        {
-          day: 2,
-          title: "Enfoque: Tren Inferior",
-          routine: [
-            {
-              slot: "Dominante de Rodilla (Unilateral)",
-              variants: {
-                cuerpo: { name: "Desplante Estático", description: "Da un paso largo hacia adelante. Baja la rodilla de atrás casi hasta tocar el suelo, manteniendo el torso erguido. Ambas piernas deben formar ángulos de 90 grados. Vuelve al inicio y cambia de pierna.", videoId: "VIMEO_LINK_2_3_1" },
-                mancuernas: { name: "Desplante con Mancuernas", description: "Sostén una mancuerna en cada mano y realiza el desplante estático. El peso añadido aumentará la intensidad.", videoId: "VIMEO_LINK_2_3_2" }
-              }
-            },
-            {
-              slot: "Dominante de Cadera (Unilateral)",
-              variants: {
-                cuerpo: { name: "Puente de Glúteos a una pierna", description: "Realiza el puente de glúteos, pero con una pierna extendida en el aire. Concéntrate en no dejar caer la cadera del lado de la pierna elevada.", videoId: "VIMEO_LINK_2_4_1" }
-              }
-            }
-          ]
-        }
-      ]
+      easierId: "chair",
+      repetitions: "3–5 por lado",
+      workSeconds: 45,
+      difficulty: "Intermedia",
     },
-    // ==================================================================
-    // SEMANA 3: POTENCIA METABÓLICA
-    // ==================================================================
+  ),
+  movement(
+    "singlebridge",
+    "Puente a una pierna",
+    "rm008_puente_de_gluteos_a_una_pierna",
+    "Solo si el puente bilateral es cómodo: eleva un pie y sube la cadera sin inclinarla. Cambia de lado.",
+    "Puente con ambos pies apoyados.",
     {
-      week: 3,
-      title: "Semana de Potencia Metabólica",
-      days: [
-        {
-          day: 1,
-          title: "Circuito Full Body",
-          routine: [
-            { slot: "Empuje", variants: { cuerpo: { name: "Lagartijas (en rodillas o completas)", description: "Intenta la versión más desafiante que puedas con buena forma. Mantén el core apretado.", videoId: "VIMEO_LINK_3_1_1" }, mancuernas: { name: "Press de Suelo con Mancuernas", description: "Aumenta el peso o las repeticiones respecto a la Semana 1.", videoId: "VIMEO_LINK_1_1_2" } } },
-            { slot: "Tracción", variants: { mancuernas: { name: "Remo Renegado", description: "En posición de plancha con las manos sobre mancuernas, realiza un remo alternando cada brazo, sin rotar la cadera.", videoId: "VIMEO_LINK_3_2_2" } } },
-            { slot: "Piernas", variants: { cuerpo: { name: "Sentadilla con Salto", description: "Realiza una sentadilla completa y explota en un salto vertical. Aterriza suavemente.", videoId: "VIMEO_LINK_3_3_1" }, mancuernas: { name: "Sentadilla Copa (Goblet Squat)", description: "Aumenta el peso o las repeticiones.", videoId: "VIMEO_LINK_1_4_2" } } },
-            { slot: "Core", variants: { cuerpo: { name: "Escaladores (Mountain Climbers)", description: "En posición de plancha, lleva las rodillas al pecho de forma alterna y rápida.", videoId: "VIMEO_LINK_3_4_1" } } }
-          ]
-        }
-      ]
+      easierId: "bridge",
+      advanced: true,
+      difficulty: "Intermedia",
+      repetitions: "3–5 por lado",
     },
-    // ==================================================================
-    // SEMANA 4: RENDIMIENTO MÁXIMO
-    // ==================================================================
+  ),
+  movement(
+    "pushup",
+    "Lagartija tradicional",
+    "rm009_lagartija_tradicional",
+    "Manos bajo hombros, tronco alineado y codos en diagonal. Baja y empuja sin dolor ni hundir la cintura.",
+    "Lagartija de pared.",
+    { easierId: "wall", advanced: true, difficulty: "Avanzada" },
+  ),
+  movement(
+    "jump",
+    "Sentadilla con salto",
+    "rm010_sentadilla_con_salto",
+    "Opción de impacto fuera del programa base. Requiere tolerar sentadillas y aterrizar con control, sin dolor.",
+    "Sentadilla en silla sin salto.",
     {
-      week: 4,
-      title: "Semana de Rendimiento Máximo",
-      days: [
-        {
-          day: 1,
-          title: "Reto de Resistencia",
-          routine: [
-            {
-              slot: "Complejo de Ejercicios",
-              variants: {
-                cuerpo: { name: "El Burpee (versión sin salto)", description: "Desde una posición de pie, agáchate, coloca las manos en el suelo, camina con los pies hacia atrás a una plancha, camina de regreso y levántate. Es un ejercicio metabólico total.", videoId: "VIMEO_LINK_4_1_1" },
-                mancuernas: { name: "Thruster con Mancuernas", description: "Sostén dos mancuernas en tus hombros. Realiza una sentadilla frontal y, al subir, usa el impulso para empujar las mancuernas sobre tu cabeza en un press militar. Un solo movimiento fluido.", videoId: "VIMEO_LINK_4_1_2" }
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
+      easierId: "chair",
+      advanced: true,
+      difficulty: "Avanzada",
+      warning:
+        "No se propone a principiantes. Evita saltos con dolor articular, limitación de equilibrio o de suelo pélvico.",
+    },
+  ),
+  movement(
+    "prone",
+    "Elevación prona suave",
+    "rm011_elevacion_prona",
+    "Boca abajo, mirada al suelo. Eleva ligeramente el pecho, sin forzar cuello ni zona lumbar; respira y baja despacio.",
+    "De pie, junta suavemente los omóplatos sin arquear la espalda.",
+    { repetitions: "6 elevaciones pequeñas" },
+  ),
+  movement(
+    "march",
+    "Marcha en sitio",
+    "march-v2",
+    "Cerca de un apoyo, alterna pasos suaves, sin saltos. Mantén un ritmo que permita hablar con comodidad.",
+    "Marcha sentada en una silla estable.",
+    {
+      repetitions: "30 segundos",
+      warning:
+        "Usa apoyo si el equilibrio lo requiere. No eleves las rodillas más de lo cómodo.",
+    },
+  ),
+  movement(
+    "db-floor",
+    "Press de suelo",
+    "db-floor",
+    "Boca arriba con rodillas flexionadas. Baja las mancuernas hasta apoyar suavemente los brazos en el suelo, codos en diagonal. Exhala al empujar; muñecas rectas y hombros apoyados.",
+    "Mancuernas más ligeras o lagartija de pared.",
+    { modality: "mancuernas", easierId: "wall" },
+  ),
+  movement(
+    "db-row",
+    "Remo con apoyo",
+    "db-row",
+    "Apoya una mano en una superficie firme y deja ambos pies en el suelo. Inclina el tronco desde la cadera, espalda neutra. Lleva la mancuerna hacia la cadera sin girarte; completa ambos lados.",
+    "Menos peso, menor inclinación y recorrido cómodo.",
+    {
+      modality: "mancuernas",
+      repetitions: "4–6 por lado",
+      workSeconds: 45,
+      warning:
+        "Usa banco o apoyo firme que no vuelque ni se deslice; nunca una silla con ruedas.",
+    },
+  ),
+  movement(
+    "db-goblet",
+    "Sentadilla copa",
+    "db-goblet",
+    "Sostén una mancuerna cerca del pecho con ambas manos. Lleva la cadera atrás y flexiona las rodillas siguiendo los pies; sube al exhalar. No fuerces profundidad.",
+    "Sentadilla en silla sin peso.",
+    { modality: "mancuernas", easierId: "chair" },
+  ),
+  movement(
+    "db-press",
+    "Press militar sentado",
+    "db-press",
+    "En silla estable, pies apoyados. Desde la altura de los hombros, empuja mancuernas ligeras sobre la cabeza sin arquear la espalda; baja despacio.",
+    "Menos peso y rango cómodo; si molesta elevar brazos, cambia por press de suelo.",
+    {
+      modality: "mancuernas",
+      easierId: "db-floor",
+      difficulty: "Intermedia",
+      warning:
+        "No continúes si aparece dolor de hombro. Evita contener el aire o empujar con la zona lumbar.",
+    },
+  ),
+  movement(
+    "db-curl",
+    "Curl de bíceps",
+    "db-curl",
+    "De pie con rodillas suaves, brazos a los lados y palmas al frente. Flexiona los codos sin balancear el tronco; baja con control.",
+    "Una mancuerna ligera por vez, o el mismo gesto sin carga.",
+    { modality: "mancuernas" },
+  ),
+  movement(
+    "db-triceps",
+    "Patada de tríceps con apoyo",
+    "db-triceps",
+    "Una mano sobre apoyo firme, espalda neutra. Con el otro brazo junto al torso y codo flexionado, extiende el antebrazo hacia atrás sin mover el hombro. Repite al otro lado.",
+    "Menor peso o sin peso; reduce el recorrido sin dolor.",
+    {
+      modality: "mancuernas",
+      repetitions: "4–6 por lado",
+      workSeconds: 45,
+      difficulty: "Intermedia",
+    },
+  ),
+  movement(
+    "db-lunge",
+    "Desplante con mancuerna y apoyo",
+    "db-lunge",
+    "Sujeta un apoyo firme con una mano y una mancuerna ligera con la otra. Pies separados adelante y atrás. Flexiona poco ambas rodillas sin perder equilibrio; cambia de lado.",
+    "Desplante sin carga con apoyo, o sentadilla en silla.",
+    {
+      modality: "mancuernas",
+      easierId: "lunge",
+      repetitions: "3–5 por lado",
+      workSeconds: 45,
+      difficulty: "Intermedia",
+      warning:
+        "La estabilidad va antes que la carga. Retira la mancuerna si necesitas ambas manos para apoyarte.",
+    },
+  ),
+  movement(
+    "db-rdl",
+    "Peso muerto rumano",
+    "db-rdl",
+    "De pie con mancuernas ligeras junto a muslos y rodillas suaves. Lleva cadera atrás; las pesas bajan cerca de las piernas solo hasta donde mantengas espalda neutra. Vuelve a erguirte al exhalar.",
+    "Practica la bisagra sin peso, o cambia por puente de glúteos.",
+    {
+      modality: "mancuernas",
+      easierId: "bridge",
+      warning:
+        "No busques tocar el suelo. Detente ante dolor lumbar y reduce recorrido o elige la alternativa.",
+    },
+  ),
+];
+export const exercisesById = Object.fromEntries(
+  exerciseLibrary.map((e) => [e.id, e]),
+);
+export const modalities = {
+  cuerpo: "Sin equipo",
+  mancuernas: "Con mancuernas",
 };
+const plans = [
+  {
+    title: "Familiarización y técnica",
+    focus:
+      "Conoce los movimientos y elige una carga ligera. Deja al menos 3 repeticiones posibles sin hacer; puedes comenzar con una vuelta.",
+    reps: "6–8 repeticiones",
+    work: 30,
+    cuerpo: [
+      ["chair", "wall", "bridge", "march"],
+      ["chair", "deadbug", "bird", "wall"],
+      ["chair", "bridge", "wall", "bird"],
+    ],
+    mancuernas: [
+      ["db-goblet", "db-floor", "db-row", "march"],
+      ["db-rdl", "db-row", "db-floor", "deadbug"],
+      ["db-goblet", "db-floor", "db-row", "db-curl"],
+    ],
+  },
+  {
+    title: "Consolidación y control",
+    focus:
+      "Repite la carga cómoda. Baja con control; prueba un movimiento nuevo solo si su alternativa ya se siente estable.",
+    reps: "6–8 repeticiones controladas",
+    work: 30,
+    cuerpo: [
+      ["chair", "wall", "bird", "march"],
+      ["lunge", "bridge", "deadbug", "wall"],
+      ["chair", "bridge", "prone", "deadbug"],
+    ],
+    mancuernas: [
+      ["db-goblet", "db-row", "db-press", "march"],
+      ["db-rdl", "db-floor", "db-row", "db-triceps"],
+      ["db-goblet", "db-floor", "db-curl", "bird"],
+    ],
+  },
+  {
+    title: "Un paso gradual, si estás listo",
+    focus:
+      "Si terminaste dos sesiones con técnica cómoda, añade 1–2 repeticiones dentro del rango. Mantén el peso; repetir la semana anterior también es avanzar.",
+    reps: "8–10, o conserva 6–8",
+    work: 40,
+    cuerpo: [
+      ["chair", "wall", "lunge", "bird"],
+      ["bridge", "wall", "deadbug", "march"],
+      ["chair", "bird", "prone", "wall"],
+    ],
+    mancuernas: [
+      ["db-goblet", "db-row", "db-floor", "db-lunge"],
+      ["db-rdl", "db-row", "db-press", "deadbug"],
+      ["db-goblet", "db-floor", "db-curl", "db-triceps"],
+    ],
+  },
+  {
+    title: "Consolidación y autonomía",
+    focus:
+      "Elige lo que puedes sostener. Conserva el volumen que toleras; solo considera una carga mínima mayor cuando el rango alto sea cómodo en dos sesiones. No subas peso y repeticiones a la vez.",
+    reps: "6–10 a tu ritmo",
+    work: 40,
+    cuerpo: [
+      ["chair", "wall", "lunge", "deadbug"],
+      ["bridge", "bird", "wall", "march"],
+      ["chair", "bridge", "wall", "bird"],
+    ],
+    mancuernas: [
+      ["db-goblet", "db-floor", "db-row", "march"],
+      ["db-rdl", "db-press", "db-row", "deadbug"],
+      ["db-goblet", "db-lunge", "db-floor", "db-curl"],
+    ],
+  },
+];
+export const trainingProgram = {
+  weeks: plans.map((p, i) => ({
+    week: i + 1,
+    title: p.title,
+    focus: p.focus,
+    repetitions: p.reps,
+    days: [1, 2, 3].map((day, d) => ({
+      day,
+      title: ["Cuerpo completo A", "Cuerpo completo B", "Cuerpo completo C"][d],
+      routines: Object.fromEntries(
+        Object.keys(modalities).map((mode) => [
+          mode,
+          p[mode][d].map((id) => ({
+            ...exercisesById[id],
+            workSeconds: ["march", "plank"].includes(id)
+              ? exercisesById[id].workSeconds
+              : Math.max(exercisesById[id].workSeconds, p.work),
+            prescription: /por lado|segundos|pequeñas/.test(
+              exercisesById[id].repetitions,
+            )
+              ? exercisesById[id].repetitions
+              : p.reps,
+          })),
+        ]),
+      ),
+    })),
+  })),
+};
+export function getRoutine(week, day, mode) {
+  return (
+    trainingProgram.weeks[week - 1]?.days[day - 1]?.routines[mode] ||
+    trainingProgram.weeks[0].days[0].routines.cuerpo
+  );
+}

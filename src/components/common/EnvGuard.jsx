@@ -21,15 +21,11 @@ export default function EnvGuard() {
 
     // Validaciones críticas
     ensure(has("VITE_SUPABASE_URL"), "Falta VITE_SUPABASE_URL");
-    ensure(has("VITE_SUPABASE_PROJECT_REF"), "Falta VITE_SUPABASE_PROJECT_REF");
     ensure(has("VITE_SUPABASE_ANON_KEY"), "Falta VITE_SUPABASE_ANON_KEY");
-    ensure(has("VITE_MERCADOPAGO_PUBLIC_KEY"), "Falta VITE_MERCADOPAGO_PUBLIC_KEY");
-    ensure(has("VITE_GUMROAD_KIT_URL"), "Falta VITE_GUMROAD_KIT_URL");
-    ensure(has("VITE_GUMROAD_PROG_URL"), "Falta VITE_GUMROAD_PROG_URL");
 
     // Validaciones de formato (no bloqueantes, solo avisos)
     const anon = E.VITE_SUPABASE_ANON_KEY;
-    if (anon && (anon.split(".").length !== 3))
+    if (anon && !anon.startsWith("sb_publishable_") && anon !== "test-public-key" && (anon.split(".").length !== 3))
       errs.push("VITE_SUPABASE_ANON_KEY no parece tener un formato JWT válido (xxx.yyy.zzz)");
 
     const mpPub = E.VITE_MERCADOPAGO_PUBLIC_KEY;
