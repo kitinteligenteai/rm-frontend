@@ -26,3 +26,13 @@ test("TEST refuses production DB/site and requires explicit recipients", () => {
   assert.throws(() => assertRecipient(get(), "real-buyer@example.com"));
   assert.doesNotThrow(() => assertRecipient(get(), "qa@example.invalid"));
 });
+
+test('test HTTPS delivery links preserve path and token, reject live mode', async () => {
+  const { publicTestUrl } = await import('../supabase/functions/_shared/publicTestUrl.ts');
+  const url='http://kong:8000/auth/v1/verify?token=synthetic&type=recovery';
+  assert.equal(publicTestUrl(url, get()),url);
+  const patch={PUBLIC_TEST_API_URL:'https://rm-test.trycloudflare.com',EMAIL_ENV:'test'};
+  assert.equal(publicTestUrl(url,get(patch)),'https://rm-test.trycloudflare.com/auth/v1/verify?token=synthetic&type=recovery');
+  assert.throws(()=>publicTestUrl(url,get({...patch,PAYMENT_ENV:'live'})));
+  assert.throws(()=>publicTestUrl(url,get({...patch,PUBLIC_TEST_API_URL:'https://reiniciometabolico.net'})));
+});

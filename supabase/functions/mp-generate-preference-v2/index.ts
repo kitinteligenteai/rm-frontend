@@ -1,4 +1,5 @@
 import { validEmail } from "../_shared/paymentRules.ts";
+import { publicTestUrl } from "../_shared/publicTestUrl.ts";
 import { assertEnvironment, assertRecipient } from "../_shared/environment.ts";
 // supabase/functions/mp-generate-preference-v2/index.ts
 // v4.1 — Precio backend + consentimiento legal trazable
@@ -191,7 +192,7 @@ Deno.serve(async (req) => {
       throw new Error(`legal_consent_insert_failed: ${consentError.message}`);
     }
 
-    const notification_url = `${supabaseUrl}/functions/v1/mp-webhook-v3`;
+    const notification_url = publicTestUrl(`${supabaseUrl}/functions/v1/mp-webhook-v3`, (key) => Deno.env.get(key));
 
     const isPrograma = requestedId === "programa-completo";
     const successUrl = isPrograma

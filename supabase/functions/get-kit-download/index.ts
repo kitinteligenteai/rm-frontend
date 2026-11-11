@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
 import { validUuid } from "../_shared/paymentRules.ts";
+import { publicTestUrl } from "../_shared/publicTestUrl.ts";
 import { json, preflight } from "../_shared/http.ts";
 Deno.serve(async (req) => {
   const options = preflight(req);
@@ -59,7 +60,7 @@ Deno.serve(async (req) => {
         download: "Reinicio-Metabolico-Kit-7-Dias.pdf",
       });
     if (error || !data?.signedUrl) throw Error("storage");
-    return json({ url: data.signedUrl });
+    return json({ url: publicTestUrl(data.signedUrl, (key) => Deno.env.get(key)) });
   } catch {
     return json({ error: "download_unavailable" }, 503);
   }

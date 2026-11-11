@@ -2,6 +2,7 @@ import { assertEnvironment, assertRecipient } from "../_shared/environment.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
 import { emailTemplate, sendResend } from "../_shared/emailDelivery.ts";
 import { json } from "../_shared/http.ts";
+import { publicTestUrl } from "../_shared/publicTestUrl.ts";
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -70,7 +71,7 @@ Deno.serve(async (req) => {
           });
           if (error || !data?.properties?.action_link)
             throw Error("activation_failed");
-          link = data.properties.action_link;
+          link = publicTestUrl(data.properties.action_link, (key) => Deno.env.get(key));
         } else {
           const { data: s, error } = await db
             .from("checkout_sessions")
@@ -81,7 +82,9 @@ Deno.serve(async (req) => {
           link = `${siteUrl}/descargar-kit?session_id=${job.payload.session_id}&token=${s.correction_token}`;
         }
         delivery = {
-          from: "Reinicio Metabólico <acceso@reiniciometabolico.net>",
+          from: Deno.env.get("EMAIL_ENV") === "test"
+            ? (Deno.env.get("TEST_EMAIL_FROM") || "Reinicio Metabólico TEST <onboarding@resend.dev>")
+            : "Reinicio Metabólico <acceso@reiniciometabolico.net>",
           to: [job.to_email],
           ...emailTemplate(job.template, link, siteUrl),
         };
