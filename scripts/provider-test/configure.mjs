@@ -18,7 +18,7 @@ config=config.replace(/^site_url = .*$/m,`site_url = "${url}"`)
   .replace(/^additional_redirect_urls = .*$/m,`additional_redirect_urls = ["${url}/reset-password", "${url}/auth"]`);
 await writeFile(resolve(work,'supabase/config.toml'),config+'\n'+await readFile('supabase/functions/config.release.toml','utf8'));
 await mkdir(resolve(work,'supabase/functions'),{recursive:true});
-for (const name of ['_shared','mp-webhook-v3','resend-webhook-v2','mp-generate-preference-v2','confirm-purchase','get-kit-download','email-worker-v2'])
+for (const name of ['_shared','mp-webhook-v3','resend-webhook-v2','mp-generate-preference-v2','confirm-purchase','get-kit-download','email-worker-v2','gumroad-webhook'])
   await cp(resolve('supabase/functions',name),resolve(work,'supabase/functions',name),{recursive:true});
 const values={PAYMENT_ENV:'test',EMAIL_ENV:'test',GUMROAD_ENV:'test',GUMROAD_ENABLED:'false',
   PAYMENTS_ENABLED:String(ready),PUBLIC_SITE_URL:url,PUBLIC_TEST_API_URL:url,

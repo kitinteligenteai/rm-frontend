@@ -12,6 +12,7 @@ const LEGAL_VERSIONS = {
 };
 
 function guessDefaultCurrency() {
+  if (import.meta.env.VITE_DEPLOYMENT_ENV === "staging") return "MXN";
   try {
     const saved = localStorage.getItem("rm.currency");
     if (saved === "USD" || saved === "MXN") return saved;
@@ -28,6 +29,7 @@ export default function SmartCheckoutCTA({
   productId = "kit-7-dias",
   dense = true,
 }) {
+  const staging = import.meta.env.VITE_DEPLOYMENT_ENV === "staging";
   const [currency, setCurrency] = useState(guessDefaultCurrency);
   const [acceptedLegal, setAcceptedLegal] = useState(false);
 
@@ -76,7 +78,7 @@ export default function SmartCheckoutCTA({
 
       <div className="text-[12px] text-slate-400 mb-2">Moneda:</div>
       <div className="flex gap-2">
-        <button type="button" onClick={() => setCurrency("USD")} className={`${toggleBase} ${!isMXN ? toggleActive : toggleInactive}`}>🇺🇸 USD</button>
+        <button type="button" disabled={staging} onClick={() => setCurrency("USD")} className={`${toggleBase} ${!isMXN ? toggleActive : toggleInactive}`}>🇺🇸 USD</button>
         <button type="button" onClick={() => setCurrency("MXN")} className={`${toggleBase} ${isMXN ? toggleActive : toggleInactive}`}>🇲🇽 MXN</button>
       </div>
 
@@ -118,6 +120,8 @@ export default function SmartCheckoutCTA({
             productId={productId}
             legalConsent={legalConsent}
           />
+        ) : staging ? (
+          <p>Gumroad se verifica por separado con una compra de prueba del creador.</p>
         ) : (
           <a
             href={acceptedLegal ? finalGumroadLink : undefined}

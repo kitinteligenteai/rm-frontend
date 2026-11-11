@@ -2,7 +2,7 @@ name: RM - HTTPS temporal y proveedores TEST
 on:
   push:
     branches: [work/rm-launch-audit-2026]
-    paths: [.github/workflows/rm-provider-test.yml]
+    paths: [.github/workflows/rm-provider-test.yml, "scripts/provider-test/**"]
   workflow_dispatch:
 permissions:
   contents: read
