@@ -1,0 +1,100 @@
+name: RM - HTTPS temporal y proveedores TEST
+on:
+  push:
+    branches: [work/rm-launch-audit-2026]
+    paths: [.github/workflows/rm-provider-test.yml, "scripts/provider-test/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rm-provider-test
+  cancel-in-progress: false
+jobs:
+  temporary-test:
+    if: github.ref == 'refs/heads/work/rm-launch-audit-2026'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RM_TEST_MP_ACCESS_TOKEN: ${{ secrets.RM_TEST_MP_ACCESS_TOKEN }}
+      RM_TEST_MP_WEBHOOK_SECRET: ${{ secrets.RM_TEST_MP_WEBHOOK_SECRET }}
+      RM_TEST_RESEND_API_KEY: ${{ secrets.RM_TEST_RESEND_API_KEY }}
+      RM_TEST_RESEND_WEBHOOK_SECRET: ${{ secrets.RM_TEST_RESEND_WEBHOOK_SECRET }}
+      RM_TEST_BUYER_EMAIL: ${{ secrets.RM_TEST_BUYER_EMAIL }}
+      RM_TEST_GATE_PASSWORD: ${{ secrets.RM_TEST_GATE_PASSWORD }}
+      RM_TEST_EMAIL_FROM: ${{ secrets.RM_TEST_EMAIL_FROM }}
+      RM_TEST_KIT_PDF_URL: ${{ secrets.RM_TEST_KIT_PDF_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify gateway and delivery links
+        run: node --test tests/provider-gateway.test.mjs tests/environment.test.mjs
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+      - name: Create expiring HTTPS gateway
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          curl --fail --silent --show-error --location https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-amd64 -o "$RUNNER_TEMP/cloudflared"
+          echo "1f99fb518b83dec2ba8d870a7cc991d82a77e6196295a3d2754ba17ab9f91872  $RUNNER_TEMP/cloudflared" | sha256sum --check --status
+          chmod 700 "$RUNNER_TEMP/cloudflared"
+          nohup node scripts/provider-test/gateway.mjs > "$RUNNER_TEMP/rm-gateway.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/rm-gateway.pid"
+          nohup "$RUNNER_TEMP/cloudflared" tunnel --no-autoupdate --protocol http2 --url http://127.0.0.1:8787 > "$RUNNER_TEMP/rm-tunnel.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/rm-tunnel.pid"
+          for i in $(seq 1 30); do
+            grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' "$RUNNER_TEMP/rm-tunnel.log" | head -1 > "$RUNNER_TEMP/rm-tunnel-url" || true
+            test -s "$RUNNER_TEMP/rm-tunnel-url" && break
+            sleep 2
+          done
+          test -s "$RUNNER_TEMP/rm-tunnel-url"
+      - name: Configure disposable local project and credential preflight
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rm-provider-local"
+          (cd "$RUNNER_TEMP/rm-provider-local" && supabase init --yes)
+          node scripts/provider-test/configure.mjs
+      - name: Start local Supabase and reviewed functions
+        run: |
+          set -euo pipefail
+          (cd "$RUNNER_TEMP/rm-provider-local" && supabase start && supabase status -o env > "$RUNNER_TEMP/rm-provider-local.env")
+          chmod 600 "$RUNNER_TEMP/rm-provider-local.env"
+          npm run prepare:staging
+          PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -f supabase/staging/bootstrap.sql >/dev/null
+          cd "$RUNNER_TEMP/rm-provider-local"
+          nohup supabase functions serve --env-file "$RUNNER_TEMP/rm-provider-functions.env" > "$RUNNER_TEMP/rm-functions.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/rm-functions.pid"
+      - name: Build TEST frontend for the temporary gateway
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/rm-provider-local.env"
+          set +a
+          VITE_SUPABASE_URL="$RM_TEST_PUBLIC_URL" VITE_SUPABASE_ANON_KEY="$ANON_KEY" VITE_DEPLOYMENT_ENV=staging VITE_PAYMENTS_ENV=test npm run build
+      - name: Verify HTTPS and closed public access
+        run: node scripts/provider-test/smoke.mjs
+      - name: Observe real TEST purchases and delivery
+        if: env.RM_PROVIDER_READY == 'true'
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/rm-provider-local.env"
+          set +a
+          node scripts/provider-test/observe.mjs
+      - name: Stop tunnel and disposable stack
+        if: always()
+        run: |
+          for name in tunnel gateway functions; do
+            if test -f "$RUNNER_TEMP/rm-$name.pid"; then kill "$(cat "$RUNNER_TEMP/rm-$name.pid")" 2>/dev/null || true; fi
+          done
+          if test -f "$RUNNER_TEMP/rm-provider-local/supabase/config.toml"; then
+            (cd "$RUNNER_TEMP/rm-provider-local" && supabase stop --no-backup) || true
+          fi
+          rm -f "$RUNNER_TEMP/rm-provider-functions.env" "$RUNNER_TEMP/rm-provider-local.env"

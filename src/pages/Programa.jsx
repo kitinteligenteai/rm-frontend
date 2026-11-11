@@ -21,8 +21,8 @@ export default function Programa() {
   }, []);
 
   const featuresGeneral = [
-    "Acceso anual completo sin suscripciones.",
-    "Actualizaciones automáticas y mejoras de contenido.",
+    "Un solo pago, sin cobro recurrente.",
+    "Herramientas de organización y acompañamiento práctico.",
     "Gimnasio digital con rutinas guiadas.",
     "Biblioteca base con 10 artículos esenciales.",
     "Bitácora visual para seguir tu progreso.",
@@ -36,15 +36,15 @@ export default function Programa() {
   ];
 
   const featuresPlanner = [
-    "Bóveda de recetas completa (+100 opciones).",
-    "Organizador de menús Drag & Drop.",
+    "Bóveda de recetas con 61 opciones.",
+    "Planeador editable por día y comida.",
     "Generador automático de compras.",
-    "Guardado de combinaciones favoritas.",
+    "Guardado de tu menú en tu cuenta.",
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-slate-100 font-sans">
-      <header className="w-full border-b border-white/10 backdrop-blur-md bg-white/5 sticky top-0 z-20">
+      <header className="w-full border-b border-white/10 bg-slate-950/95 sticky top-0 z-20">
         <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 py-3 flex justify-between items-center gap-3">
           <div>
             <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">
@@ -60,7 +60,8 @@ export default function Programa() {
             className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 text-slate-950 text-xs font-extrabold px-4 py-2 rounded-full transition-colors shadow-lg shadow-teal-500/20"
           >
             <LogIn size={14} />
-            Acceso Programa Completo
+            <span className="sm:hidden">Mi programa</span>
+            <span className="hidden sm:inline">Acceso Programa Completo</span>
           </Link>
         </div>
       </header>
@@ -79,7 +80,7 @@ export default function Programa() {
 
       <main className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8 py-10 lg:py-14 space-y-12">
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto"
@@ -90,7 +91,8 @@ export default function Programa() {
 
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-white mb-6">
             Convierte tus <span className="text-teal-400">7 días</span> en
-            <br className="hidden md:block" /> un año de resultados.
+            <br className="hidden md:block" /> hábitos para las siguientes
+            semanas.
           </h2>
 
           <p className="text-slate-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
@@ -126,7 +128,7 @@ export default function Programa() {
         </div>
 
         <motion.section
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={false}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
           className="relative border border-teal-500/30 bg-gradient-to-b from-slate-900 to-black rounded-3xl p-8 md:p-12 shadow-2xl flex flex-col items-center"
@@ -156,7 +158,10 @@ export default function Programa() {
 
           <div className="mt-8 flex gap-2 text-xs text-slate-500 items-center bg-white/5 px-4 py-2 rounded-full">
             <ShieldCheck className="h-4 w-4 text-teal-500" />
-            <span>Garantía de satisfacción • Acceso por correo en minutos</span>
+            <span>
+              Consulta la política de devoluciones y las instrucciones de
+              acceso.
+            </span>
           </div>
         </motion.section>
       </main>

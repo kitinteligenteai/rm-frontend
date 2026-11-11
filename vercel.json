@@ -4,5 +4,38 @@
       "source": "/:path*",
       "destination": "/index.html"
     }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "work/rm-launch-audit-2026": false
+    }
+  },
+  "headers": [
+    {
+      "source": "/descargar-kit",
+      "headers": [
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/reset-password",
+      "headers": [
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
   ]
 }

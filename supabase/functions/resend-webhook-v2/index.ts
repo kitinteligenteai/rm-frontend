@@ -1,65 +1,58 @@
-// supabase/functions/resend-webhook-v2/index.ts
-// Versión final corregida - 30 Sept 2025
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-console.log('Function resend-webhook-v2 started');
-Deno.serve(async (req)=>{
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
+import { validResendSignature } from "../_shared/resendSignature.ts";
+import { json } from "../_shared/http.ts";
+Deno.serve(async (req) => {
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  const raw = await req.text();
+  if (
+    !(await validResendSignature(
+      req,
+      raw,
+      Deno.env.get("RESEND_WEBHOOK_SECRET") || "",
+    ))
+  )
+    return json({ error: "invalid_signature" }, 401);
   try {
-    console.log('Request received. Method:', req.method);
-    if (req.method === 'OPTIONS') {
-      console.log('Responding to OPTIONS request');
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'content-type'
-        }
-      });
-    }
-    const body = await req.json();
-    console.log('Request body parsed:', JSON.stringify(body, null, 2));
-    const eventType = body.type;
-    // --- LA LÍNEA CORREGIDA ---
-    const emailId = body.data?.email_id;
-    if (!emailId) {
-      console.error('CRITICAL: No email_id found in payload. Cannot process. Payload:', body);
-      return new Response('OK (No email_id found)', {
-        status: 200
-      });
-    }
-    console.log(`Processing event: ${eventType} for email_id: ${emailId}`);
-    const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    console.log('Supabase client created.');
-    let updatePayload = {
-      updated_at: new Date().toISOString()
+    const body = JSON.parse(raw);
+    const id = body.data?.email_id;
+    if (typeof id !== "string") return json({ error: "invalid_event" }, 400);
+    const statuses: Record<string, string> = {
+      "email.delivered": "delivered",
+      "email.bounced": "bounced",
+      "email.complained": "complained",
     };
-    let newStatus = '';
-    if (eventType === 'email.delivered') newStatus = 'delivered';
-    if (eventType === 'email.bounced') newStatus = 'bounced';
-    if (newStatus) {
-      updatePayload.status = newStatus;
-      if (body.data.bounce) {
-        updatePayload.last_error = `Bounced: ${body.data.bounce.reason || 'Unknown'}`;
-      }
-      console.log('Attempting to update outbox_emails with payload:', updatePayload);
-      console.log(`Matching provider_message_id: ${emailId}`);
-      const { data, error } = await supabase.from('outbox_emails').update(updatePayload).eq('provider_message_id', emailId).select();
-      if (error) {
-        console.error('Supabase update error:', error.message);
-        throw new Error(`Supabase update failed: ${error.message}`);
-      }
-      console.log('Supabase update successful. Rows updated:', data);
-      if (data && data.length === 0) {
-        console.warn('WARNING: Update query ran, but no rows matched the provider_message_id. Check if the ID exists in the outbox_emails table.');
-      }
-    } else {
-      console.log(`Event type ${eventType} is not handled. Ignoring.`);
-    }
-    return new Response('OK', {
-      status: 200
-    });
-  } catch (e) {
-    console.error('FATAL ERROR in webhook:', e.message);
-    return new Response(`Internal Server Error: ${e.message}`, {
-      status: 200
-    });
+    const status = statuses[body.type];
+    if (!status) return json({ ok: true, ignored: true });
+    const db = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { data: job, error: readError } = await db
+      .from("outbox_emails")
+      .select("id,status")
+      .eq("provider_message_id", id)
+      .maybeSingle();
+    if (readError) return json({ error: "delivery_lookup_failed" }, 503);
+    // A callback can beat the API response/DB commit. Request provider retry,
+    // rather than acknowledge and permanently lose that delivery event.
+    if (!job) return json({ error: "delivery_not_recorded_yet" }, 503);
+    const priority: Record<string, number> = {
+      delivered: 1,
+      bounced: 2,
+      complained: 3,
+    };
+    if ((priority[job.status] || 0) >= (priority[status] || 0))
+      return json({ ok: true, ignored: true });
+    const { data, error } = await db
+      .from("outbox_emails")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", job.id)
+      .eq("status", job.status)
+      .select("id");
+    if (error || !data?.length)
+      return json({ error: "delivery_update_retry" }, 503);
+    return json({ ok: true });
+  } catch {
+    return json({ error: "webhook_failed" }, 503);
   }
 });
