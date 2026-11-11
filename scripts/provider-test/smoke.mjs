@@ -11,13 +11,16 @@ assert.equal(await (await fetch(base+'/health')).text(),'test-only');
 for(const path of ['/rest/v1/purchases','/auth/v1/admin/users','/functions/v1/email-worker-v2'])
   assert.equal((await fetch(base+path)).status,401);
 for(const name of ['mp-webhook-v3','resend-webhook-v2']){
-  let status;
+  let status, payload;
   for(let i=0;i<30;i++){
-    status=(await fetch(base+'/functions/v1/'+name,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(20000)})).status;
+    const response=await fetch(base+'/functions/v1/'+name,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(20000)});
+    status=response.status;
+    payload=await response.json().catch(()=>null);
     if(status===401)break;
     await new Promise(r=>setTimeout(r,2000));
   }
   assert.equal(status,401,name+' must reject unsigned events');
+  assert.equal(payload?.error,'invalid_signature',name+' must reach the actual signature handler');
 }
 await appendFile(process.env.GITHUB_STEP_SUMMARY,`\nHTTPS and restricted routing passed. Both handlers reject unsigned events.\n\nTemporary URL (valid only while this job runs): ${base}\n\nMP TEST webhook: ${base}/functions/v1/mp-webhook-v3\n\nResend TEST webhook: ${base}/functions/v1/resend-webhook-v2\n\nTest browser entry: ${base}/test-login\n`);
 console.log('HTTPS reachable; data/admin/worker protected; unsigned MP and Resend callbacks rejected.');

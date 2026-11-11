@@ -64,7 +64,7 @@ jobs:
       - name: Start local Supabase and reviewed functions
         run: |
           set -euo pipefail
-          (cd "$RUNNER_TEMP/rm-provider-local" && supabase start && supabase status -o env > "$RUNNER_TEMP/rm-provider-local.env")
+          (cd "$RUNNER_TEMP/rm-provider-local" && supabase start > "$RUNNER_TEMP/rm-start.log" 2>&1 && supabase status -o env > "$RUNNER_TEMP/rm-provider-local.env")
           chmod 600 "$RUNNER_TEMP/rm-provider-local.env"
           npm run prepare:staging
           PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -f supabase/staging/bootstrap.sql >/dev/null
@@ -88,6 +88,9 @@ jobs:
           source "$RUNNER_TEMP/rm-provider-local.env"
           set +a
           node scripts/provider-test/observe.mjs
+      - name: Diagnose empty-environment startup failure
+        if: failure() && env.RM_PROVIDER_READY != 'true'
+        run: node scripts/provider-test/diagnose.mjs
       - name: Stop tunnel and disposable stack
         if: always()
         run: |

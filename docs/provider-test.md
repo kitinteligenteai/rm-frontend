@@ -10,12 +10,14 @@ In the repository, open Settings → Secrets and variables → Actions → New r
 |---|---|
 | `RM_TEST_MP_ACCESS_TOKEN` | Mercado Pago application → Test credentials → Access Token beginning with `TEST-` |
 | `RM_TEST_MP_WEBHOOK_SECRET` | That application's TEST Webhooks signing secret |
-| `RM_TEST_RESEND_API_KEY` | A new Resend key reserved for this test, sending-only, using the free account allowance |
-| `RM_TEST_RESEND_WEBHOOK_SECRET` | Signing secret from a new, separate Resend webhook reserved for TEST |
+| `RM_TEST_RESEND_API_KEY` | A sending-only key from a test-only Resend account/workspace, using its free allowance |
+| `RM_TEST_RESEND_WEBHOOK_SECRET` | Signing secret from a new Resend webhook in that test-only account/workspace |
 | `RM_TEST_BUYER_EMAIL` | Your own authorized test inbox |
 | `RM_TEST_GATE_PASSWORD` | A new random password of at least 24 characters, used only for this temporary site |
 | `RM_TEST_EMAIL_FROM` | Optional verified test sender. Default is `Reinicio Metabólico TEST <onboarding@resend.dev>` |
 | `RM_TEST_KIT_PDF_URL` | Optional private expiring HTTPS download of the reviewed Kit candidate. Required to verify the actual delivered document. Never use a public Actions artifact for the commercial PDF. |
+
+Use a test-only Resend account/workspace so its webhook cannot forward events from real customers. A sending-only key by itself does not isolate account-wide webhook events.
 
 Resend has actual delivery and special simulation recipients, not a separate TEST-prefixed API credential. Use a newly scoped test-only key and an owned recipient. Delivery to `delivered@resend.dev` is simulated and does not verify arrival in a customer's inbox.
 
