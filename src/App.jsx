@@ -1,5 +1,5 @@
 // src/App.jsx
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
 import EnvGuard from "./components/common/EnvGuard.jsx";
@@ -11,7 +11,8 @@ import HomeMarca from "./pages/HomeMarca.jsx";
 import Programa from "./pages/Programa.jsx";
 import GraciasKit from "./pages/GraciasKit.jsx";
 import GraciasUpsell from "./pages/GraciasUpsell.jsx";
-import Plataforma from "./pages/Plataforma.jsx";
+const Plataforma = lazy(() => import("./pages/Plataforma.jsx"));
+import DownloadKit from "./pages/DownloadKit.jsx";
 import AuthPage from "./pages/Auth.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 
@@ -29,50 +30,62 @@ export default function App() {
     <UserProvider>
       <EnvGuard />
       <BrowserRouter>
-        <Routes>
-          {/* Home institucional segura para marca / Etsy / tráfico orgánico */}
-          <Route path="/" element={<HomeMarca />} />
-          <Route path="/inicio" element={<HomeMarca />} />
+        <Suspense
+          fallback={
+            <div
+              className="min-h-screen bg-slate-950 text-white p-8"
+              role="status"
+            >
+              Cargando…
+            </div>
+          }
+        >
+          <Routes>
+            {/* Home institucional segura para marca / Etsy / tráfico orgánico */}
+            <Route path="/" element={<HomeMarca />} />
+            <Route path="/inicio" element={<HomeMarca />} />
 
-          {/* Landing comercial del Kit: solo para embudo web / Meta Ads */}
-          <Route path="/reinicio-7-dias" element={<Home />} />
+            {/* Landing comercial del Kit: solo para embudo web / Meta Ads */}
+            <Route path="/reinicio-7-dias" element={<Home />} />
 
-          {/* Evitar ruta obvia al Kit barato */}
-          <Route path="/kit" element={<Navigate to="/inicio" replace />} />
+            {/* Evitar ruta obvia al Kit barato */}
+            <Route path="/kit" element={<Navigate to="/inicio" replace />} />
 
-          {/* Programa Completo */}
-          <Route path="/programa" element={<Programa />} />
+            {/* Programa Completo */}
+            <Route path="/programa" element={<Programa />} />
 
-          {/* Rutas legales */}
-          <Route path="/terminos" element={<Terminos />} />
-          <Route path="/privacidad" element={<Privacidad />} />
-          <Route path="/devoluciones" element={<Devoluciones />} />
+            {/* Rutas legales */}
+            <Route path="/terminos" element={<Terminos />} />
+            <Route path="/privacidad" element={<Privacidad />} />
+            <Route path="/devoluciones" element={<Devoluciones />} />
 
-          {/* Rutas de estado de pago */}
-          <Route path="/pago-fallido" element={<PagoFallido />} />
-          <Route path="/pago-pendiente" element={<PagoPendiente />} />
+            {/* Rutas de estado de pago */}
+            <Route path="/pago-fallido" element={<PagoFallido />} />
+            <Route path="/pago-pendiente" element={<PagoPendiente />} />
 
-          {/* Rutas de acceso */}
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+            {/* Rutas de acceso */}
+            <Route path="/descargar-kit" element={<DownloadKit />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          {/* Rutas de gracias */}
-          <Route path="/gracias-kit" element={<GraciasKit />} />
-          <Route path="/gracias-upsell" element={<GraciasUpsell />} />
+            {/* Rutas de gracias */}
+            <Route path="/gracias-kit" element={<GraciasKit />} />
+            <Route path="/gracias-upsell" element={<GraciasUpsell />} />
 
-          {/* Plataforma privada: requiere sesión */}
-          <Route
-            path="/plataforma/*"
-            element={
-              <ProtectedRoute>
-                <Plataforma />
-              </ProtectedRoute>
-            }
-          />
+            {/* Plataforma privada: requiere sesión */}
+            <Route
+              path="/plataforma/*"
+              element={
+                <ProtectedRoute requireProgram={false}>
+                  <Plataforma />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </UserProvider>
   );

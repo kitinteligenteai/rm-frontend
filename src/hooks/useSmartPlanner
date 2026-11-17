@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { recipes } from '../data/recipes';
+import { useProgramState } from './useProgramState';
 
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const MEAL_SLOTS = [
@@ -10,7 +11,7 @@ const MEAL_SLOTS = [
 ];
 
 export function useSmartPlanner() {
-  const [weekPlan, setWeekPlan] = useState({});
+  const [weekPlan, setWeekPlan, saveStatus, retrySave, resolveSave] = useProgramState('planner', {});
   const [version, setVersion] = useState(0);
 
   const getRecipesByType = (type) => recipes.filter(r => r.type === type);
@@ -20,10 +21,10 @@ export function useSmartPlanner() {
   const generateQuickMenu = useCallback((fillEmptyOnly = false) => {
     setWeekPlan(prevPlan => {
       const newPlan = fillEmptyOnly ? { ...prevPlan } : {};
-      
+
       DAYS.forEach(day => {
         if (!newPlan[day]) newPlan[day] = {};
-        
+
         MEAL_SLOTS.forEach(slot => {
           // Si solo llenamos vacíos y ya existe, saltar
           if (fillEmptyOnly && newPlan[day][slot.id]) return;
@@ -31,7 +32,7 @@ export function useSmartPlanner() {
           // Lógica de selección
           const types = slot.types;
           const candidates = recipes.filter(r => types.includes(r.type));
-          
+
           // 30% de probabilidad de no tener snack
           if (slot.id === 'snack' && Math.random() > 0.7) {
             newPlan[day][slot.id] = null;
@@ -44,21 +45,6 @@ export function useSmartPlanner() {
     });
     setVersion(v => v + 1);
   }, []);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('rm_smart_plan');
-    if (saved && Object.keys(JSON.parse(saved)).length > 0) {
-      setWeekPlan(JSON.parse(saved));
-    } else {
-      generateQuickMenu(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (Object.keys(weekPlan).length > 0) {
-      localStorage.setItem('rm_smart_plan', JSON.stringify(weekPlan));
-    }
-  }, [weekPlan]);
 
   const updateSlot = (day, slotId, recipe) => {
     setWeekPlan(prev => ({
@@ -89,6 +75,9 @@ export function useSmartPlanner() {
 
   return {
     weekPlan,
+    saveStatus,
+    retrySave,
+    resolveSave,
     generateQuickMenu,
     updateSlot,
     shuffleSlot,
