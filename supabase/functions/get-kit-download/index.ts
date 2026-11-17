@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
+import { createClient } from "npm:@supabase/supabase-js@2.56.0";
 import { validUuid } from "../_shared/paymentRules.ts";
 import { publicTestUrl } from "../_shared/publicTestUrl.ts";
 import { json, preflight } from "../_shared/http.ts";

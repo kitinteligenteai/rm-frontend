@@ -4,7 +4,7 @@ import { assertEnvironment, assertRecipient } from "../_shared/environment.ts";
 // supabase/functions/mp-generate-preference-v2/index.ts
 // v4.1 — Precio backend + consentimiento legal trazable
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
+import { createClient } from "npm:@supabase/supabase-js@2.56.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

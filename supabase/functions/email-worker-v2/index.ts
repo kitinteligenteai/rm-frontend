@@ -1,5 +1,5 @@
 import { assertEnvironment, assertRecipient } from "../_shared/environment.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
+import { createClient } from "npm:@supabase/supabase-js@2.56.0";
 import { emailTemplate, sendResend } from "../_shared/emailDelivery.ts";
 import { json } from "../_shared/http.ts";
 import { publicTestUrl } from "../_shared/publicTestUrl.ts";
