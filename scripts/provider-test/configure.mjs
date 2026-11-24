@@ -6,6 +6,9 @@ const temp = process.env.RUNNER_TEMP;
 if (!temp || process.env.GITHUB_REF !== 'refs/heads/work/rm-launch-audit-2026') throw Error('Audit runner required');
 const secretNames = ['RM_TEST_MP_ACCESS_TOKEN','RM_TEST_MP_WEBHOOK_SECRET','RM_TEST_RESEND_API_KEY',
   'RM_TEST_RESEND_WEBHOOK_SECRET','RM_TEST_BUYER_EMAIL','RM_TEST_GATE_PASSWORD'];
+// Clipboard trailing whitespace is not part of tokens or inbox addresses.
+for (const key of secretNames.filter(k => k !== 'RM_TEST_GATE_PASSWORD'))
+  if (process.env[key]) process.env[key] = process.env[key].trim();
 const missing = secretNames.filter(k => !process.env[k]);
 if (process.env.RM_TEST_MP_ACCESS_TOKEN) {
   await verifyTestCredential(process.env.RM_TEST_MP_ACCESS_TOKEN);
