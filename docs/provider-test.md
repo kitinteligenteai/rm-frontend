@@ -8,7 +8,7 @@ In the repository, open Settings → Secrets and variables → Actions → New r
 
 | Secret | Value |
 |---|---|
-| `RM_TEST_MP_ACCESS_TOKEN` | Mercado Pago application → Test credentials → Access Token beginning with `TEST-` |
+| `RM_TEST_MP_ACCESS_TOKEN` | Mercado Pago application → Test credentials → Access Token copied from the TEST environment; `APP_USR-` is also supported only after a read-only account check confirms `test_user` and Mexico (`MLM`) |
 | `RM_TEST_MP_WEBHOOK_SECRET` | That application's TEST Webhooks signing secret |
 | `RM_TEST_RESEND_API_KEY` | A sending-only key from a test-only Resend account/workspace, using its free allowance |
 | `RM_TEST_RESEND_WEBHOOK_SECRET` | Signing secret from a new Resend webhook in that test-only account/workspace |
@@ -27,7 +27,7 @@ Do not configure a Gumroad API token here. Gumroad is assessed separately.
 
 The workflow runs when its file is pushed on the audit branch. It also declares `workflow_dispatch`; GitHub exposes manual dispatch only when the workflow exists on the default branch. Keep the current branch policy. After configuring secrets, rerun the most recent provider-test job in Actions. If GitHub does not offer rerun for a successful job through the connected tool, request a branch-only workflow revision to trigger a fresh run.
 
-With missing credentials it checks HTTPS and unsigned callback rejection, records the missing secret names and stops. With all required credentials it keeps a 25-minute purchase window. Read the running step `Verify HTTPS and closed public access` for the temporary URL. Open `/test-login` with the test gate password.
+With fewer than the four initial secrets (MP token, Resend key, buyer email, gate password), it checks HTTPS and unsigned callback rejection, records missing secret names and stops. With those four secrets but missing webhook signing secrets, it holds a 25-minute configuration-only window. Payments and email sending remain disabled and provider credentials are not passed to the functions. Save both webhook signing secrets in GitHub, then start a new run; running jobs cannot reload secrets. With all six required credentials it keeps a 25-minute purchase window. Read the running step `Verify HTTPS and closed public access` for the temporary URL. Open `/test-login` with the test gate password.
 
 Configure the temporary URL in Mercado Pago **Test** Webhooks under `payment`, and in the separate Resend TEST webhook for `email.delivered`, `email.bounced`, and `email.complained`. Do not replace production webhook endpoints. Keep their signing secrets as configured above. Quick Tunnel hostnames change on every run, so update only these TEST endpoints each time.
 
@@ -49,3 +49,5 @@ Gumroad's documented creator test purchase uses a logged-in seller and displays 
 - https://gumroad.com/help/article/62-testing-a-purchase
 - https://resend.com/docs/dashboard/emails/send-test-emails
 - https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/
+
+The APP_USR preflight reads only https://api.mercadolibre.com/users/me, rejects redirects and fails closed if the account is not explicitly tagged as a Mexican test user. It never prints the token or account response. See https://www.mercadopago.com.mx/developers/en/docs/your-integrations/credentials and https://developers.mercadolibre.com.mx/servicios-consulta-usuarios.

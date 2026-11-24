@@ -33,7 +33,7 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - name: Verify gateway and delivery links
-        run: node --test tests/provider-gateway.test.mjs tests/environment.test.mjs
+        run: node --test tests/provider-gateway.test.mjs tests/environment.test.mjs tests/provider-credentials.test.mjs
       - uses: supabase/setup-cli@v1
         with:
           version: 2.122.0
@@ -80,6 +80,9 @@ jobs:
           VITE_SUPABASE_URL="$RM_TEST_PUBLIC_URL" VITE_SUPABASE_ANON_KEY="$ANON_KEY" VITE_DEPLOYMENT_ENV=staging VITE_PAYMENTS_ENV=test npm run build
       - name: Verify HTTPS and closed public access
         run: node scripts/provider-test/smoke.mjs
+      - name: Hold configuration-only HTTPS window
+        if: env.RM_PROVIDER_SETUP == 'true'
+        run: node scripts/provider-test/setup-window.mjs
       - name: Observe real TEST purchases and delivery
         if: env.RM_PROVIDER_READY == 'true'
         run: |
