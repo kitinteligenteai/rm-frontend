@@ -3,14 +3,14 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  BookOpen, Zap, Brain, Compass, Volume2, StopCircle, 
+import {
+  BookOpen, Zap, Brain, Compass, Volume2, StopCircle,
   X, ChevronRight, GraduationCap, Clock, PlayCircle, Search
 } from 'lucide-react';
 
 import { philosophyContent, survivalGuides, scienceReferences } from '../data/educationalContent';
 import { principles } from '../data/principlesData';
-import AsesorProteico from '../components/tools/AsesorProteico';
+
 
 // --- BANCO DE IMÁGENES PREMIUM (Curado) ---
 const getArticleImage = (category, index) => {
@@ -67,11 +67,11 @@ const AudioBtn = ({ text, title }) => {
   };
 
   return (
-    <button 
+    <button
       onClick={handleSpeak}
       className={`p-2 rounded-full backdrop-blur-md transition-all ${
-        speaking 
-          ? 'bg-teal-500 text-white animate-pulse' 
+        speaking
+          ? 'bg-teal-500 text-white animate-pulse'
           : 'bg-black/40 text-white hover:bg-black/60'
       }`}
     >
@@ -86,14 +86,14 @@ const NetflixRow = ({ title, icon: Icon, items, type, onSelect }) => (
       <Icon className="text-teal-500" size={24} />
       <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
     </div>
-    
+
     <div className="flex overflow-x-auto gap-4 px-6 md:px-10 pb-6 scrollbar-hide snap-x">
       {items.map((item, idx) => {
         const image = getArticleImage(type, idx);
         const readTime = Math.ceil(item.content.length / 500);
-        
+
         return (
-          <div 
+          <div
             key={idx}
             onClick={() => onSelect(item)}
             className="flex-shrink-0 w-72 md:w-80 snap-start bg-slate-900 border border-slate-800 rounded-xl overflow-hidden cursor-pointer group hover:scale-105 hover:shadow-2xl hover:border-slate-600 transition-all duration-300 relative"
@@ -127,17 +127,17 @@ const NetflixRow = ({ title, icon: Icon, items, type, onSelect }) => (
 
 const HeroArticle = ({ article, onClick }) => {
   // Hero Image (Microscopio Estético)
-  const image = "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=1200"; 
-  
+  const image = "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=1200";
+
   return (
-    <div 
+    <div
       onClick={() => onClick(article)}
       className="px-6 md:px-10 mb-12"
     >
       <div className="relative h-[350px] rounded-3xl overflow-hidden cursor-pointer group border border-slate-800 shadow-2xl">
         <img src={image} alt="Hero" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent" />
-        
+
         <div className="absolute bottom-0 left-0 p-8 md:p-12 max-w-xl">
           <span className="bg-teal-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">
             Ciencia del Reinicio
@@ -148,7 +148,7 @@ const HeroArticle = ({ article, onClick }) => {
           <p className="text-slate-300 text-lg mb-6 line-clamp-2">
             {article.subtitle}
           </p>
-          
+
           <div className="flex items-center gap-4 text-white font-bold group-hover:text-teal-400 transition-colors">
               Leer Artículo <ChevronRight />
           </div>
@@ -164,7 +164,7 @@ const ArticleModal = ({ article, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={onClose}>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-slate-900 w-full max-w-3xl h-full md:h-[90vh] rounded-3xl shadow-2xl relative flex flex-col overflow-hidden border border-slate-800"
@@ -188,7 +188,7 @@ const ArticleModal = ({ article, onClose }) => {
              <AudioBtn text={article.content} title={article.title} />
              <span className="text-slate-400 text-sm">Escuchar artículo</span>
           </div>
-          <div 
+          <div
             className="prose prose-invert prose-lg max-w-none text-slate-300 leading-relaxed marker:text-teal-500"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
@@ -204,20 +204,20 @@ const Biblioteca = () => {
 
   // Organizar Datos: Ciencia Primero
   const ciencia = principles.map(i => ({ ...i, type: 'ciencia' }));
-  const heroArticle = ciencia[0]; 
-  const cienciaResto = ciencia.slice(1); 
+  const heroArticle = ciencia[0];
+  const cienciaResto = ciencia.slice(1);
 
   const filosofia = philosophyContent.map(i => ({ ...i, type: 'filosofia' }));
   const guias = survivalGuides.map(i => ({ ...i, type: 'guias' }));
 
   return (
     <div className="min-h-screen bg-slate-950 pb-24 animate-in fade-in duration-500">
-      
+
       {/* HEADER */}
       <div className="px-6 md:px-10 pt-8 mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">Academia</h1>
-          <p className="text-slate-400">Domina la ciencia de tu metabolismo.</p>
+          <p className="text-slate-400">Guías de hábitos, seguridad y organización.</p>
         </div>
       </div>
 
@@ -232,7 +232,7 @@ const Biblioteca = () => {
       {/* FOOTER */}
       <div className="px-6 md:px-10 mt-12 border-t border-slate-800 pt-10 pb-10">
          <h4 className="text-slate-500 font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-           <GraduationCap size={16} /> Respaldo Clínico
+           <GraduationCap size={16} /> Fuentes de orientación
          </h4>
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60">
             {scienceReferences.map((ref, i) => (

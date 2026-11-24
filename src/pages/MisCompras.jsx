@@ -1,11 +1,16 @@
 // src/pages/MisCompras.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, ArrowRight, BookOpen, Download, Loader2, Package } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  BookOpen,
+  Download,
+  Loader2,
+  Package,
+} from "lucide-react";
 import { useUser } from "../context/UserContext.jsx";
 import { supabase } from "../lib/supabaseClient.js";
-
-const KIT_PDF_URL = "/kits/kit-7-dias.pdf";
 
 const PRODUCT_COPY = {
   "kit-7-dias": {
@@ -78,7 +83,7 @@ const MisCompras = () => {
         console.error("Error fetching entitlements:", error);
         setError("No pudimos cargar tus productos.");
       } else {
-        setEntitlements(data || []);
+        setEntitlements((data || []).filter((e) => e.status === "active"));
       }
 
       setLoading(false);
@@ -103,7 +108,15 @@ const MisCompras = () => {
       const product = getProductCopy(productId);
 
       if (product.type === "download") {
-        window.open(KIT_PDF_URL, "_blank");
+        const { data, error } = await supabase.functions.invoke(
+          "get-kit-download",
+          { body: {} },
+        );
+        if (error || !data?.url)
+          throw new Error(
+            "No pudimos preparar la descarga. Reintenta o contacta a soporte.",
+          );
+        window.location.assign(data.url);
         return;
       }
 
@@ -116,15 +129,9 @@ const MisCompras = () => {
     } catch (err) {
       console.error("Error accediendo al producto:", err);
 
-      if (productId?.includes("kit")) {
-        window.open(KIT_PDF_URL, "_blank");
-      } else {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "No pudimos abrir tu producto. Intenta de nuevo."
-        );
-      }
+      setError(
+        err instanceof Error ? err.message : "No pudimos abrir tu producto.",
+      );
     } finally {
       setDownloading(null);
     }

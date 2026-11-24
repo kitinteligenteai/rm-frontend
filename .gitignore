@@ -31,3 +31,14 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Do not publish operational snapshots or environment backups.
+supabase/.temp/
+supabase/backups/
+.env*
+!.env.example
+context_package.txt
+playwright-report/
+test-results/
+audit-evidence/
+/supabase/staging/bootstrap.sql

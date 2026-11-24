@@ -47,7 +47,7 @@ const PROGRAM_TOOLS = [
   },
   {
     title: "Gimnasio digital",
-    desc: "Rutinas en casa con peso corporal, silla o mancuernas, sin depender de un gimnasio.",
+    desc: "Rutinas breves con peso corporal y alternativas con silla o apoyo.",
     icon: Dumbbell,
   },
   {
@@ -61,7 +61,7 @@ const PROGRAM_TOOLS = [
     icon: BookOpen,
   },
   {
-    title: "Apoyo inteligente",
+    title: "Apoyo práctico de Dante",
     desc: "Orientación práctica para momentos reales: antojos, eventos sociales, dudas o días difíciles.",
     icon: Brain,
   },
